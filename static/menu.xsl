@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-	<xsl:include href="locale.xsl" />
-
 	<xsl:template match="menu">
 		<table>
 			<tr>
@@ -11,29 +9,15 @@
 		</table>
 	</xsl:template>
 
-	<xsl:template match="menu/item">
-		<td>
-			Def:
-			<xsl:if test="@link">
-				<a href="{@link}">
-					<xsl:value-of select="@name" />
-				</a>
-			</xsl:if>
-			<xsl:if test="@selected">
-				<xsl:value-of select="@name" />
-			</xsl:if>
-		</td>
-	</xsl:template>
-
 	<xsl:template match="menu/item[@name='description']">
 		<td>
 			<xsl:if test="@link">
 				<a href="{@link}">
-					<xsl:value-of select="@name" />
+					Описание
 				</a>
 			</xsl:if>
 			<xsl:if test="@selected">
-				<xsl:value-of select="@name" />
+				Описание
 			</xsl:if>
 		</td>
 	</xsl:template>
@@ -42,11 +26,63 @@
 		<td>
 			<xsl:if test="@link">
 				<a href="{@link}">
-					<xsl:value-of select="@name" />
+					Цены
 				</a>
 			</xsl:if>
 			<xsl:if test="@selected">
-				<xsl:value-of select="@name" />
+				Цены
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='contacts']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					О нас
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				О нас
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='kb']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					База знаний
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				База знаний
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='forum']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Форум
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Форум
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='cabinet']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Личный кабинет
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Личный кабинет
 			</xsl:if>
 		</td>
 	</xsl:template>
