@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="default.xsl" type="text/xsl" ?>
+<root>
+<menu>
+    <item name="description" link="description.xml"/>
+    <item name="pricing" link="pricing.xml"/>
+    <item name="contacts" selected="1"/>
+    <item name="kb" link="http://kb/"/>
+    <item name="forum" link="http://forum/"/>
+    <item name="cabinet" link="cabinet.xml"/>
+</menu>
+<content name="contacts"/>
+</root>
