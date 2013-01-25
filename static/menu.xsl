@@ -22,6 +22,19 @@
 		</td>
 	</xsl:template>
 
+	<xsl:template match="menu/item[@name='benefits']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Преимущества
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Преимущества
+			</xsl:if>
+		</td>
+	</xsl:template>
+
 	<xsl:template match="menu/item[@name='pricing']">
 		<td>
 			<xsl:if test="@link">

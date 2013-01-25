@@ -3,12 +3,12 @@
 <root>
 	<menu>
 		<item name="description" link="description.xml" />
-		<item name="benefits" link="benefits.xml" />
+		<item name="benefits" selected="1" />
 		<item name="pricing" link="pricing.xml" />
-		<item name="contacts" selected="1" />
+		<item name="contacts" link="contacts.xml" />
 		<item name="kb" link="http://kb/" />
 		<item name="forum" link="http://forum/" />
 		<item name="cabinet" link="cabinet.xml" />
 	</menu>
-	<content name="contacts" />
+	<content name="benefits" />
 </root>

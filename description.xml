@@ -3,6 +3,7 @@
 <root>
 	<menu>
 		<item name="description" selected="1" />
+		<item name="benefits" link="benefits.xml" />
 		<item name="pricing" link="pricing.xml" />
 		<item name="contacts" link="contacts.xml" />
 		<item name="kb" link="http://kb/" />
