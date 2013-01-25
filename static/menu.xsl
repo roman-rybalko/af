@@ -100,4 +100,56 @@
 		</td>
 	</xsl:template>
 
+	<xsl:template match="menu/item[@name='stats']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Статистика
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Статистика
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='settings']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Настройки
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Настройки
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='trace']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Трассировка
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Трассировка
+			</xsl:if>
+		</td>
+	</xsl:template>
+
+	<xsl:template match="menu/item[@name='trash']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Корзина
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Корзина
+			</xsl:if>
+		</td>
+	</xsl:template>
+
 </xsl:stylesheet>

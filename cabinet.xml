@@ -2,12 +2,40 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <root>
 	<menu>
-		<item name="description" link="description.xml" />
-		<item name="pricing" link="pricing.xml" />
-		<item name="contacts" link="contacts.xml" />
-		<item name="kb" link="http://kb/" />
-		<item name="forum" link="http://forum/" />
+		<item name="stats" link="http://cgi/stats" />
+		<item name="settings" link="http://cgi/settings" />
+		<item name="trace" link="http://cgi/trace" />
+		<item name="trash" link="http://cgi/trash" />
 		<item name="cabinet" selected="1" />
+		<item name="description" link="description.xml" />
 	</menu>
-
+	<form name="login" link="http://cgi">
+		<input name="login" type="text"/>
+		<input name="password" type="text"/>
+	</form>
+	<form name="register" link="http://cgi">
+		<input name="login" type="text"/>
+		<input name="password1" type="text"/>
+		<input name="password2" type="text"/>
+		<input name="email" type="text"/>
+	</form>
+	<form name="settings" link="http://cgi">
+		<input name="text1" type="text"/>
+		<input name="drop1" type="drop">
+			<option value="value1"/>
+			<option value="value2"/>
+			<option value="value3"/>
+		</input>
+		<input name="radio1" type="radio">
+			<option value="value1"/>
+			<option value="value2"/>
+			<option value="value3"/>
+		</input>
+		<input name="multi1" type="multi">
+			<option value="value1"/>
+			<option value="value2"/>
+			<option value="value3"/>
+		</input>
+		<input name="check1" type="check"/>
+	</form>
 </root>
