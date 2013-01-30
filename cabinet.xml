@@ -6,6 +6,7 @@
 		<item name="settings" link="http://cgi/settings" />
 		<item name="trace" link="http://cgi/trace" />
 		<item name="trash" link="http://cgi/trash" />
+		<item name="billing" link="http://cgi/billing" />
 		<item name="cabinet" selected="1" />
 		<item name="description" link="description.xml" />
 	</menu>

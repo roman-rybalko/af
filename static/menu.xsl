@@ -152,4 +152,17 @@
 		</td>
 	</xsl:template>
 
+	<xsl:template match="menu/item[@name='billing']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Финансы
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Финансы
+			</xsl:if>
+		</td>
+	</xsl:template>
+
 </xsl:stylesheet>
