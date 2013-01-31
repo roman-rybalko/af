@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="default.xsl" type="text/xsl" ?>
+<root>
+	<result>
+		<ok link="test.xml"/>
+	</result>
+</root>

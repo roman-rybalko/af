@@ -122,7 +122,41 @@
 	</xsl:template>
 	
 	<xsl:template match="content[@name='cabinet']">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+		<script>
+			function formHandler(form, result, link)
+			{
+				$(form).submit(function() {
+					$(result).empty().append("Обработка: " + link).show();
+					$.get(link, $(this).serialize()).done(function(data) {
+						var ok = $(data).find("ok");
+						if (ok.length)
+						{
+							$(result).empty().append("Готово!");
+							var redirect = ok.attr("link");
+							if (redirect)
+							{
+								$(result).append(" переход: " + redirect);
+								window.location = redirect;
+							}
+							$(result).fadeOut(2000);
+						}
+						else
+						{
+							$(result).empty().append("Ошибка сервера").fadeOut(2000);
+						}
+					}).fail(function() {
+						$(result).empty().append("Ошибка HTTP").fadeOut(2000);
+					});
+					return false;
+				});
+			}
+		</script>
 		<xsl:apply-templates select="form" />
+	</xsl:template>
+	
+	<xsl:template match="content[@name='test']">
+		тестовая страница
 	</xsl:template>
 
 </xsl:stylesheet>

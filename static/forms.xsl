@@ -9,10 +9,7 @@
 		</form>
 		<div id="{@name}result"></div>
 		<script>
-			$("#<xsl:value-of select="@name"/>").submit(function() {
-				alert($(this).serialize());
-				return false;
-			});
+			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
 		</script>
 	</xsl:template>
 
@@ -32,10 +29,7 @@
 		</form>
 		<div id="{@name}result"></div>
 		<script>
-			$("#<xsl:value-of select="@name"/>").submit(function() {
-				alert($(this).serialize());
-				return false;
-			});
+			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
 		</script>
 	</xsl:template>
 
@@ -59,10 +53,7 @@
 		</form>
 		<div id="{@name}result"></div>
 		<script>
-			$("#<xsl:value-of select="@name"/>").submit(function() {
-				alert($(this).serialize());
-				return false;
-			});
+			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
 		</script>
 	</xsl:template>
 
@@ -144,6 +135,18 @@
 			Вкл: <input type="radio" name="{@name}" value="1"/><br/>
 			Выкл: <input type="radio" name="{@name}" value="0" checked="1"/><br/>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template match="form[@name='fail']">
+		Проверка на сбой
+		<form id="{@name}" action="{@link}">
+			<input type="hidden" name="hid1" value="1"/>
+			<input type="submit" value="Проверить"/>
+		</form>
+		<div id="{@name}result"></div>
+		<script>
+			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
+		</script>
 	</xsl:template>
 
 </xsl:stylesheet>
