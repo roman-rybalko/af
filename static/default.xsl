@@ -4,6 +4,7 @@
 	<xsl:output method="html"/>
 
 	<xsl:include href="menu.xsl" />
+	<xsl:include href="forms.xsl" />
 	<xsl:include href="content.xsl" />
 
 	<xsl:template match="root">
@@ -12,6 +13,7 @@
 				<title>
 					Title - <xsl:value-of select="menu/item[@selected]/@name" />
 				</title>
+				<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 			</head>
 			<body>
 				логотип: ПРОДВИНУТАЯ ФИЛЬТРАЦИЯ

@@ -110,15 +110,19 @@
 		Оплата производится банковским платежом на юридическое лицо.<br/>
 		<table>
 		<tr><th>Количество ящиков в домене</th><th>Стоимость за месяц</th></tr>
-		<tr><td>до 10</td><td>10 руб/ящик</td></tr>
-		<tr><td>до 100</td><td>50 руб/ящик</td></tr>
-		<tr><td>более 100</td><td>150 руб/ящик</td></tr>
+		<tr><td>до 10</td><td>1 руб/ящик</td></tr>
+		<tr><td>до 100</td><td>20 руб/ящик</td></tr>
+		<tr><td>более 100</td><td>300 руб/ящик</td></tr>
 		</table>
 		<table>
 		<tr><th>Срок договора</th><th>Скидка</th></tr>
-		<tr><td>более 1 года</td><td>10%</td></tr>
+		<tr><td>более 1 года</td><td>1%</td></tr>
 		<tr><td>более 2 лет</td><td>20%</td></tr>
 		</table>
+	</xsl:template>
+	
+	<xsl:template match="content[@name='cabinet']">
+		<xsl:apply-templates select="form" />
 	</xsl:template>
 
 </xsl:stylesheet>

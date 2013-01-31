@@ -10,33 +10,36 @@
 		<item name="cabinet" selected="1" />
 		<item name="description" link="description.xml" />
 	</menu>
-	<form name="login" link="http://cgi">
-		<input name="login" type="text"/>
-		<input name="password" type="text"/>
-	</form>
-	<form name="register" link="http://cgi">
-		<input name="login" type="text"/>
-		<input name="password1" type="text"/>
-		<input name="password2" type="text"/>
-		<input name="email" type="text"/>
-	</form>
-	<form name="settings" link="http://cgi">
-		<input name="text1" type="text"/>
-		<input name="drop1" type="drop">
-			<option value="value1"/>
-			<option value="value2"/>
-			<option value="value3"/>
-		</input>
-		<input name="radio1" type="radio">
-			<option value="value1"/>
-			<option value="value2"/>
-			<option value="value3"/>
-		</input>
-		<input name="multi1" type="multi">
-			<option value="value1"/>
-			<option value="value2"/>
-			<option value="value3"/>
-		</input>
-		<input name="check1" type="check"/>
-	</form>
+	<content name="cabinet">
+		<form name="login" link="http://cgi">
+			<input name="login"/>
+			<input name="password"/>
+		</form>
+		<form name="register" link="http://cgi">
+			<input name="login"/>
+			<input name="password1"/>
+			<input name="password2"/>
+			<input name="email"/>
+		</form>
+		<form name="settings" link="http://cgi">
+			<input name="text1" data="123"/>
+			<input name="drop1">
+				<option value="value1"/>
+				<option value="value2" selected="1"/>
+				<option value="value3"/>
+			</input>
+			<input name="radio1">
+				<option value="value1"/>
+				<option value="value2" selected="1"/>
+				<option value="value3"/>
+			</input>
+			<input name="multi1">
+				<option value="value1"/>
+				<option value="value2" selected="1"/>
+				<option value="value3"/>
+			</input>
+			<input name="check1" selected="1"/>
+			<input name="check2"/>
+		</form>
+	</content>
 </root>
