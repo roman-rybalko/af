@@ -4,7 +4,10 @@
 	<xsl:template match="content[@name='description']">
 		<img src="static/af1.jpg"/><br/>
 		
-		Мы предоставляем услугу (SAAS) по фильтрации электронной почты.<br/>
+		Мы предоставляем услугу (SaaS) фильтрации электронной почты.
+		Услуга основана на облачной инфраструктуре,
+		не требует приобретения оборудования или программного обеспечения.
+		Услуга совместима с любым почтовым сервером.<br/>
 		Движение электронной почты управляется DNS. Изменяя свои записи DNS вы перенаправляете
 		электронную почту на наши сервера. Мы производим фильтрацию сообщений: отбрасываем спам, вирусы, фишинг
 		и передаем очищенный поток на ваш сервер.<br/>
@@ -124,29 +127,27 @@
 	<xsl:template match="content[@name='cabinet']">
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 		<script>
-			function formHandler(form, result, link)
+			function formHandler(form, link, done, fail)
 			{
 				$(form).submit(function() {
-					$(result).empty().append("Обработка: " + link).show();
-					$.get(link, $(this).serialize()).done(function(data) {
+					$.get(link, $(form).serialize()).done(function(data) {
 						var ok = $(data).find("ok");
 						if (ok.length)
 						{
-							$(result).empty().append("Готово!");
+							$(done).show().fadeOut(2000);
 							var redirect = ok.attr("link");
 							if (redirect)
-							{
-								$(result).append(" переход: " + redirect);
 								window.location = redirect;
-							}
-							$(result).fadeOut(2000);
 						}
 						else
 						{
-							$(result).empty().append("Ошибка сервера").fadeOut(2000);
+							var msg = $(data).find("error").attr("data");
+							if (msg)
+								$(fail).find("#errcode").empty().append(msg);
+							$(fail).show().fadeOut(5000);
 						}
 					}).fail(function() {
-						$(result).empty().append("Ошибка HTTP").fadeOut(2000);
+						$(fail).show().fadeOut(2000);
 					});
 					return false;
 				});

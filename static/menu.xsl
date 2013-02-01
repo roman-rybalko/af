@@ -126,6 +126,19 @@
 		</td>
 	</xsl:template>
 
+	<xsl:template match="menu/item[@name='users']">
+		<td>
+			<xsl:if test="@link">
+				<a href="{@link}">
+					Пользователи
+				</a>
+			</xsl:if>
+			<xsl:if test="@selected">
+				Пользователи
+			</xsl:if>
+		</td>
+	</xsl:template>
+
 	<xsl:template match="menu/item[@name='trace']">
 		<td>
 			<xsl:if test="@link">

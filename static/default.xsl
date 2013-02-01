@@ -15,7 +15,7 @@
 				</title>
 			</head>
 			<body>
-				логотип: ПРОДВИНУТАЯ ФИЛЬТРАЦИЯ
+				ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ
 				<xsl:apply-templates select="menu" />
 				<xsl:apply-templates select="content" />
 			</body>

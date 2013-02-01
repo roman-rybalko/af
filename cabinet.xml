@@ -4,6 +4,7 @@
 	<menu>
 		<item name="stats" link="http://cgi/stats" />
 		<item name="settings" link="http://cgi/settings" />
+		<item name="users" link="http://cgi/users" />
 		<item name="trace" link="http://cgi/trace" />
 		<item name="trash" link="http://cgi/trash" />
 		<item name="billing" link="http://cgi/billing" />
@@ -11,7 +12,7 @@
 		<item name="description" link="description.xml" />
 	</menu>
 	<content name="cabinet">
-		<form name="login" link="result-fail.xml">
+		<form name="login" link="result-error.xml">
 			<input name="login"/>
 			<input name="password"/>
 		</form>

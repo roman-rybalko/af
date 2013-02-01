@@ -2,6 +2,6 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <root>
 	<result>
-		<fail/>
+		<error data="0x12341234"/>
 	</result>
 </root>

@@ -7,9 +7,10 @@
 			<xsl:apply-templates select="input" />
 			<input type="submit" value="Вход"/>
 		</form>
-		<div id="{@name}result"></div>
+		<div id="{@name}done" style="display:none; background-color:green;">Готово</div>
+		<div id="{@name}fail" style="display:none; background-color:red;">Ошибка <span id="errcode"></span></div>
 		<script>
-			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
+			formHandler("#<xsl:value-of select="@name"/>", "<xsl:value-of select="@link"/>", "#<xsl:value-of select="@name"/>done", "#<xsl:value-of select="@name"/>fail");
 		</script>
 	</xsl:template>
 
@@ -27,9 +28,10 @@
 			<xsl:apply-templates select="input" />
 			<input type="submit" value="Зарегистрировать"/>
 		</form>
-		<div id="{@name}result"></div>
+		<div id="{@name}done" style="display:none; background-color:green;">Готово</div>
+		<div id="{@name}fail" style="display:none; background-color:red;">Ошибка <span id="errcode"></span></div>
 		<script>
-			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
+			formHandler("#<xsl:value-of select="@name"/>", "<xsl:value-of select="@link"/>", "#<xsl:value-of select="@name"/>done", "#<xsl:value-of select="@name"/>fail");
 		</script>
 	</xsl:template>
 
@@ -51,9 +53,10 @@
 			<xsl:apply-templates select="input" />
 			<input type="submit" value="Сохранить"/>
 		</form>
-		<div id="{@name}result"></div>
+		<div id="{@name}done" style="display:none; background-color:green;">Готово</div>
+		<div id="{@name}fail" style="display:none; background-color:red;">Ошибка <span id="errcode"></span></div>
 		<script>
-			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
+			formHandler("#<xsl:value-of select="@name"/>", "<xsl:value-of select="@link"/>", "#<xsl:value-of select="@name"/>done", "#<xsl:value-of select="@name"/>fail");
 		</script>
 	</xsl:template>
 
@@ -143,9 +146,10 @@
 			<input type="hidden" name="hid1" value="1"/>
 			<input type="submit" value="Проверить"/>
 		</form>
-		<div id="{@name}result"></div>
+		<div id="{@name}done" style="display:none; background-color:green;">Готово</div>
+		<div id="{@name}fail" style="display:none; background-color:red;">Ошибка <span id="errcode"></span></div>
 		<script>
-			formHandler("#<xsl:value-of select="@name"/>", "#<xsl:value-of select="@name"/>result", "<xsl:value-of select="@link"/>");
+			formHandler("#<xsl:value-of select="@name"/>", "<xsl:value-of select="@link"/>", "#<xsl:value-of select="@name"/>done", "#<xsl:value-of select="@name"/>fail");
 		</script>
 	</xsl:template>
 
