@@ -27,4 +27,7 @@ hosted antispam
 защита электронной почты
 специализированный SaaS сервис защиты электронной почты
 hosted email security
-
+SaaS защита от спама
+Postini
+MessageLabs
+корпоративная почта
