@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="default.xsl" type="text/xsl" ?>
+<root>
+	<result>
+		<error data="0x12341234"/>
+	</result>
+</root>
