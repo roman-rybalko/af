@@ -127,13 +127,14 @@
 	<xsl:template match="content[@name='cabinet']">
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 		<script>
-			function formHandler(form, link, done, fail)
+			function formHandler(form, link, process, done, fail)
 			{
 				$(form).submit(function() {
 					$.get(link, $(form).serialize()).done(function(data) {
 						var ok = $(data).find("ok");
 						if (ok.length)
 						{
+							$(process).hide();
 							$(done).show().fadeOut(2000);
 							var redirect = ok.attr("link");
 							if (redirect)
@@ -144,11 +145,14 @@
 							var msg = $(data).find("error").attr("data");
 							if (msg)
 								$(fail).find("#errcode").empty().append(msg);
+							$(process).hide();
 							$(fail).show().fadeOut(5000);
 						}
 					}).fail(function() {
+						$(process).hide();
 						$(fail).show().fadeOut(2000);
 					});
+					$(process).show();
 					return false;
 				});
 			}
