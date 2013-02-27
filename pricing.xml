@@ -1,14 +1,50 @@
 <?xml version="1.0" ?>
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <root>
+	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Стоимость</title>
+	<logo lang="ru"/>
+	<topmenu>
+		<item link="logon.xml">
+			<logo type="lock"/>
+			Вход
+		</item>
+		<item link="registration.xml">
+			<logo type="profile"/>
+			Регистрация
+		</item>
+	</topmenu>
 	<menu>
-		<item name="description" link="description.xml" />
-		<item name="benefits" link="benefits.xml" />
-		<item name="pricing" selected="1" />
-		<item name="contacts" link="contacts.xml" />
-		<item name="kb" link="http://kb/" />
-		<item name="forum" link="http://forum/" />
-		<item name="cabinet" link="cabinet.xml" />
+		<item link="description.xml">
+			<logo type="sheet"/>
+			Описание
+		</item>
+		<item link="benefits.xml">
+			<logo type="bars"/>
+			Преимущества
+		</item>
+		<item selected="1">
+			<logo type="price"/>
+			Стоимость
+		</item>
+		<item link="contacts.xml">
+			<logo type="people"/>
+			Контакты
+		</item>
+		<item link="files.xml">
+			<logo type="gear"/>
+			Файлы
+		</item>
 	</menu>
-	<content name="pricing" />
+	<content>
+		<image link="static/prices.jpg"/>
+		<section>
+Мы предлагаем предоплатное и контрактное подключение.
+		</section>
+		<section>
+Предоплатное подключение предполагает публичный договор. Средства вносятся на ваш лицевой счет автоматически через платежные системы, с помощью пластиковых карт, либо иными способами в личном кабинете. Ежемесячно с вашего лицевого счета списывается сумма по фактическому использованию ресурсов.
+		</section>
+		<section>
+Контрактное подключение предполагает двухсторонний договор. Минимальный срок договора - 3 месяца. Оплата производится банковским платежом на юридическое лицо.
+		</section>
+	</content>
 </root>

@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<?xml-stylesheet href="default.xsl" type="text/xsl" ?>
-<root>
-	<menu>
-		<item name="description" link="description.xml" />
-		<item name="cabinet" link="cabinet.xml" />
-	</menu>
-	<content name="test" />
-</root>

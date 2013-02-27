@@ -1,14 +1,80 @@
 <?xml version="1.0" ?>
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <root>
+	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Контакты</title>
+	<logo lang="ru"/>
+	<topmenu>
+		<item link="logon.xml">
+			<logo type="lock"/>
+			Вход
+		</item>
+		<item link="registration.xml">
+			<logo type="profile"/>
+			Регистрация
+		</item>
+	</topmenu>
 	<menu>
-		<item name="description" link="description.xml" />
-		<item name="benefits" link="benefits.xml" />
-		<item name="pricing" link="pricing.xml" />
-		<item name="contacts" selected="1" />
-		<item name="kb" link="http://kb/" />
-		<item name="forum" link="http://forum/" />
-		<item name="cabinet" link="cabinet.xml" />
+		<item link="description.xml">
+			<logo type="sheet"/>
+			Описание
+		</item>
+		<item link="benefits.xml">
+			<logo type="bars"/>
+			Преимущества
+		</item>
+		<item link="pricing.xml">
+			<logo type="price"/>
+			Стоимость
+		</item>
+		<item selected="1">
+			<logo type="people"/>
+			Контакты
+		</item>
+		<item link="files.xml">
+			<logo type="gear"/>
+			Файлы
+		</item>
 	</menu>
-	<content name="contacts" />
+	<content title="Реквизиты предприятия">
+		<section>
+		Индивидуальный предприниматель Рыбалко Роман Вячеславович
+		</section>
+		<section>
+		ИНН 123456789012
+		</section>
+		<section>
+		ОГРН 123456789012
+		</section>
+		<section>
+		Контактный телефон: +79637621644
+		</section>
+		<section>
+		Контактный e-mail: info@advancedfiltering.ru
+		</section>
+	</content>
+	<content title="Наша команда">
+		<section titlelink="static/roman_title.jpg">
+			<image link="static/roman.jpg"/>
+			Аналитик, стратег по развитию, специалист по сервисам и коммуникации.
+			Работа в сфере телекоммуникаций.
+			Работа в сфере сервисных решений, Лаборатория Касперского.
+			Автор патента.
+		</section>
+		<section titlelink="static/felix_title.jpg">
+			<image link="static/felix.jpg"/>
+			Специалист по оборудованию, развёртыванию и мониторингу.
+			Деятельность в сфере разработки встраиваемых програмных решений.
+		</section>
+		<section titlelink="static/tuba_title.jpg">
+			<image link="static/tuba.jpg"/>
+			Специалист по информационной безопасности, криптографии и аппаратному обеспечению.
+			Работа в сфере информационной безопасности, БИФИТ.
+		</section>
+	</content>
+	<content title="Патентование">
+		<image link="static/101234_sm.jpg"/>
+		<section>
+		Система анализа протоколов передачи данных с целью нейтрализации программ, рассылающих спам.
+		</section>
+	</content>
 </root>

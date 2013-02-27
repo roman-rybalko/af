@@ -3,23 +3,29 @@
 
 	<xsl:output method="html"/>
 
-	<xsl:include href="menu.xsl" />
-	<xsl:include href="forms.xsl" />
-	<xsl:include href="content.xsl" />
+	<xsl:include href="menu.xsl"/>
+	<xsl:include href="content.xsl"/>
 
 	<xsl:template match="root">
 		<html>
 			<head>
 				<title>
-					Title - <xsl:value-of select="menu/item[@selected]/@name" />
+					<xsl:value-of select="title"/>
 				</title>
 			</head>
 			<body>
-				ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ
-				<xsl:apply-templates select="menu" />
-				<xsl:apply-templates select="content" />
+				<xsl:apply-templates select="logo"/>
+				<xsl:apply-templates select="topmenu"/>
+				<xsl:apply-templates select="menu"/>
+				<table>
+				<xsl:apply-templates select="content"/>
+				</table>
 			</body>
 		</html>
+	</xsl:template>
+
+	<xsl:template match="root/logo[lang='ru']">
+		<img src="static/logo_ru.jpg" align="left"/>
 	</xsl:template>
 
 </xsl:stylesheet>
