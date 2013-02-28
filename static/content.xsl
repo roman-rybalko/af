@@ -13,6 +13,7 @@
 		</xsl:if>
 		<p>
 		<xsl:apply-templates select="image"/>
+		<xsl:value-of select="text"/>
 		<xsl:apply-templates select="section"/>
 		<xsl:apply-templates select="link"/>
 		</p>
@@ -51,7 +52,7 @@
 				</tr>
 				<tr>
 					<td>
-						<xsl:value-of select="."/>
+						<xsl:value-of select="text"/>
 					</td>
 				</tr>
 			</table>

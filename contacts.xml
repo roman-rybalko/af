@@ -6,75 +6,98 @@
 	<topmenu>
 		<item link="logon.xml">
 			<logo type="lock"/>
-			Вход
+			<text>Вход</text>
 		</item>
 		<item link="registration.xml">
 			<logo type="profile"/>
-			Регистрация
+			<text>Регистрация</text>
 		</item>
 	</topmenu>
 	<menu>
 		<item link="description.xml">
 			<logo type="sheet"/>
-			Описание
+			<text>Описание</text>
 		</item>
 		<item link="benefits.xml">
 			<logo type="bars"/>
-			Преимущества
+			<text>Преимущества</text>
 		</item>
 		<item link="pricing.xml">
 			<logo type="price"/>
-			Стоимость
+			<text>Стоимость</text>
 		</item>
 		<item selected="1">
 			<logo type="people"/>
-			Контакты
+			<text>Контакты</text>
 		</item>
 		<item link="files.xml">
 			<logo type="gear"/>
-			Файлы
+			<text>Файлы</text>
 		</item>
 	</menu>
 	<content title="Реквизиты предприятия">
 		<section>
+			<text>
 		Индивидуальный предприниматель Рыбалко Роман Вячеславович
+			</text>
 		</section>
 		<section>
+			<text>
 		ИНН 123456789012
+			</text>
 		</section>
 		<section>
+			<text>
 		ОГРН 123456789012
+			</text>
 		</section>
 		<section>
+			<text>
 		Контактный телефон: +79637621644
+			</text>
 		</section>
 		<section>
+			<text>
 		Контактный e-mail: info@advancedfiltering.ru
+			</text>
 		</section>
 	</content>
 	<content title="Наша команда">
 		<section titlelink="static/roman_title.jpg">
 			<image link="static/roman.jpg"/>
+			<text>
 			Аналитик, стратег по развитию, специалист по сервисам и коммуникации.
 			Работа в сфере телекоммуникаций.
 			Работа в сфере сервисных решений, Лаборатория Касперского.
 			Автор патента.
+			</text>
 		</section>
 		<section titlelink="static/felix_title.jpg">
 			<image link="static/felix.jpg"/>
+			<text>
 			Специалист по оборудованию, развёртыванию и мониторингу.
 			Деятельность в сфере разработки встраиваемых програмных решений.
+			</text>
 		</section>
 		<section titlelink="static/tuba_title.jpg">
 			<image link="static/tuba.jpg"/>
+			<text>
 			Специалист по информационной безопасности, криптографии и аппаратному обеспечению.
 			Работа в сфере информационной безопасности, БИФИТ.
+			</text>
 		</section>
 	</content>
 	<content title="Патентование">
 		<image link="static/101234_sm.jpg"/>
 		<section>
+		<text>
+		Патент РФ №101234.
+		</text>
+		</section>
+		<section>
+		<text>
 		Система анализа протоколов передачи данных с целью нейтрализации программ, рассылающих спам.
+		</text>
 		</section>
 	</content>
 </root>

@@ -6,50 +6,56 @@
 	<topmenu>
 		<item link="logon.xml">
 			<logo type="lock"/>
-			Вход
+			<text>Вход</text>
 		</item>
 		<item link="registration.xml">
 			<logo type="profile"/>
-			Регистрация
+			<text>Регистрация</text>
 		</item>
 	</topmenu>
 	<menu>
 		<item selected="1">
 			<logo type="sheet"/>
-			Описание
+			<text>Описание</text>
 		</item>
 		<item link="benefits.xml">
 			<logo type="bars"/>
-			Преимущества
+			<text>Преимущества</text>
 		</item>
 		<item link="pricing.xml">
 			<logo type="price"/>
-			Стоимость
+			<text>Стоимость</text>
 		</item>
 		<item link="contacts.xml">
 			<logo type="people"/>
-			Контакты
+			<text>Контакты</text>
 		</item>
 		<item link="files.xml">
 			<logo type="gear"/>
-			Файлы
+			<text>Файлы</text>
 		</item>
 	</menu>
 	<content>
 		<image link="static/af1.jpg"/>
 		<link link="benefits.xml">Детальнее</link>
 		<section>
+			<text>
 Мы предоставляем услугу (SaaS) фильтрации электронной почты. Услуга основана на облачной инфраструктуре,
 не требует приобретения оборудования или программного обеспечения. Услуга совместима с любым почтовым сервером.
+			</text>
 		</section>
 		<section>
+			<text>
 Движение электронной почты управляется DNS. Изменяя свои записи DNS, вы перенаправляете электронную почту на наши сервера.
 Мы производим фильтрацию сообщений: отбрасываем спам, вирусы, фишинг, - и передаем очищенный поток на ваш сервер.
+			</text>
 		</section>
 		<section>
+			<text>
 Для корректной и эффективной работы систем электронной почты требуется выполнить ряд технических условий.
 Некоторые довольно нетривиальны, ими пренебрегают, это приводит к сбоям в работе и ложным срабатываниям.
 Подключившись к нашей услуге, вы снимаете с себя необходимость выполнения любых технических условий - мы все сделаем за вас!
+			</text>
 		</section>
 	</content>
 </root>

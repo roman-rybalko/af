@@ -13,7 +13,7 @@
 		<tr><td>
 			<a href="{@link}">
 				<xsl:apply-templates select="logo"/>
-				<xsl:value-of select="."/>
+				<xsl:value-of select="text"/>
 			</a>
 		</td></tr>
 	</xsl:template>
@@ -42,7 +42,7 @@
 		<td>
 			<a href="{@link}">
 				<xsl:apply-templates select="logo"/>
-				<xsl:value-of select="."/>
+				<xsl:value-of select="text"/>
 			</a>
 		</td>
 	</xsl:template>
@@ -50,7 +50,7 @@
 	<xsl:template match="menu/item[@selected]">
 		<td>
 			<xsl:apply-templates select="logo"/>
-			<xsl:value-of select="."/>
+			<xsl:value-of select="text"/>
 		</td>
 	</xsl:template>
 
