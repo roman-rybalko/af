@@ -35,7 +35,8 @@
 			<text>Файлы</text>
 		</item>
 	</menu>
-	<content title="Реквизиты предприятия">
+	<content>
+		<title>Реквизиты предприятия</title>
 		<section>
 			<text>
 		Индивидуальный предприниматель Рыбалко Роман Вячеславович
@@ -62,8 +63,10 @@
 			</text>
 		</section>
 	</content>
-	<content title="Наша команда">
-		<section titlelink="static/roman_title.jpg">
+	<content>
+		<title id="our_team"/>
+		<section>
+			<title link="static/roman_title.jpg"/>
 			<image link="static/roman.jpg"/>
 			<text>
 			Аналитик, стратег по развитию, специалист по сервисам и коммуникации.
@@ -72,14 +75,16 @@
 			Автор патента.
 			</text>
 		</section>
-		<section titlelink="static/felix_title.jpg">
+		<section>
+			<title link="static/felix_title.jpg"/>
 			<image link="static/felix.jpg"/>
 			<text>
 			Специалист по оборудованию, развёртыванию и мониторингу.
 			Деятельность в сфере разработки встраиваемых програмных решений.
 			</text>
 		</section>
-		<section titlelink="static/tuba_title.jpg">
+		<section>
+			<title link="static/tuba_title.jpg"/>
 			<image link="static/tuba.jpg"/>
 			<text>
 			Специалист по информационной безопасности, криптографии и аппаратному обеспечению.
@@ -87,7 +92,8 @@
 			</text>
 		</section>
 	</content>
-	<content title="Патентование">
+	<content>
+		<title>Патентование</title>
 		<image link="static/101234_sm.jpg"/>
 		<section>
 		<text>

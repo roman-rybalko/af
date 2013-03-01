@@ -27,5 +27,11 @@
 	<xsl:template match="root/logo[lang='ru']">
 		<img src="static/logo_ru.jpg" align="left"/>
 	</xsl:template>
+	
+	<xsl:template match="cgi">
+		<table>
+		<xsl:apply-templates select="content"/>
+		</table>
+	</xsl:template>
 
 </xsl:stylesheet>

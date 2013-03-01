@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locale>
+	<text id="error_bad_login">Неверный логин</text>
+	<text id="test">Тест</text>
+	<text id="our_team">Наша команда</text>
+</locale>
