@@ -33,5 +33,9 @@
 		<xsl:apply-templates select="content"/>
 		</table>
 	</xsl:template>
-
+	
+	<xsl:template match="locale">
+		<html></html>
+	</xsl:template>
+	
 </xsl:stylesheet>
