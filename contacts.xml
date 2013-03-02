@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="default.xsl" type="text/xsl"?>
-<root>
+<static>
 	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Контакты</title>
 	<logo lang="ru"/>
 	<topmenu>
@@ -30,80 +30,76 @@
 			<logo type="people"/>
 			<text>Контакты</text>
 		</item>
-		<item link="files.xml">
-			<logo type="gear"/>
-			<text>Файлы</text>
-		</item>
 	</menu>
 	<content>
 		<title>Реквизиты предприятия</title>
-		<section>
+		<content>
 			<text>
-		Индивидуальный предприниматель Рыбалко Роман Вячеславович
+Индивидуальный предприниматель Рыбалко Роман Вячеславович
 			</text>
-		</section>
-		<section>
+		</content>
+		<content>
 			<text>
-		ИНН 123456789012
+ИНН 123456789012
 			</text>
-		</section>
-		<section>
+		</content>
+		<content>
 			<text>
-		ОГРН 123456789012
+ОГРН 123456789012
 			</text>
-		</section>
-		<section>
+		</content>
+		<content>
 			<text>
-		Контактный телефон: +79637621644
+Контактный телефон: +79637621644
 			</text>
-		</section>
-		<section>
+		</content>
+		<content>
 			<text>
-		Контактный e-mail: info@advancedfiltering.ru
+Контактный e-mail: info@advancedfiltering.ru
 			</text>
-		</section>
+		</content>
 	</content>
 	<content>
-		<title id="our_team"/>
-		<section>
+		<title>Наша команда</title>
+		<content>
 			<title link="static/roman_title.jpg"/>
 			<image link="static/roman.jpg"/>
 			<text>
-			Аналитик, стратег по развитию, специалист по сервисам и коммуникации.
-			Работа в сфере телекоммуникаций.
-			Работа в сфере сервисных решений, Лаборатория Касперского.
-			Автор патента.
+Аналитик, стратег по развитию, специалист по сервисам и коммуникации.
+Работа в сфере телекоммуникаций.
+Работа в сфере сервисных решений, Лаборатория Касперского.
+Автор патента.
 			</text>
-		</section>
-		<section>
+		</content>
+		<content>
 			<title link="static/felix_title.jpg"/>
 			<image link="static/felix.jpg"/>
 			<text>
-			Специалист по оборудованию, развёртыванию и мониторингу.
-			Деятельность в сфере разработки встраиваемых програмных решений.
+Специалист по оборудованию, развёртыванию и мониторингу.
+Деятельность в сфере разработки встраиваемых програмных решений.
 			</text>
-		</section>
-		<section>
+		</content>
+		<content>
 			<title link="static/tuba_title.jpg"/>
 			<image link="static/tuba.jpg"/>
 			<text>
-			Специалист по информационной безопасности, криптографии и аппаратному обеспечению.
-			Работа в сфере информационной безопасности, БИФИТ.
+Специалист по информационной безопасности, криптографии и аппаратному обеспечению.
+Работа в сфере информационной безопасности, БИФИТ.
 			</text>
-		</section>
+		</content>
 	</content>
 	<content>
 		<title>Патентование</title>
 		<image link="static/101234_sm.jpg"/>
-		<section>
-		<text>
-		Патент РФ №101234.
-		</text>
-		</section>
-		<section>
-		<text>
-		Система анализа протоколов передачи данных с целью нейтрализации программ, рассылающих спам.
-		</text>
-		</section>
+		<content>
+			<text>
+Патент РФ №101234.
+			</text>
+		</content>
+		<content>
+			<text>
+Система анализа протоколов передачи данных с целью нейтрализации программ, рассылающих спам.
+			</text>
+		</content>
 	</content>
-</root>
+</static>

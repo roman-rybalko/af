@@ -2,6 +2,5 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl"?>
 <locale>
 	<text id="error_bad_login">Неверный логин</text>
-	<text id="test">Тест</text>
-	<text id="our_team">Наша команда</text>
+	<text id="error_http">Ошибка HTTP</text>
 </locale>
