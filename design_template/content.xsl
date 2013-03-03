@@ -89,6 +89,11 @@
 		<a href="{@link}">
 			<xsl:value-of select="."/>
 		</a>
+		<xsl:if test="@force">
+			<script type="text/javascript">
+				document.location = "<xsl:value-of select="@link"/>";
+			</script>
+		</xsl:if>
 	</xsl:template>
 
 

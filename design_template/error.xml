@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="default.xsl" type="text/xsl"?>
-<error>
-	<http>
-		<text id="error_http"/>
-	</http>
-</error>

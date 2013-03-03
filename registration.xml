@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="default.xsl" type="text/xsl" ?>
+<static>
+	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Вход</title>
+	<logo lang="ru"/>
+	<topmenu>
+		<item link="logon.xml">
+			<logo type="lock"/>
+			<text>Вход</text>
+		</item>
+		<item link="registration.xml">
+			<logo type="profile"/>
+			<text>Регистрация</text>
+		</item>
+	</topmenu>
+	<menu>
+		<item link="description.xml">
+			<logo type="sheet"/>
+			<text>Описание</text>
+		</item>
+		<item link="benefits.xml">
+			<logo type="bars"/>
+			<text>Преимущества</text>
+		</item>
+		<item link="pricing.xml">
+			<logo type="price"/>
+			<text>Стоимость</text>
+		</item>
+		<item link="contacts.xml">
+			<logo type="people"/>
+			<text>Контакты</text>
+		</item>
+	</menu>
+	<content>
+		<form link="test-cgi-2.xml">
+			<input type="text" name="user">
+				<text>Логин</text>
+			</input>
+			<input type="password" name="password1">
+				<text>Пароль</text>
+			</input>
+			<input type="password" name="password2">
+				<text>Пароль (подтверждение)</text>
+			</input>
+			<input type="submit">
+				<text>Зарегистрироваться</text>
+			</input>
+		</form>
+	</content>
+</static>

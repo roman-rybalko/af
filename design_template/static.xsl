@@ -20,8 +20,9 @@
 		</html>
 	</xsl:template>
 
-	<xsl:template match="static/logo[lang='ru']">
-		<img src="design_template/logo_ru.jpg" align="left"/>
+	<xsl:template match="static/logo[@lang='ru']">
+		<img src="design_template/logo_ru.jpg"/>
+		<br/>
 	</xsl:template>
 
 </xsl:stylesheet>
