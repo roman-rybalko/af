@@ -1,0 +1,3 @@
+tld = advancedfiltering.net
+<client-service>.<login>.clients.<tld>
+client-service = smtp-srv, smtp-cli, smtp-srv.vpn, smtp-cli.vpn, web-imap
