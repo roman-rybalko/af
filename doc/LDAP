@@ -1,0 +1,22 @@
+o=af
+
+ou=console,o=af
+uid=xxx,ou=console,o=af
+credentials:
+
+ou=configuration,o=af
+uid=xxx,ou=configuration,o=af
+in cluster:
+out cluster:
+vpn cluster:
+web imap cluster:
+
+ou=out domain,o=af
+domain=xxx,ou=out domain,o=af
+source:
+credentials:
+
+ou=in domain,o=af
+domain=xxx,ou=in domain,o=af
+destination:
+credentials:
