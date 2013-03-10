@@ -4,11 +4,11 @@
 	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Вход</title>
 	<logo lang="ru"/>
 	<topmenu>
-		<item link="logon.xml">
+		<item link="login.xml">
 			<logo type="lock"/>
 			<text>Вход</text>
 		</item>
-		<item link="registration.xml">
+		<item link="signup.xml">
 			<logo type="profile"/>
 			<text>Регистрация</text>
 		</item>
@@ -32,18 +32,15 @@
 		</item>
 	</menu>
 	<content>
-		<form link="test-cgi-2.xml">
+		<form link="test-cgi-1.xml">
 			<input type="text" name="user">
 				<text>Логин</text>
 			</input>
-			<input type="password" name="password1">
+			<input type="password" name="password">
 				<text>Пароль</text>
 			</input>
-			<input type="password" name="password2">
-				<text>Пароль (подтверждение)</text>
-			</input>
 			<input type="submit">
-				<text>Зарегистрироваться</text>
+				<text>Вход</text>
 			</input>
 		</form>
 	</content>

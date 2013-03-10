@@ -4,11 +4,11 @@
 	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Контакты</title>
 	<logo lang="ru"/>
 	<topmenu>
-		<item link="logon.xml">
+		<item link="login.xml">
 			<logo type="lock"/>
 			<text>Вход</text>
 		</item>
-		<item link="registration.xml">
+		<item link="signup.xml">
 			<logo type="profile"/>
 			<text>Регистрация</text>
 		</item>
