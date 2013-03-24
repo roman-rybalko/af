@@ -44,7 +44,7 @@
 			</div>
 		</div>
 	</xsl:template>
-	
+
 	<xsl:template match="menu/item[@link]">
 		<li>
 			<a href="{@link}">

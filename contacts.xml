@@ -33,31 +33,21 @@
 	</menu>
 	<content>
 		<title>Реквизиты предприятия</title>
-		<content>
-			<text>
+		<text>
 Индивидуальный предприниматель Рыбалко Роман Вячеславович
-			</text>
-		</content>
-		<content>
-			<text>
+		</text>
+		<text>
 ИНН 123456789012
-			</text>
-		</content>
-		<content>
-			<text>
+		</text>
+		<text>
 ОГРН 123456789012
-			</text>
-		</content>
-		<content>
-			<text>
+		</text>
+		<text>
 Контактный телефон: +79637621644
-			</text>
-		</content>
-		<content>
-			<text>
+		</text>
+		<text>
 Контактный e-mail: info@advancedfiltering.ru
-			</text>
-		</content>
+		</text>
 	</content>
 	<content>
 		<title>Наша команда</title>
@@ -91,15 +81,11 @@
 	<content>
 		<title>Патентование</title>
 		<image link="static/101234_sm.jpg"/>
-		<content>
-			<text>
+		<text>
 Патент РФ №101234.
-			</text>
-		</content>
-		<content>
-			<text>
+		</text>
+		<text>
 Система анализа протоколов передачи данных с целью нейтрализации программ, рассылающих спам.
-			</text>
-		</content>
+		</text>
 	</content>
 </static>

@@ -2,68 +2,42 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<xsl:template match="content">
-		<div>
-		<xsl:apply-templates select="title"/>
-		<p>
-		<xsl:apply-templates select="image"/>
-		<xsl:apply-templates select="text"/>
-		<xsl:apply-templates select="content"/>
-		<xsl:apply-templates select="redirect"/>
-		<xsl:apply-templates select="form"/>
-		</p>
+		<div class="row">
+			<div class="span12">
+				<h2>
+					<xsl:apply-templates select="title"/>
+				</h2>
+				<xsl:apply-templates select="image"/>
+				<xsl:apply-templates select="text"/>
+				<xsl:apply-templates select="content"/>
+				<xsl:apply-templates select="redirect"/>
+				<xsl:apply-templates select="form"/>
+			</div>
 		</div>
 	</xsl:template>
 
 	<xsl:template match="content/content">
-		<table>
-		<tr>
-			<td>
+		<div class="row-fluid">
+			<div class="span12">
 				<xsl:apply-templates select="image"/>
-			</td>
-			<td>
-			<table>
-				<tr>
-					<td>
-						<xsl:apply-templates select="title"/>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<xsl:apply-templates select="text"/>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<xsl:apply-templates select="content"/>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<xsl:apply-templates select="redirect"/>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<xsl:apply-templates select="form"/>
-					</td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-		</table>
+				<h3>
+					<xsl:apply-templates select="title"/>
+				</h3>
+				<xsl:apply-templates select="text"/>
+				<xsl:apply-templates select="content"/>
+				<xsl:apply-templates select="redirect"/>
+				<xsl:apply-templates select="form"/>
+			</div>
+		</div>
 	</xsl:template>
 
 
 	<xsl:template match="title">
-		<span style="background-color:#d7e6fb;">
-			<xsl:value-of select="."/>
-		</span>
+		<xsl:value-of select="."/>
 	</xsl:template>
 
 	<xsl:template match="title[@link]">
-		<xsl:if test="@link">
-			<img src="{@link}" align="left"/>
-		</xsl:if>
+		<img src="{@link}"/>
 	</xsl:template>
 
 	<xsl:template match="title[@id]">
@@ -99,11 +73,15 @@
 
 	<xsl:template match="text">
 		<xsl:value-of select="."/>
+		<br/>
+		<br/>
 	</xsl:template>
 
 	<xsl:template match="text[@id]">
 		<xsl:variable name="id" select="@id"/>
 		<xsl:value-of select="document('../locale.xml')/locale/text[@id=$id]"/>
+		<br/>
+		<br/>
 	</xsl:template>
 	
 </xsl:stylesheet>

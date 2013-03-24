@@ -30,11 +30,7 @@
 							<xsl:apply-templates select="menu"/>
 						</div>
 					</div>
-					<div class="row">
-						<div class="span12">
-							<xsl:apply-templates select="content"/>
-						</div>
-					</div>
+					<xsl:apply-templates select="content"/>
 				</div>
 			</body>
 		</html>
