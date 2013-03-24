@@ -25,7 +25,6 @@
 		<div id="result_global"></div>
 
 		<script type="text/javascript" src="design_template/sarissa-compressed.js"/>
-		<script type="text/javascript" src="design_template/jquery.min.js"/>
 		<script type="text/javascript" src="design_template/jquery.debug.js"/>
 		<script type="text/javascript" src="design_template/utils.js"/>
 		<script type="text/javascript">

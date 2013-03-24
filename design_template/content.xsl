@@ -86,7 +86,7 @@
 
 
 	<xsl:template match="redirect">
-		<a href="{@link}">
+		<a href="{@link}" class="btn btn-large btn-primary">
 			<xsl:value-of select="."/>
 		</a>
 		<xsl:if test="@force">

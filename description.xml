@@ -33,7 +33,7 @@
 	</menu>
 	<content>
 		<image type="dia1"/>
-		<redirect link="benefits.xml">Детальнее</redirect>
+		<redirect link="benefits.xml">Детальнее »</redirect>
 		<content>
 			<text>
 Мы предоставляем услугу (SaaS) фильтрации электронной почты. Услуга основана на облачной инфраструктуре,
