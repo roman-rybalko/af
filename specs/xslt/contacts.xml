@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="default.xsl" type="text/xsl" ?>
+<?xml-stylesheet href="default.xsl" type="text/xsl"?>
 <static>
-	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Вход</title>
+	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Контакты</title>
 	<logo lang="ru"/>
 	<topmenu>
 		<item link="login.xml">
@@ -26,23 +26,27 @@
 			<logo type="price"/>
 			<text>Стоимость</text>
 		</item>
-		<item link="contacts.xml">
+		<item selected="1">
 			<logo type="people"/>
 			<text>Контакты</text>
 		</item>
 	</menu>
 	<content>
-		<form link="test-cgi-1.xml">
-			<title>Вход в интерфейс управления</title>
-			<input type="text" name="user">
-				<title>Логин</title>
-			</input>
-			<input type="password" name="password">
-				<title>Пароль</title>
-			</input>
-			<input type="submit">
-				<title>Вход</title>
-			</input>
-		</form>
+		<title>Реквизиты предприятия</title>
+		<text>
+Индивидуальный предприниматель Рыбалко Роман Вячеславович
+		</text>
+		<text>
+ИНН 123456789012
+		</text>
+		<text>
+ОГРН 123456789012
+		</text>
+		<text>
+Контактный телефон: +380937829518
+		</text>
+		<text>
+Контактный e-mail: info@advancedfiltering.ru
+		</text>
 	</content>
 </static>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="default.xsl" type="text/xsl"?>
+<msg>
+	<error>
+		<http>
+			<text id="error_http"/>
+		</http>
+		<init_http>
+			<text id="error_init_http"/>
+		</init_http>
+		<init_xsl>
+			<text id="error_init_xslt"/>
+		</init_xsl>
+	</error>
+	<info>
+		<loading>
+			<text id="info_loading"/>
+		</loading>
+	</info>
+</msg>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="default.xsl" type="text/xsl"?>
+<static>
+	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Стоимость</title>
+	<logo lang="ru"/>
+	<topmenu>
+		<item link="login.xml">
+			<logo type="lock"/>
+			<text>Вход</text>
+		</item>
+		<item link="signup.xml">
+			<logo type="profile"/>
+			<text>Регистрация</text>
+		</item>
+	</topmenu>
+	<menu>
+		<item link="description.xml">
+			<logo type="sheet"/>
+			<text>Описание</text>
+		</item>
+		<item link="benefits.xml">
+			<logo type="bars"/>
+			<text>Преимущества</text>
+		</item>
+		<item selected="1">
+			<logo type="price"/>
+			<text>Стоимость</text>
+		</item>
+		<item link="contacts.xml">
+			<logo type="people"/>
+			<text>Контакты</text>
+		</item>
+	</menu>
+	<content>
+		<image link="static/prices.jpg"/>
+		<text>
+Возможно предоплатное и контрактное подключение.
+		</text>
+		<text>
+Предоплатное подключение предполагает публичный договор. Средства вносятся на ваш лицевой счет автоматически через платежные системы, с помощью пластиковых карт, либо иными способами в личном кабинете. Ежемесячно с вашего лицевого счета списывается сумма по фактическому использованию ресурсов.
+		</text>
+		<text>
+Контрактное подключение предполагает двухсторонний договор. Минимальный срок договора - 3 месяца. Оплата производится банковским платежом на юридическое лицо.
+		</text>
+	</content>
+</static>
