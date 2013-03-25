@@ -1,22 +1,36 @@
 o=af
 
-ou=console,o=af
-uid=xxx,ou=console,o=af
-credentials:
-
 ou=configuration,o=af
-uid=xxx,ou=configuration,o=af
-in cluster:
-out cluster:
-vpn cluster:
-web imap cluster:
+host=xxx,ou=configuration,o=af
+service: smtp|submission|vpn|console|webmail
+domain=xxx,service=xxx,host=xxx,ou=configuration,o=af
+client=xxx,service=xxx,host=xxx,ou=configuration,o=af
+id=xxx,service=xxx,host=xxx,ou=configuration,o=af
+service:
+host:
+client:
 
-ou=out domain,o=af
-domain=xxx,ou=out domain,o=af
+service=console,ou=services,o=af
+client=xxx,service=console,ou=services,o=af
+credentials:
+email:
+contacts:
+
+service=smtp,ou=services,o=af
+domain=xxx,service=smtp,ou=services,o=af
 source:
 credentials:
+uid=xxx,domain=xxx,service=smtp,ou=services,o=af
+mid=xxx,domain=xxx,service=smtp,ou=services,o=af
+tid=xxx,domain=xxx,service=smtp,ou=services,o=af
 
-ou=in domain,o=af
-domain=xxx,ou=in domain,o=af
-destination:
+service=submission,ou=services,o=af
+domain=xxx,service=submission,ou=services,o=af
+ip:
 credentials:
+
+service=vpn,ou=services,o=af
+id=xxx,service=vpn,ou=services,o=af
+client:
+key:
+ip:
