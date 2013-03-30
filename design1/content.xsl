@@ -4,11 +4,9 @@
 	<xsl:template match="content">
 		<div class="row">
 			<div class="span12">
-				<h2>
-					<xsl:apply-templates select="title"/>
-				</h2>
+				<xsl:apply-templates select="title"/>
 				<xsl:apply-templates select="image"/>
-				<xsl:apply-templates select="text"/>
+				<xsl:apply-templates select="section"/>
 				<xsl:apply-templates select="content"/>
 				<xsl:apply-templates select="redirect"/>
 				<xsl:apply-templates select="form"/>
@@ -20,10 +18,8 @@
 		<div class="row-fluid">
 			<div class="span12">
 				<xsl:apply-templates select="image"/>
-				<h3>
-					<xsl:apply-templates select="title"/>
-				</h3>
-				<xsl:apply-templates select="text"/>
+				<xsl:apply-templates select="title"/>
+				<xsl:apply-templates select="section"/>
 				<xsl:apply-templates select="content"/>
 				<xsl:apply-templates select="redirect"/>
 				<xsl:apply-templates select="form"/>
@@ -32,17 +28,14 @@
 	</xsl:template>
 
 
-	<xsl:template match="title">
-		<xsl:value-of select="."/>
+	<xsl:template match="content/title">
+		<legend class="af-title">
+			<xsl:apply-templates select="text"/>
+		</legend>
 	</xsl:template>
 
 	<xsl:template match="title[@link]">
 		<img src="{@link}"/>
-	</xsl:template>
-
-	<xsl:template match="title[@id]">
-		<xsl:variable name="id" select="@id"/>
-		<xsl:value-of select="document('../locale.xml')/locale/text[@id=$id]"/>
 	</xsl:template>
 
 
@@ -51,18 +44,20 @@
 	</xsl:template>
 
 	<xsl:template match="image[@type='dia1']">
-		<img src="design_template/af1.jpg" align="left"/>
+		<img src="design1/af1.png" class="af-dia"/>
 	</xsl:template>
 
 	<xsl:template match="image[@type='dia2']">
-		<img src="design_template/af2.jpg" align="left"/>
+		<img src="design1/af2.png" class="af-dia2"/>
 	</xsl:template>
 
 
 	<xsl:template match="redirect">
-		<a href="{@link}" class="btn btn-large btn-success">
-			<xsl:value-of select="."/>
-		</a>
+		<div class="af-redirect">
+			<a href="{@link}" class="btn btn-large btn-success">
+				<xsl:apply-templates select="text"/>
+			</a>
+		</div>
 		<xsl:if test="@force">
 			<script type="text/javascript">
 				document.location = "<xsl:value-of select="@link"/>";
@@ -70,18 +65,20 @@
 		</xsl:if>
 	</xsl:template>
 
+	
+	<xsl:template match="section">
+		<p class="af-section">
+			<xsl:apply-templates select="text"/>
+		</p>
+	</xsl:template>
 
 	<xsl:template match="text">
 		<xsl:value-of select="."/>
-		<br/>
-		<br/>
 	</xsl:template>
 
 	<xsl:template match="text[@id]">
 		<xsl:variable name="id" select="@id"/>
 		<xsl:value-of select="document('../locale.xml')/locale/text[@id=$id]"/>
-		<br/>
-		<br/>
 	</xsl:template>
 	
 </xsl:stylesheet>

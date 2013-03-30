@@ -1,0 +1,40 @@
+.af-header {
+	background-image: url("header_bg.png");
+	background-size: 100% 100%;
+	background-color: inherit;
+}
+
+.af-header h1 {
+	font-weight: bold;
+	font-style: italic;
+}
+
+.af-dia {
+	float: left;
+	margin: 20px;
+}
+
+.af-dia2 {
+	display: block;
+	margin: 20px auto 20px auto;
+}
+
+.af-title {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 21px;
+  line-height: 40px;
+  color: #424242;
+  border: 0;
+  border-bottom: 1px solid #9cc3ff;
+}
+
+.af-section {
+	font-size: 18px;
+}
+
+.af-redirect {
+	margin: 20px;
+}

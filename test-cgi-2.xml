@@ -2,19 +2,19 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <cgi>
 	<content>
-		<redirect link="login.xml">Далее ...</redirect>
+		<redirect link="login.xml"><text>Далее ...</text></redirect>
 	</content>
 	<content>
 		<form link="test-cgi-1.xml">
-			<title>Вход в интерфейс управления</title>
+			<title><text>Вход в интерфейс управления</text></title>
 			<input type="text" name="user">
-				<title>Логин</title>
+				<title><text>Логин</text></title>
 			</input>
 			<input type="password" name="password">
-				<title>Пароль</title>
+				<title><text>Пароль</text></title>
 			</input>
 			<input type="submit">
-				<title>Вход</title>
+				<title><text>Вход</text></title>
 			</input>
 		</form>
 	</content>

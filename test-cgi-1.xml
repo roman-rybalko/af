@@ -2,8 +2,8 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <cgi>
 	<content>
-		<text>
+		<section><text>
 			Тестовое сообщение
-		</text>
+		</text></section>
 	</content>
 </cgi>

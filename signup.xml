@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <static>
-	<title>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Вход</title>
+	<title><text>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Вход</text></title>
 	<logo lang="ru"/>
 	<topmenu>
 		<item link="login.xml">
 			<logo type="lock"/>
 			<text>Вход</text>
 		</item>
-		<item link="signup.xml">
+		<item selected="1">
 			<logo type="profile"/>
 			<text>Регистрация</text>
 		</item>
@@ -33,20 +33,20 @@
 	</menu>
 	<content>
 		<form link="test-cgi-2.xml">
-			<title>Регистрация</title>
+			<title><text>Регистрация</text></title>
 			<input type="text" name="user">
-				<title>Логин</title>
+				<title><text>Логин</text></title>
 				<text>латинские буквы и цифры</text>
 			</input>
 			<input type="password" name="password1">
-				<title>Пароль</title>
+				<title><text>Пароль</text></title>
 				<text>12 символов</text>
 			</input>
 			<input type="password" name="password2">
-				<title>Пароль (подтверждение)</title>
+				<title><text>Пароль (подтверждение)</text></title>
 			</input>
 			<input type="submit">
-				<title>Зарегистрироваться</title>
+				<title><text>Зарегистрироваться</text></title>
 			</input>
 		</form>
 	</content>

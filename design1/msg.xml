@@ -17,4 +17,12 @@
 			<text id="info_loading"/>
 		</loading>
 	</info>
+	<other>
+		<logo>
+			<text id="logo"/>
+		</logo>
+		<logo_descr>
+			<text id="logo_descr"/>
+		</logo_descr>>
+	</other>
 </msg>
