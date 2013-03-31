@@ -34,22 +34,37 @@
 		</legend>
 	</xsl:template>
 
-	<xsl:template match="title[@link]">
+	<xsl:template match="content/title[@link]">
 		<img src="{@link}"/>
 	</xsl:template>
 
 
 	<xsl:template match="image">
-		<img src="{@link}" align="left"/>
+		<img src="{@link}" class="af-image-centered"/>
 	</xsl:template>
 
-	<xsl:template match="image[@type='dia1']">
-		<img src="design1/af1.png" class="af-dia"/>
-	</xsl:template>
+	<xsl:variable name="image_common">
+		<script type="text/javascript">
+			function reformatImages()
+			{
+				$(".af-image-floated").each(function() {
+					if ($(this).width() / $(this).parent().width() &gt; 0.6) {
+						$(this).removeClass("af-image-floated");
+						$(this).addClass("af-image-centered");
+					}
+				});
+				$(".af-image-centered").each(function() {
+					if ($(this).width() / $(this).parent().width() &lt;= 0.6) {
+						$(this).removeClass("af-image-centered");
+						$(this).addClass("af-image-floated");
+					}
+				});
+			}
 
-	<xsl:template match="image[@type='dia2']">
-		<img src="design1/af2.png" class="af-dia2"/>
-	</xsl:template>
+			$(window).load(reformatImages);
+			$(window).resize(reformatImages);
+		</script>
+	</xsl:variable>
 
 
 	<xsl:template match="redirect">

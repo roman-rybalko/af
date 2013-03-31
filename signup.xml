@@ -5,21 +5,21 @@
 	<logo lang="ru"/>
 	<topmenu>
 		<item link="login.xml">
-			<logo type="lock"/>
+			<logo type="login"/>
 			<text>Вход</text>
 		</item>
 		<item selected="1">
-			<logo type="profile"/>
+			<logo type="signup"/>
 			<text>Регистрация</text>
 		</item>
 	</topmenu>
 	<menu>
 		<item link="description.xml">
-			<logo type="sheet"/>
+			<logo type="description"/>
 			<text>Описание</text>
 		</item>
 		<item link="benefits.xml">
-			<logo type="bars"/>
+			<logo type="benefits"/>
 			<text>Преимущества</text>
 		</item>
 		<item link="pricing.xml">

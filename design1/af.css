@@ -1,20 +1,58 @@
-.af-header {
+#af-header {
 	background-image: url("header_bg.png");
 	background-size: 100% 100%;
 	background-color: inherit;
+	border-bottom: 1px solid #96cbdd;
+	margin-bottom: 20px;
 }
 
-.af-header h1 {
+#af-header h1 {
 	font-weight: bold;
 	font-style: italic;
 }
 
-.af-dia {
+#af-page {
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto -62px; /* Negative indent footer by it's height + header border + footer border */
+}
+
+#af-page-push, #af-footer {
+	height: 60px;
+}
+
+#af-footer {
+	background-color: #d8e6ff;
+	border-top: 1px solid #96cbdd;
+}
+
+.af-footer-line-1 {
+	margin: 10px 0px 0px 0px;
+	height: 20px;
+	text-align: center;
+}
+
+.af-footer-line-2 {
+	margin: 0px 0px 10px 0px;
+	height: 20px;
+	text-align: center;
+}
+
+html, body {
+	height: 100%;
+}
+
+i {
+	margin: 0px 3px 0px 0px;
+}
+
+.af-image-floated {
 	float: left;
 	margin: 20px;
 }
 
-.af-dia2 {
+.af-image-centered {
 	display: block;
 	margin: 20px auto 20px auto;
 }

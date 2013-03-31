@@ -24,5 +24,11 @@
 		<logo_descr>
 			<text id="logo_descr"/>
 		</logo_descr>>
+		<footer_1>
+			<text id="footer_1"/>
+		</footer_1>
+		<footer_2>
+			<text id="footer_2"/>
+		</footer_2>
 	</other>
 </msg>
