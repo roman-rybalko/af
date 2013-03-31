@@ -31,9 +31,9 @@
 
 
 	<xsl:template match="content/title">
-		<legend class="af-title">
+		<div class="af-title">
 			<xsl:apply-templates select="text"/>
-		</legend>
+		</div>
 	</xsl:template>
 
 	<xsl:template match="content/title[@link]">
