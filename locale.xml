@@ -4,7 +4,7 @@
 	<text id="logo">ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ</text>
 	<text id="logo_descr">Антиспам как SaaS-решение</text>
 	<text id="footer_1">Advanced Filtering</text>
-	<text id="footer_2">2012 г.</text>
+	<text id="footer_2">2012</text>
 	<text id="error_bad_login">Неверный логин</text>
 	<text id="error_http">Ошибка HTTP</text>
 	<text id="error_init_http">Ошибка инициализации (HTTP). Запросы недоступны.</text>

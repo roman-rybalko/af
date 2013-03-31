@@ -36,6 +36,7 @@ build:
 	@echo "Thanks for using Bootstrap,"
 	@echo "<3 @mdo and @fat\n"
 	cp -avf docs/assets/css/bootstrap* docs/assets/js/bootstrap.* docs/assets/img/glyphicons-halflings* ../../design1/
+	rm -vf ../../design1/*.min.*
 
 #
 # RUN JSHINT & QUNIT TESTS IN PHANTOMJS

@@ -32,7 +32,51 @@
 		</item>
 	</menu>
 	<content>
-		<image link="static/prices.jpg"/>
+		<table>
+			<title>
+				<text>Предоплатные тарифы</text>
+			</title>
+			<head>
+				<cell>
+					<text>Количество адресов в домене</text>
+				</cell>
+				<cell>
+					<text>Стоимость в месяц</text>
+				</cell>
+			</head>
+			<row>
+				<cell>
+					<text>до 10</text>
+				</cell>
+				<cell>
+					<text>5 руб/адрес</text>
+				</cell>
+			</row>
+			<row>
+				<cell>
+					<text>11-20</text>
+				</cell>
+				<cell>
+					<text>20 руб/адрес</text>
+				</cell>
+			</row>
+			<row>
+				<cell>
+					<text>21-100</text>
+				</cell>
+				<cell>
+					<text>500 руб/адрес</text>
+				</cell>
+			</row>
+			<row>
+				<cell>
+					<text>более 100</text>
+				</cell>
+				<cell>
+					<text>400 руб/адрес</text>
+				</cell>
+			</row>
+		</table>
 		<section><text>
 Возможно предоплатное и контрактное подключение.
 		</text></section>

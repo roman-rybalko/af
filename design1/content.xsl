@@ -6,6 +6,7 @@
 			<div class="span12">
 				<xsl:apply-templates select="title"/>
 				<xsl:apply-templates select="image"/>
+				<xsl:apply-templates select="table"/>
 				<xsl:apply-templates select="section"/>
 				<xsl:apply-templates select="content"/>
 				<xsl:apply-templates select="redirect"/>
@@ -18,6 +19,7 @@
 		<div class="row-fluid">
 			<div class="span12">
 				<xsl:apply-templates select="image"/>
+				<xsl:apply-templates select="table"/>
 				<xsl:apply-templates select="title"/>
 				<xsl:apply-templates select="section"/>
 				<xsl:apply-templates select="content"/>
@@ -65,6 +67,47 @@
 			$(window).resize(reformatImages);
 		</script>
 	</xsl:variable>
+
+
+	<xsl:template match="table">
+		<xsl:apply-templates select="title"/>
+		<table class="table table-hover">
+			<xsl:if test="head">
+				<thead>
+					<xsl:apply-templates select="head"/>
+				</thead>
+			</xsl:if>
+			<xsl:if test="row">
+				<tbody>
+					<xsl:apply-templates select="row"/>
+				</tbody>
+			</xsl:if>
+		</table>
+	</xsl:template>
+
+	<xsl:template match="table/title">
+		<div class="af-title">
+			<xsl:apply-templates select="text"/>
+		</div>
+	</xsl:template>
+
+	<xsl:template match="table/head | table/row">
+		<tr>
+			<xsl:apply-templates select="cell"/>
+		</tr>
+	</xsl:template>
+
+	<xsl:template match="table/head/cell">
+		<th>
+			<xsl:apply-templates select="text"/>
+		</th>
+	</xsl:template>
+	
+	<xsl:template match="table/row/cell">
+		<td>
+			<xsl:apply-templates select="text"/>
+		</td>
+	</xsl:template>
 
 
 	<xsl:template match="redirect">

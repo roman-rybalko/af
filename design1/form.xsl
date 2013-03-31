@@ -70,10 +70,10 @@
 	
 	<xsl:template match="form">
 		<xsl:variable name="id" select="generate-id()"/>
+		<div class="af-title">
+			<xsl:apply-templates select="title"/>
+		</div>
 		<form action="{@link}" id="{$id}" class="form-horizontal">
-			<legend class="af-title">
-				<xsl:apply-templates select="title"/>
-			</legend>
 			<xsl:apply-templates select="input"/>
 		</form>
 		<div id="{$id}result"/>
