@@ -11,4 +11,5 @@
 	<text id="error_init_http">Ошибка инициализации (HTTP). Запросы недоступны.</text>
 	<text id="error_init_xslt">Ошибка инициализации (XSLT). Запросы недоступны.</text>
 	<text id="info_loading">Загрузка ...</text>
+	<text id="info_hidden">Скрытые (служебные) элементы (если вы их видите - не обращайте внимания)</text>
 </locale>

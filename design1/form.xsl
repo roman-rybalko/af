@@ -3,6 +3,9 @@
 
 	<xsl:variable name="form_common">
 		<div class="hide">
+			<div class="af-title">
+				<xsl:apply-templates select="document('msg.xml')//info/hidden"/>
+			</div>
 			<div id="error_http" class="alert alert-block alert-error">
 				<h4 class="alert-headeing">
 					<xsl:apply-templates select="document('msg.xml')//error/http"/>
@@ -34,7 +37,7 @@
 		</div>
 
 		<script type="text/javascript" src="design1/sarissa.js"/>
-		<!-- <script type="text/javascript" src="design1/jquery.debug.js"/> -->
+		<script type="text/javascript" src="design1/jquery.debug.js"/>
 		<script type="text/javascript" src="design1/utils.js"/>
 		<script type="text/javascript">
 			function rebindForms()

@@ -5,20 +5,23 @@
 		<http>
 			<text id="error_http"/>
 		</http>
+		<xslt>
+			<text id="error_xslt"/>
+		</xslt>
 		<init_http>
 			<text id="error_init_http"/>
 		</init_http>
 		<init_xslt>
 			<text id="error_init_xslt"/>
 		</init_xslt>
-		<xslt>
-			<text id="error_xslt"/>
-		</xslt>
 	</error>
 	<info>
 		<loading>
 			<text id="info_loading"/>
 		</loading>
+		<hidden>
+			<text id="info_hidden"/>
+		</hidden>
 	</info>
 	<other>
 		<logo>
