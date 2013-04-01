@@ -24,7 +24,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="span12 result_global"/>
+							<div id="result_global" class="span12"/>
 						</div>
 						<xsl:apply-templates select="content"/>
 					</div>

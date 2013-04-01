@@ -70,7 +70,6 @@
 
 
 	<xsl:template match="table">
-		<xsl:apply-templates select="title"/>
 		<table class="table table-hover">
 			<xsl:if test="head">
 				<thead>
@@ -83,12 +82,6 @@
 				</tbody>
 			</xsl:if>
 		</table>
-	</xsl:template>
-
-	<xsl:template match="table/title">
-		<div class="af-title">
-			<xsl:apply-templates select="text"/>
-		</div>
 	</xsl:template>
 
 	<xsl:template match="table/head | table/row">

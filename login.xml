@@ -32,8 +32,8 @@
 		</item>
 	</menu>
 	<content>
+		<title><text>Вход в интерфейс управления</text></title>
 		<form link="test-cgi-1.xml">
-			<title><text>Вход в интерфейс управления</text></title>
 			<input type="text" name="user">
 				<title><text>Логин</text></title>
 			</input>

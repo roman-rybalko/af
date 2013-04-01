@@ -2,11 +2,12 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <cgi>
 	<content>
+		<title><text>Переход</text></title>
 		<redirect link="login.xml"><text>Далее ...</text></redirect>
 	</content>
 	<content>
+		<title><text>Тест: успешный запрос</text></title>
 		<form link="test-cgi-1.xml">
-			<title><text>Вход в интерфейс управления</text></title>
 			<input type="text" name="user">
 				<title><text>Логин</text></title>
 			</input>
@@ -15,6 +16,22 @@
 			</input>
 			<input type="submit">
 				<title><text>Вход</text></title>
+			</input>
+		</form>
+	</content>
+	<content>
+		<title><text>Тест: несуществующая ссылка</text></title>
+		<form link="test-cgi-unexistent.xml">
+			<input type="submit">
+				<title><text>Тест</text></title>
+			</input>
+		</form>
+	</content>
+	<content>
+		<title><text>Тест: неверный формат</text></title>
+		<form link="test-cgi-wrongformat.xml">
+			<input type="submit">
+				<title><text>Тест</text></title>
 			</input>
 		</form>
 	</content>

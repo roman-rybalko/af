@@ -2,6 +2,7 @@
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <cgi>
 	<content>
+		<title><text>Результат запроса</text></title>
 		<section><text>
 			Тестовое сообщение
 		</text></section>

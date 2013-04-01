@@ -8,9 +8,12 @@
 		<init_http>
 			<text id="error_init_http"/>
 		</init_http>
-		<init_xsl>
+		<init_xslt>
 			<text id="error_init_xslt"/>
-		</init_xsl>
+		</init_xslt>
+		<xslt>
+			<text id="error_xslt"/>
+		</xslt>
 	</error>
 	<info>
 		<loading>

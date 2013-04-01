@@ -7,6 +7,7 @@
 	<text id="footer_2">2012</text>
 	<text id="error_bad_login">Неверный логин</text>
 	<text id="error_http">Ошибка HTTP</text>
+	<text id="error_xslt">Ошибка XSLT</text>
 	<text id="error_init_http">Ошибка инициализации (HTTP). Запросы недоступны.</text>
 	<text id="error_init_xslt">Ошибка инициализации (XSLT). Запросы недоступны.</text>
 	<text id="info_loading">Загрузка ...</text>

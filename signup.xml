@@ -32,8 +32,8 @@
 		</item>
 	</menu>
 	<content>
+		<title><text>Регистрация</text></title>
 		<form link="test-cgi-2.xml">
-			<title><text>Регистрация</text></title>
 			<input type="text" name="user">
 				<title><text>Логин</text></title>
 				<text>латинские буквы и цифры</text>
