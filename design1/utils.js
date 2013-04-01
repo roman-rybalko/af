@@ -1,4 +1,4 @@
-// require jQuery
+// requires jQuery
 function strescape(str) {
 	return $('<div/>').text(str).html();
 }
@@ -13,8 +13,14 @@ function obj2str(obj) {
     return strescape(str);
 }
 
-// require Sarissa
+// requires Sarissa
 function xml2str(xml) {
 	var xmlser = new XMLSerializer()
 	return strescape(xmlser.serializeToString(xml));
+}
+
+// requires Sarissa
+function str2xml(str) {
+	var dompar = new DOMParser();
+	return dompar.parseFromString(str, "text/xml");
 }
