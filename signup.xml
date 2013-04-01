@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="default.xsl" type="text/xsl" ?>
 <static>
-	<title><text>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Вход</text></title>
+	<title><text>ПРОГРЕССИВНАЯ ФИЛЬТРАЦИЯ - Регистрация</text></title>
 	<logo lang="ru"/>
 	<topmenu>
 		<item link="login.xml">
