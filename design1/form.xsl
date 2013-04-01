@@ -48,12 +48,10 @@
 					$(result).empty().append($("#info_loading").clone());
 					$(form).find("button.af-submit").attr("disabled", "disabled");
 					$.get($(form).attr("action"), $(form).serialize()).done(function(data) {
-						try {
-							$(result).empty().append(xsltproc.transformToFragment(data, document));
-						} catch (e) {
-							$(result).empty().append($("#error_xslt").clone())
-								.find("#error_xlst_descr").empty().append(obj2str(e));
-						}
+						var html = xsltproc.transformToFragment(data, document);
+						if (html) $(result).empty().append(html);
+						else $(result).empty().append($("#error_xslt").clone())
+								.find("#error_xlst_descr").empty();
 						rebindForms();
 					}).fail(function(req, status, error) {
 						$(result).empty().append($("#error_http").clone())
