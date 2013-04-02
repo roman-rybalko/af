@@ -210,11 +210,11 @@
 			<div class="span12">
 				<xsl:apply-templates select="title"/>
 				<xsl:apply-templates select="image"/>
-				<xsl:apply-templates select="table"/>
 				<xsl:apply-templates select="section"/>
-				<xsl:apply-templates select="content"/>
-				<xsl:apply-templates select="redirect"/>
+				<xsl:apply-templates select="table"/>
 				<xsl:apply-templates select="form"/>
+				<xsl:apply-templates select="redirect"/>
+				<xsl:apply-templates select="content"/>
 			</div>
 		</div>
 	</xsl:template>
@@ -222,13 +222,13 @@
 	<xsl:template match="content/content">
 		<div class="row-fluid">
 			<div class="span12">
-				<xsl:apply-templates select="image"/>
-				<xsl:apply-templates select="table"/>
 				<xsl:apply-templates select="title"/>
+				<xsl:apply-templates select="image"/>
 				<xsl:apply-templates select="section"/>
-				<xsl:apply-templates select="content"/>
-				<xsl:apply-templates select="redirect"/>
+				<xsl:apply-templates select="table"/>
 				<xsl:apply-templates select="form"/>
+				<xsl:apply-templates select="redirect"/>
+				<xsl:apply-templates select="content"/>
 			</div>
 		</div>
 	</xsl:template>

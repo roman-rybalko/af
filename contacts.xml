@@ -31,61 +31,67 @@
 			<text>Контакты</text>
 		</item>
 	</menu>
+
+	<content>
+		<title><text>
+			Связь
+		</text></title>
+		<section><text>
+			Административные вопросы: 11:00-18:00 (UTC+4)
+		</text></section>
+		<section><text>
+			Техническая поддержка: 8:00-23:00 (UTC+4)
+		</text></section>
+		<table>
+			<row>
+				<cell><text>
+					Общая информация
+				</text></cell>
+				<cell><text>
+					e-mail: info@advancedfiltering.ru
+				</text></cell>
+			</row>
+			<row>
+				<cell><text>
+					Заключение договоров
+				</text></cell>
+				<cell><text>
+					e-mail: sales@advancedfiltering.ru
+				</text></cell>
+			</row>
+			<row>
+				<cell><text>
+					Техническая поддержка
+				</text></cell>
+				<cell><text>
+					e-mail: support@advancedfiltering.ru
+				</text></cell>
+			</row>
+			<row>
+				<cell><text>
+					Офис
+				</text></cell>
+				<cell><text>
+					тел. +7 (963) 762-16-44
+				</text></cell>
+			</row>		
+		</table>
+	</content>
+	
 	<content>
 		<title><text>Реквизиты предприятия</text></title>
 		<section><text>
-Индивидуальный предприниматель Рыбалко Роман Вячеславович
+			ИП Рыбалко Р.В.
 		</text></section>
 		<section><text>
-ИНН 123456789012
+			ОГРН 312502433100033
 		</text></section>
 		<section><text>
-ОГРН 123456789012
+			ИНН 502480148682
 		</text></section>
 		<section><text>
-Контактный телефон: +79637621644
-		</text></section>
-		<section><text>
-Контактный e-mail: info@advancedfiltering.ru
+			Налогообложение УСН (без НДС)
 		</text></section>
 	</content>
-	<content>
-		<title><text>Наша команда</text></title>
-		<content>
-			<title link="static/roman_title.jpg"/>
-			<image link="static/roman.jpg"/>
-			<section><text>
-Аналитик, стратег по развитию, специалист по сервисам и коммуникации.
-Работа в сфере телекоммуникаций.
-Работа в сфере сервисных решений, Лаборатория Касперского.
-Автор патента.
-			</text></section>
-		</content>
-		<content>
-			<title link="static/felix_title.jpg"/>
-			<image link="static/felix.jpg"/>
-			<section><text>
-Специалист по оборудованию, развёртыванию и мониторингу.
-Деятельность в сфере разработки встраиваемых програмных решений.
-			</text></section>
-		</content>
-		<content>
-			<title link="static/tuba_title.jpg"/>
-			<image link="static/tuba.jpg"/>
-			<section><text>
-Специалист по информационной безопасности, криптографии и аппаратному обеспечению.
-Работа в сфере информационной безопасности, БИФИТ.
-			</text></section>
-		</content>
-	</content>
-	<content>
-		<title><text>Патентование</text></title>
-		<image link="static/101234_sm.png"/>
-		<section><text>
-Патент РФ №101234.
-		</text></section>
-		<section><text>
-Система анализа протоколов передачи данных с целью нейтрализации программ, рассылающих спам.
-		</text></section>
-	</content>
+
 </static>

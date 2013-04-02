@@ -32,7 +32,7 @@
 		</item>
 	</menu>
 	<content>
-		<image link="static/af1.png"/>
+		<image link="af1.png"/>
 		<redirect link="benefits.xml"><text>Детальнее »</text></redirect>
 		<redirect link="signup.xml"><text>Подключиться »</text></redirect>
 		<section><text>
