@@ -360,6 +360,8 @@
 		<html>
 			<head>
 				<xsl:apply-templates select="title"/>
+				<link href="favicon.ico" type="image/x-icon" rel="icon"/>
+    			<link href="favicon.ico" type="image/x-icon" rel="shortcut icon"/>
 				<link href="design1/bootstrap.css" rel="stylesheet"/>
 				<link href="design1/bootstrap-responsive.css" rel="stylesheet"/>
 				<link href="design1/af.css" rel="stylesheet"/>

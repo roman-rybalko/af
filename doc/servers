@@ -1,0 +1,22 @@
+firstvds:
+rub/month
+smtp 512Mb x 2 x 500
+smtp cli 128Mb x 2 x 200
+vpn 128Mb x 2 x 200
+mail processing 512M x 2 x 500
+--
+2800
+x 2 x 2800
+
+site wiki 256Mb x 2 x 300
+console dns 512Mb x 2 x 500
+--
+1600
+
+--
+7200
+
+rub/year
+12 x 7200
+--
+86400
