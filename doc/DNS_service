@@ -1,6 +1,0 @@
-tld = advancedfiltering.net
-<global-service>.globalX.service.<tld>
-<cluster-service>.clusterX.globalX.service.<tld>
-global-service = dns, site, wiki, web-login, ldap-glob, spam-trap, dnsbl, web-trap
-cluster-service = smtp-srv, as, av, ldap-srv, smtp-cli, ldap-cli, ldap-log, vpn, web-imap, spam-imap, web-con, ldap-clust
-service => service1, service2, service3, ...

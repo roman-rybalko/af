@@ -1,36 +1,51 @@
 o=af
 
-ou=configuration,o=af
-host=xxx,ou=configuration,o=af
-service: smtp|submission|vpn|console|webmail
-domain=xxx,service=xxx,host=xxx,ou=configuration,o=af
-client=xxx,service=xxx,host=xxx,ou=configuration,o=af
-id=xxx,service=xxx,host=xxx,ou=configuration,o=af
-service:
-host:
-client:
+--
 
-service=console,ou=services,o=af
-client=xxx,service=console,ou=services,o=af
+ou=configuration,o=af
+
+host=xxx,ou=configuration,o=af
+service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage
+service:
+cluster:
+cluster:
+
+--
+
+service=xxx,o=af
+
+domain=xxx,service=xxx,o=af
+client=xxx,service=xxx,o=af
+id=xxx,service=xxx,o=af
+cluster:
+
+--
+
+service=console,o=af
+client=xxx,service=console,o=af
+cluster:
 credentials:
 email:
 contacts:
 
-service=smtp,ou=services,o=af
-domain=xxx,service=smtp,ou=services,o=af
+service=smtp,o=af
+domain=xxx,service=smtp,o=af
+cluster:
 source:
 credentials:
-uid=xxx,domain=xxx,service=smtp,ou=services,o=af
-mid=xxx,domain=xxx,service=smtp,ou=services,o=af
-tid=xxx,domain=xxx,service=smtp,ou=services,o=af
+uid=xxx,domain=xxx,service=smtp,o=af
+mid=xxx,domain=xxx,service=smtp,o=af
+tid=xxx,domain=xxx,service=smtp,o=af
 
-service=submission,ou=services,o=af
-domain=xxx,service=submission,ou=services,o=af
+service=submission,o=af
+domain=xxx,service=submission,o=af
+cluster:
 ip:
 credentials:
 
-service=vpn,ou=services,o=af
-id=xxx,service=vpn,ou=services,o=af
+service=vpn,o=af
+id=xxx,service=vpn,o=af
+cluster:
 client:
 key:
 ip:
