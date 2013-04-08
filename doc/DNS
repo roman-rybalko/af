@@ -17,6 +17,4 @@ webmail.xxx.clients.advancedfiltering.net
 vpn1.xxx.clients.advancedfiltering.net
 vpn2.xxx.clients.advancedfiltering.net
 
-service.advancedfiltering.net
-
-configuration.ldap.service.advancedfiltering.net
+configuration.ldap.services.advancedfiltering.net

@@ -1,0 +1,2 @@
+/usr/ports/packages -ro -mapall=nobody
+/mnt -mapall=nobody

@@ -1,10 +1,10 @@
-o=af
+o=advancedfiltering
 
 --
 
-ou=configuration,o=af
+ou=configuration,o=advancedfiltering
 
-host=xxx,ou=configuration,o=af
+host=xxx,ou=configuration,o=advancedfiltering
 service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage
 service:
 cluster:
@@ -12,39 +12,39 @@ cluster:
 
 --
 
-service=xxx,o=af
+service=xxx,ou=services,o=advancedfiltering
 
-domain=xxx,service=xxx,o=af
-client=xxx,service=xxx,o=af
-id=xxx,service=xxx,o=af
+domain=xxx,service=xxx,ou=services,o=advancedfiltering
+client=xxx,service=xxx,ou=services,o=advancedfiltering
+id=xxx,service=xxx,ou=services,o=advancedfiltering
 cluster:
 
 --
 
-service=console,o=af
-client=xxx,service=console,o=af
+service=console,ou=services,o=advancedfiltering
+client=xxx,service=console,ou=services,o=advancedfiltering
 cluster:
 credentials:
 email:
 contacts:
 
-service=smtp,o=af
-domain=xxx,service=smtp,o=af
+service=smtp,ou=services,o=advancedfiltering
+domain=xxx,service=smtp,ou=services,o=advancedfiltering
 cluster:
 source:
 credentials:
-uid=xxx,domain=xxx,service=smtp,o=af
-mid=xxx,domain=xxx,service=smtp,o=af
-tid=xxx,domain=xxx,service=smtp,o=af
+uid=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
+mid=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
+tid=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
 
-service=submission,o=af
-domain=xxx,service=submission,o=af
+service=submission,ou=services,o=advancedfiltering
+domain=xxx,service=submission,ou=services,o=advancedfiltering
 cluster:
 ip:
 credentials:
 
-service=vpn,o=af
-id=xxx,service=vpn,o=af
+service=vpn,ou=services,o=advancedfiltering
+id=xxx,service=vpn,ou=services,o=advancedfiltering
 cluster:
 client:
 key:
