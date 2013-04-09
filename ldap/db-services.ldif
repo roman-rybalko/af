@@ -5,13 +5,17 @@ objectClass: olcMdbConfig
 olcDatabase: mdb
 olcDbDirectory: /var/db/openldap-data/ou=services,o=advancedfiltering
 olcSuffix: ou=services,o=advancedfiltering
-olcAccess: to * by dn.regex="uid=roma,.*cn=gssapi,cn=auth" manage by * none
+olcAccess: to dn.subtree="" by dn="uid=ldap/syncrepl,cn=gssapi,cn=auth" read by dn="uid=roma,cn=gssapi,cn=auth" manage by * none
 olcLastMod: TRUE
-olcLimits: dn.regex="uid=ldap/syncrepl,.*cn=gssapi,cn=auth" size=unlimited time=unlimited
-olcLimits: dn.regex="uid=roma,.*cn=gssapi,cn=auth" size=100000
-olcRootDN: cn=admin,cn=config
+olcLimits: dn="uid=ldap/syncrepl,cn=gssapi,cn=auth" size=unlimited time=unlimited
+olcLimits: dn="uid=roma,cn=gssapi,cn=auth" size=100000
 olcDbCheckpoint: 102400 1
 olcDbNoSync: TRUE
 olcDbIndex: objectClass eq
 olcDbIndex: entryCSN,entryUUID eq
 olcDbMaxSize: 4294967296
+
+dn: ou=services,o=advancedfiltering
+changetype: add
+objectClass: organizationalUnit
+ou: services

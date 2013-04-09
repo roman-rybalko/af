@@ -5,3 +5,11 @@ objectClass: olcSyncProvConfig
 olcOverlay: syncprov
 olcSpCheckpoint: 1024 1
 olcSpSessionlog: 1024
+
+dn: olcOverlay=syncprov,olcDatabase={2}mdb,cn=config
+changetype: add
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+olcSpCheckpoint: 1024 1
+olcSpSessionlog: 1024

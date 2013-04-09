@@ -1,0 +1,7 @@
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+add: olcRootDN
+olcRootDN: cn=tvorg8TRpo1U,cn=config
+-
+add: olcRootPW
+olcRootPW: CtZCY6d65Uc9

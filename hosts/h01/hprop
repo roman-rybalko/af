@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+
+# PROVIDE: hprop
+
+# rc.conf:
+# hprop_enable="YES"
+# hprop_period="600" # seconds
+# hprop_slaves="h01 h02 h03 ..."
+
+. /etc/rc.subr
+
+name="hprop"
+rcvar="${name}_enable"
+pidfile="/var/run/${name}_wrap.pid"
+command="/usr/local/bin/${name}_wrap"
+hprop_period="600"
+
+load_rc_config $name
+command_args="$pidfile $hprop_period $hprop_slaves"
+
+run_rc_command "$1"

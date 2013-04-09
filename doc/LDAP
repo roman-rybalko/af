@@ -7,8 +7,8 @@ ou=configuration,o=advancedfiltering
 host=xxx,ou=configuration,o=advancedfiltering
 service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage
 service:
-cluster:
-cluster:
+realm:
+realm:
 
 --
 
@@ -17,20 +17,20 @@ service=xxx,ou=services,o=advancedfiltering
 domain=xxx,service=xxx,ou=services,o=advancedfiltering
 client=xxx,service=xxx,ou=services,o=advancedfiltering
 id=xxx,service=xxx,ou=services,o=advancedfiltering
-cluster:
+realm:
 
 --
 
 service=console,ou=services,o=advancedfiltering
 client=xxx,service=console,ou=services,o=advancedfiltering
-cluster:
+realm:
 credentials:
 email:
 contacts:
 
 service=smtp,ou=services,o=advancedfiltering
 domain=xxx,service=smtp,ou=services,o=advancedfiltering
-cluster:
+realm:
 source:
 credentials:
 uid=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
@@ -39,13 +39,13 @@ tid=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
 
 service=submission,ou=services,o=advancedfiltering
 domain=xxx,service=submission,ou=services,o=advancedfiltering
-cluster:
+realm:
 ip:
 credentials:
 
 service=vpn,ou=services,o=advancedfiltering
 id=xxx,service=vpn,ou=services,o=advancedfiltering
-cluster:
+realm:
 client:
 key:
 ip:

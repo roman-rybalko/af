@@ -1,0 +1,24 @@
+Dear Roman Rybalko,
+Your application [Request-52537] has been completed and a PEN has been assigned.
+Your organization's PEN is: 40547
+Below is a copy of your PEN record. This record will be visible in the IANA PEN registry within an hour.
+The IANA PEN registry is available at the following address:
+http://www.iana.org/assignments/enterprise-numbers
+If there is any change in the contact information, please submit a modification template via the following link:
+http://pen.iana.org/pen/PenModification.page
+If you have any questions, please send an email message to iana-pen@iana.org
+Best regards,
+IANA - Internet Assigned Numbers Authority
+********************************************
+Private Enterprise Number: 40547
+Organization Name:         Aadvanced Filtering Services
+Organization Address:      123060
+Moscow
+ulitsa Marshala Rybalko dom 16 korpus 5 kvartira 58
+Russian Federation
+Organization Phone:        
+Contact Name:              Roman Rybalko
+Contact Address:           
+Contact Phone:             
+Contact Fax:               
+Contact E-mail:            iana-oid-pen@advancedfiltering.net

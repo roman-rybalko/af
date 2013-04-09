@@ -1,4 +1,4 @@
 dn: olcDatabase={0}config,cn=config
 changetype: modify
-add: olcAccess
-olcAccess: to * by dn.regex="uid=roma,.+cn=gssapi,cn=auth" manage by * none
+replace: olcAccess
+olcAccess: to dn.subtree="" by dn="uid=roma,cn=gssapi,cn=auth" manage by * none
