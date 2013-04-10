@@ -4,4 +4,4 @@ add: olcRootDN
 olcRootDN: cn=tvorg8TRpo1U,cn=config
 -
 add: olcRootPW
-olcRootPW: CtZCY6d65Uc9
+olcRootPW: 1

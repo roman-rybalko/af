@@ -1,0 +1,36 @@
+connect
+* проверка dnsbl
+** fail => flag_dnsbl, continue
+** ok => continue
+* ok
+
+mail
+* проверка spf
+** fail => flag_spf, continue
+** ok => continue
+* проверка системных черных списков (ip, hostname, addr from, certificate)
+** ...
+* проверка системных белых списков (ip, hostname, addr from, certificate)
+** ...
+* ok
+
+rcpt
+* проверка черных списков (ip, hostname, addr from, certificate) для [addr to, domain to, client to]
+** fail => continue
+** ok => Access denied, stop
+* проверка белых списков (ip, hostname, addr from, certificate) для [addr to, domain to, client to]
+** fail => continue
+** ok => ok, stop
+* проверка адреса получателя в afMailBox
+** fail => flag_new_rcpt, continue
+** ok, afSpamTrap => flag_spamtrap, continue
+** ok, afVerifyCount => flag_verify, continue
+* ok
+
+data
+* проверка Thread-Index в afMessageThread
+** fail => continue
+** ok => ok, stop
+* проверка In-Reply-To, References в afMessageOutgoing
+** fail => continue
+** ok => ok, stop
