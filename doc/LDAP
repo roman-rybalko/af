@@ -5,10 +5,13 @@ o=advancedfiltering
 ou=configuration,o=advancedfiltering
 
 host=xxx,ou=configuration,o=advancedfiltering
-service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log
+service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log|smtpdb
 service:
 realm:
 realm:
+
+syssettings=xxx,host=xxx,ou=configuration,o=advancedfiltering
+syssettings=xxx,ou=configuration,o=advancedfiltering
 
 domain=xxx,ou=configuration,o=advancedfiltering
 client:
@@ -41,9 +44,11 @@ realm:
 settings:
 clientmx=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
 credentials:
-mail=xxx,service=smtp,ou=services,o=advancedfiltering
-mid=xxx,service=smtp,ou=services,o=advancedfiltering
-tid=xxx,service=smtp,ou=services,o=advancedfiltering
+
+service=smtpdb,ou=services,o=advancedfiltering
+mail=xxx,service=smtpdb,ou=services,o=advancedfiltering
+mid=xxx,service=smtpdb,ou=services,o=advancedfiltering
+tid=xxx,service=smtpdb,ou=services,o=advancedfiltering
 
 service=submission,ou=services,o=advancedfiltering
 domain=xxx,service=submission,ou=services,o=advancedfiltering

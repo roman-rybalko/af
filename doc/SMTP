@@ -1,36 +1,74 @@
+* получение системной настройки spamtrap
+** ok => sys_spamtrap
+sys_spamtrap
+
 connect
+* проверка системных черных списков (ip, hostname)
+** ok => sys_spamtrap ? ok, flag_spamtrap+="Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
+* проверка системных белых списков (ip, hostname)
+** ok => flag_sys_wl, ok, stop
 * проверка dnsbl
-** fail => flag_dnsbl, continue
-** ok => continue
+** fail => flag_dnsbl
 * ok
+flag_spamtrap
+flag_sys_wl
+flag_dnsbl
+
+helo
+* flag_sys_wl => ok, stop
+* flag_spamtrap => ok, stop
+* проверка системных черных списков (certificate)
+** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
+* проверка системных белых списков (certificate)
+** ok => flag_sys_wl, ok, stop
+flag_spamtrap
+flag_sys_wl
 
 mail
+* flag_sys_wl => ok, stop
+* flag_spamtrap => ok, stop
 * проверка spf
-** fail => flag_spf, continue
-** ok => continue
-* проверка системных черных списков (ip, hostname, addr from, certificate)
-** ...
-* проверка системных белых списков (ip, hostname, addr from, certificate)
-** ...
-* ok
+** fail => flag_spf, ok, stop
+* проверка системных черных списков (addr from)
+** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
+* проверка системных белых списков (addr from)
+** ok => flag_sys_wl, ok, stop
+flag_spamtrap
+flag_sys_wl
+flag_spf
 
 rcpt
-* проверка черных списков (ip, hostname, addr from, certificate) для [addr to, domain to, client to]
-** fail => continue
-** ok => Access denied, stop
-* проверка белых списков (ip, hostname, addr from, certificate) для [addr to, domain to, client to]
-** fail => continue
-** ok => ok, stop
+* проверка realm для домена
+** нет домена => 5xx The domain is not in service, stop
+** чужой realm => 4xx Moved, try another host, stop
 * проверка адреса получателя в afMailBox
-** fail => flag_new_rcpt, continue
-** ok, afSpamTrap => flag_spamtrap, continue
-** ok, afVerifyCount => flag_verify, continue
-* ok
+** fail => 4xx Your data is verifying, try again in 5 minutes, log_message, stop
+** ok, afNotExists => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
+* проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
+** ok => 5xx Access denied (local user policy), stop
+* проверка белых списков (ip, hostname, certificate) для [addr to, domain to, client to]
+** ok => flag_user_wl+=1, ok, stop
+* flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF violation: ...)", stop : 5xx Access denied (SPF violation: ...), stop
+* проверка черных списков (addr from) для [addr to, domain to, client to]
+** ok => 5xx Access denied (local user policy), stop
+* проверка белых списков (addr from) для [addr to, domain to, client to]
+** ok => flag_user_wl+=1, ok, stop
+* flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL policy: ...)", stop : 5xx Access denied (DNSBL policy: ...), stop
+flag_user_wl
 
 data
+* ok
+
+data_end
+* flag_sys_wl => ok, stop
+* flag_user_wl == recipients_count => ok, stop
 * проверка Thread-Index в afMessageThread
-** fail => continue
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** fail => continue
 ** ok => ok, stop
+* проверка Message-Id в afMessageIncoming
+** нет MessageId => sys_spamtrap ? flag_spamtrap+="No Message-Id header, submission is prohibited" : 5xx No Message-Id header, submission is prohibited, stop
+** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop
+** ok => ok, stop
+* flag_spamtrap => 5xx $flag_spamtrap, forward to spamtrap
+* 4xx Your data is verifying, try again in 5 minutes, forward to mailproc
