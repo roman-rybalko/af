@@ -32,4 +32,9 @@ tar -zxv -f etc-ssh.tgz -C /
 service sshd restart
 rm -vf etc-ssh.tgz
 
+pw user mod root -w no
+chmod u=rwx,g=rx,o-rwx /root
+
+pw user mod roma -w no
+
 rm -vf /`basename $0`
