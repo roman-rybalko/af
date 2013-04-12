@@ -1,3 +1,9 @@
+* локальные порты 25 137 138 139 445
+
+* получение сисеной настройки trustedports (137 138 139 445)
+** received_port in trustedports => sys_trustedport
+sys_trustedport
+
 * получение системной настройки spamtrap
 ** ok => sys_spamtrap
 sys_spamtrap
@@ -7,7 +13,7 @@ connect
 ** ok => sys_spamtrap ? ok, flag_spamtrap+="Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
 * проверка системных белых списков (ip, hostname)
 ** ok => flag_sys_wl, ok, stop
-* проверка dnsbl
+* sys_trustedport ? ok : проверка dnsbl
 ** fail => flag_dnsbl
 * ok
 flag_spamtrap
@@ -71,4 +77,5 @@ data_end
 ** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop
 ** ok => ok, stop
 * flag_spamtrap => 5xx $flag_spamtrap, forward to spamtrap
+* sys_trustedport => ok, stop
 * 4xx Your data is verifying, try again in 5 minutes, forward to mailproc
