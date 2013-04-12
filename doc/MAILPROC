@@ -1,0 +1,9 @@
+Прием на адрес mailproc@services.advancedfiltering.net в mailstore
+ClientRealm в заголовке, заполняется на фронтэнде.
+Сканирование spamc + скрипт, считывающий Message-Id, X-AF-ClientRealm из файла сообщения.
+
+exim:
+* Прием с localhost без авторизации (sendmail).
+* Прием с остальных только с авторизацией и проверкой сертификата SSL (exim).
+* На mailproc@services.advancedfiltering.net складывать в каталог.
+
