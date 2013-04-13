@@ -1,4 +1,6 @@
-root@services.advancedfiltering.net
+root@hosts.advancedfiltering.net
+postmaster@hosts.advancedfiltering.net
+
 mailproc@services.advancedfiltering.net
 spamtrap@services.advancedfiltering.net
 xxx@clientrealms.advancedfiltering.net

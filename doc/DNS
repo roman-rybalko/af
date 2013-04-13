@@ -18,3 +18,7 @@ vpn1.xxx.clients.advancedfiltering.net
 vpn2.xxx.clients.advancedfiltering.net
 
 configuration.ldap.services.advancedfiltering.net
+
+hosts.advancedfiltering.net (mx xxx)
+clientrealms.advancedfiltering.net (mx .)
+services.advancedfiltering.net (mx .)
