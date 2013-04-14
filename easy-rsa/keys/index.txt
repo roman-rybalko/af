@@ -2,3 +2,4 @@ V	230410143952Z		01	unknown	/O=advancedfiltering/OU=hosts/CN=deploy.hosts.advanc
 V	230410144027Z		02	unknown	/O=advancedfiltering/OU=hosts/CN=h01.hosts.advancedfiltering.net
 V	230410144032Z		03	unknown	/O=advancedfiltering/OU=hosts/CN=h02.hosts.advancedfiltering.net
 V	230412121218Z		04	unknown	/O=advancedfiltering/OU=hosts/CN=test-cli
+R	230412123109Z	130414123124Z	05	unknown	/O=advancedfiltering/OU=hosts/CN=test-crl
