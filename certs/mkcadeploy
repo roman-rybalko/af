@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -ex
+
+openssl x509 -in ../easy-rsa/keys/ca.crt -inform PEM -out ca-advancedfiltering.crt -outform DER
+openssl crl -in ../easy-rsa/keys/crl.pem -inform PEM -out ca-advancedfiltering.crl -outform DER
