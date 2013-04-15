@@ -1,0 +1,7 @@
+#TLS_CERT ../easy-rsa/keys/test5.crt
+#TLS_KEY ../easy-rsa/keys/test5.key
+#TLS_CERT ../easy-rsa/keys/test-other-valid.crt
+#TLS_KEY ../easy-rsa/keys/test-other-valid.key
+TLS_CERT ../easy-rsa/keys/test-cli.crt
+TLS_KEY ../easy-rsa/keys/test-cli.key
+TLS_REQCERT allow

@@ -189,7 +189,7 @@ basicConstraints=CA:FALSE
 # keyUsage = nonRepudiation, digitalSignature, keyEncipherment
 
 # This will be displayed in Netscape's comment listbox.
-nsComment			= "Easy-RSA Generated Certificate"
+# nsComment			= "Easy-RSA Generated Certificate"
 
 # PKIX recommendations harmless if included in all certificates.
 subjectKeyIdentifier=hash
@@ -215,12 +215,15 @@ keyUsage = digitalSignature
 
 # JY ADDED -- Make a cert with nsCertType set to "server"
 basicConstraints=CA:FALSE
-nsCertType			= server
-nsComment			= "Easy-RSA Generated Server Certificate"
+# nsCertType			= server
+# nsComment			= "Easy-RSA Generated Server Certificate"
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer:always
-extendedKeyUsage=serverAuth
+#extendedKeyUsage=serverAuth
+extendedKeyUsage=serverAuth,clientAuth
 keyUsage = digitalSignature, keyEncipherment
+crlDistributionPoints=URI:http://deploy.hosts.advancedfiltering.net/public/ca-advancedfiltering.crl
+authorityInfoAccess = caIssuers;URI:http://deploy.hosts.advancedfiltering.net/public/ca-advancedfiltering.crt
 
 [ v3_req ]
 

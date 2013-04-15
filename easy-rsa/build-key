@@ -4,4 +4,4 @@
 # root certificate.
 
 export EASY_RSA="${EASY_RSA:-.}"
-"$EASY_RSA/pkitool" --interact $*
+"$EASY_RSA/pkitool" $*

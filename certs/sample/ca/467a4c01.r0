@@ -1,0 +1,58 @@
+Certificate Revocation List (CRL):
+        Version 1 (0x0)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: /O=advancedfiltering/OU=hosts/CN=Advanced Filtering CA
+        Last Update: Apr 15 15:12:11 2013 GMT
+        Next Update: May 15 15:12:11 2013 GMT
+Revoked Certificates:
+    Serial Number: 01
+        Revocation Date: Apr 14 14:18:57 2013 GMT
+    Serial Number: 02
+        Revocation Date: Apr 14 14:18:49 2013 GMT
+    Serial Number: 03
+        Revocation Date: Apr 14 14:12:35 2013 GMT
+    Serial Number: 05
+        Revocation Date: Apr 14 12:31:24 2013 GMT
+    Serial Number: 06
+        Revocation Date: Apr 14 14:19:32 2013 GMT
+    Serial Number: 07
+        Revocation Date: Apr 15 15:12:01 2013 GMT
+    Serial Number: 08
+        Revocation Date: Apr 15 15:11:54 2013 GMT
+    Serial Number: 09
+        Revocation Date: Apr 15 15:11:46 2013 GMT
+    Serial Number: 0A
+        Revocation Date: Apr 15 15:12:09 2013 GMT
+    Serial Number: 0B
+        Revocation Date: Apr 15 15:12:11 2013 GMT
+    Signature Algorithm: sha256WithRSAEncryption
+        21:c0:2e:7d:2d:1e:6e:d4:90:f5:fc:77:cd:3b:66:28:eb:69:
+        b7:1a:49:45:d3:27:5a:77:e9:50:ca:fc:76:63:bd:d8:df:67:
+        ce:13:5c:b6:d4:3e:e1:91:a7:cd:1c:ae:f7:93:ca:b2:7d:71:
+        72:ef:1e:73:1d:ce:fe:eb:41:39:28:b2:fc:b2:d0:27:a6:ea:
+        2b:f3:6a:04:f4:16:e4:dc:46:9e:9a:96:4e:cf:78:bf:30:10:
+        bd:b3:24:65:7d:10:1a:a5:5e:37:40:5e:a3:2f:88:9f:a7:15:
+        8b:fe:87:8b:c2:15:a6:b1:40:78:b4:65:67:4c:e1:ae:03:20:
+        c3:80:84:ae:54:6f:7e:fd:b5:43:1f:ea:29:05:8b:e1:08:9d:
+        13:76:eb:c0:27:4c:f6:5a:ff:3c:f8:60:d1:01:05:3e:4b:03:
+        a9:83:43:08:1c:29:99:d0:55:5a:b5:bb:09:ba:18:8e:0f:33:
+        93:07:bb:bc:ff:e7:d4:b0:fd:bc:63:30:9c:61:8f:e9:c7:b1:
+        ef:a3:bd:96:d6:32:83:e3:80:a5:5c:d4:79:90:c8:0e:f1:b0:
+        ad:af:8d:13:92:cf:75:48:7f:e4:0d:56:50:5f:12:d7:a6:85:
+        fc:e9:5c:c9:4d:59:8d:f0:57:52:46:e7:7e:a9:b9:a4:4e:70:
+        f9:5d:b4:60
+-----BEGIN X509 CRL-----
+MIICXjCCAUYwDQYJKoZIhvcNAQELBQAwTDEaMBgGA1UEChMRYWR2YW5jZWRmaWx0
+ZXJpbmcxDjAMBgNVBAsTBWhvc3RzMR4wHAYDVQQDExVBZHZhbmNlZCBGaWx0ZXJp
+bmcgQ0EXDTEzMDQxNTE1MTIxMVoXDTEzMDUxNTE1MTIxMVowgcgwEgIBARcNMTMw
+NDE0MTQxODU3WjASAgECFw0xMzA0MTQxNDE4NDlaMBICAQMXDTEzMDQxNDE0MTIz
+NVowEgIBBRcNMTMwNDE0MTIzMTI0WjASAgEGFw0xMzA0MTQxNDE5MzJaMBICAQcX
+DTEzMDQxNTE1MTIwMVowEgIBCBcNMTMwNDE1MTUxMTU0WjASAgEJFw0xMzA0MTUx
+NTExNDZaMBICAQoXDTEzMDQxNTE1MTIwOVowEgIBCxcNMTMwNDE1MTUxMjExWjAN
+BgkqhkiG9w0BAQsFAAOCAQEAIcAufS0ebtSQ9fx3zTtmKOtptxpJRdMnWnfpUMr8
+dmO92N9nzhNcttQ+4ZGnzRyu95PKsn1xcu8ecx3O/utBOSiy/LLQJ6bqK/NqBPQW
+5NxGnpqWTs94vzAQvbMkZX0QGqVeN0Beoy+In6cVi/6Hi8IVprFAeLRlZ0zhrgMg
+w4CErlRvfv21Qx/qKQWL4QidE3brwCdM9lr/PPhg0QEFPksDqYNDCBwpmdBVWrW7
+CboYjg8zkwe7vP/n1LD9vGMwnGGP6cex76O9ltYyg+OApVzUeZDIDvGwra+NE5LP
+dUh/5A1WUF8S16aF/OlcyU1ZjfBXUkbnfqm5pE5w+V20YA==
+-----END X509 CRL-----

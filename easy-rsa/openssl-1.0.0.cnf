@@ -210,7 +210,7 @@ keyUsage = digitalSignature
 
 # JY ADDED -- Make a cert with nsCertType set to "server"
 basicConstraints=CA:FALSE
-nsCertType                     = server
+nsCertType                     = server,client
 nsComment                      = "Easy-RSA Generated Server Certificate"
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer:always

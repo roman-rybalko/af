@@ -1,4 +1,7 @@
 dn: olcDatabase={0}config,cn=config
 changetype: modify
 replace: olcAccess
-olcAccess: to dn.subtree="" by dn="uid=roma,cn=gssapi,cn=auth" manage by * none
+olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
+olcAccess: to dn.subtree="" by sasl_ssf=50 tls_ssf=50 break by * none
+olcAccess: to dn.subtree="" by dn.exact="uid=ldap/syncrepl,cn=gssapi,cn=auth" read by * break
+olcAccess: to dn.subtree="" by dn.exact="uid=roma,cn=gssapi,cn=auth" manage by * break
