@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Crypt::OpenSSL::X509;
+
+my $certf = shift;
+
+my $x509 = Crypt::OpenSSL::X509->new_from_file($certf);
+my $exts = $x509->extensions_by_oid();
+my ($crt) = $exts->{'1.3.6.1.5.5.7.1.1'}->value() =~ /(http[a-z0-9\.\-\/:]+\.crt)/i;
+my ($crl) = $exts->{'2.5.29.31'}->value() =~ /(http[a-z0-9\.\-\/:]+\.crl)/;
+print "CRT: $crt\n";
+print "CRL: $crl\n";

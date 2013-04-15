@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -ex
+
+crt="$1"
+[ -n "$crt" -a -f $crt ]
+basedir=`dirname $0`
+
+doca()
+{
+    ca=$1
+
+    crlurl=`$basedir/certdata $ca | grep CRL | awk '{print $2}'`
+    fetch $crlurl -o crl.tmp
+    newcrl=`openssl crl -hash -noout -in crl.tmp -inform DER`.r0
+    openssl crl -in crl.tmp -inform DER -text -out $newcrl -outform PEM
+    echo $crlurl > $newcrl.url
+    rm crl.tmp
+
+    caurl=`$basedir/certdata $ca | grep CRT | awk '{print $2}'`
+    [ -n "$caurl" ] || exit 0
+    fetch $caurl -o ca.tmp
+    newca=`openssl x509 -hash -noout -in ca.tmp -inform DER`.0
+    openssl x509 -in ca.tmp -inform DER -text -out $newca -outform PEM
+    rm ca.tmp
+
+    doca $newca
+}
+
+doca $crt
