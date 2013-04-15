@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -ex
+
+cadir="ca"
+[ -n "$cadir" -a -d "$cadir" ]
+rm -f "$cadir"/*.0 "$cadir"/*.r0
+
+mkfiles()
+{
+    delim="$1"
+    prefix="$2"
+    src="$3"
+    cnt=`grep "$delim" "$src" | wc -l`
+    cnt=$(($cnt-1))
+    if [ $cnt -gt 0 ]; then
+        csplit -f "$prefix" -n 3 "$src" "/$delim/+1" "{$cnt}"
+    else
+        cp -f "$src" "$prefix"000
+    fi
+}
+
+for cacrt in ca-* ca.*; do
+    [ -f "$cacrt" ] || continue
+    mkfiles "END CERTIFICATE" "$cadir/ca-$cacrt-" "$cacrt"
+done
+for cacrl in crl-* crl.*; do
+    [ -f "$cacrl" ] || continue
+    mkfiles "END X509 CRL" "$cadir/crl-$cacrl-" "$cacrl"
+done
+
+cd "$cadir"
+for f in ca-*; do mv -f "$f" "`openssl x509 -hash -noout -in \"$f\"`.0"; done
+for f in crl-*; do mv -f "$f" "`openssl crl -hash -noout -in \"$f\"`.r0"; done
+rm -f .0 .r0

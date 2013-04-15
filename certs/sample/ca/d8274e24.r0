@@ -1,0 +1,36 @@
+Certificate Revocation List (CRL):
+        Version 1 (0x0)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: /C=US/ST=UT/L=Salt Lake City/O=The USERTRUST Network/OU=http://www.usertrust.com/CN=UTN-USERFirst-Network Applications
+        Last Update: Apr 15 08:43:00 2013 GMT
+        Next Update: Apr 25 08:43:00 2013 GMT
+No Revoked Certificates.
+    Signature Algorithm: sha1WithRSAEncryption
+        20:05:c5:f9:57:9c:c5:ad:fe:10:74:80:a4:f7:67:43:6b:a5:
+        5a:e1:ab:6b:02:e5:f8:37:e5:85:ed:16:b8:02:28:de:ed:47:
+        d4:76:ed:ee:52:28:99:51:99:63:ad:71:d0:40:e1:81:98:18:
+        a5:c6:3f:2d:35:05:5b:e2:8a:f2:e5:cf:4f:65:cb:98:1f:ec:
+        6f:80:ba:cb:3d:bc:c2:59:45:b6:56:b1:db:58:88:2d:db:e0:
+        18:5f:5f:ab:05:83:a9:f2:20:8b:d5:3c:40:cc:eb:cb:11:83:
+        cd:d1:34:da:ec:1e:1b:7f:36:04:e6:78:d1:e3:ff:79:8e:b0:
+        29:d3:6d:09:de:80:3f:0e:b6:08:8f:91:58:42:a9:5e:39:74:
+        40:5f:8d:48:df:82:7b:ae:1d:21:8a:e9:c4:49:cf:38:ad:46:
+        64:27:36:6d:4d:bd:9b:bb:2a:37:54:ea:d3:e7:95:36:6b:a1:
+        7b:4b:1e:19:66:8a:47:e1:27:2c:48:34:c7:7f:52:aa:ff:86:
+        ee:14:26:77:19:b6:44:5a:80:e7:ac:13:9a:3e:bd:1c:13:74:
+        df:6b:d9:fb:2c:9f:1f:a7:9a:00:b2:f5:ce:07:c8:01:bc:88:
+        64:8d:cd:b7:31:b8:b8:c9:09:2d:35:53:db:e0:b0:02:9a:14:
+        dc:55:ed:4e
+-----BEGIN X509 CRL-----
+MIIB6jCB0zANBgkqhkiG9w0BAQUFADCBozELMAkGA1UEBhMCVVMxCzAJBgNVBAgT
+AlVUMRcwFQYDVQQHEw5TYWx0IExha2UgQ2l0eTEeMBwGA1UEChMVVGhlIFVTRVJU
+UlVTVCBOZXR3b3JrMSEwHwYDVQQLExhodHRwOi8vd3d3LnVzZXJ0cnVzdC5jb20x
+KzApBgNVBAMTIlVUTi1VU0VSRmlyc3QtTmV0d29yayBBcHBsaWNhdGlvbnMXDTEz
+MDQxNTA4NDMwMFoXDTEzMDQyNTA4NDMwMFowDQYJKoZIhvcNAQEFBQADggEBACAF
+xflXnMWt/hB0gKT3Z0NrpVrhq2sC5fg35YXtFrgCKN7tR9R27e5SKJlRmWOtcdBA
+4YGYGKXGPy01BVviivLlz09ly5gf7G+Auss9vMJZRbZWsdtYiC3b4BhfX6sFg6ny
+IIvVPEDM68sRg83RNNrsHht/NgTmeNHj/3mOsCnTbQnegD8OtgiPkVhCqV45dEBf
+jUjfgnuuHSGK6cRJzzitRmQnNm1NvZu7KjdU6tPnlTZroXtLHhlmikfhJyxINMd/
+Uqr/hu4UJncZtkRagOesE5o+vRwTdN9r2fssnx+nmgCy9c4HyAG8iGSNzbcxuLjJ
+CS01U9vgsAKaFNxV7U4=
+-----END X509 CRL-----

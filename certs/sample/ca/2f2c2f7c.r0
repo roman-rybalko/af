@@ -1,0 +1,178 @@
+Certificate Revocation List (CRL):
+        Version 2 (0x1)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: /C=US/O=GeoTrust, Inc./CN=RapidSSL CA
+        Last Update: Apr 15 14:43:00 2013 GMT
+        Next Update: Apr 25 14:43:00 2013 GMT
+        CRL extensions:
+            X509v3 Authority Key Identifier: 
+                keyid:6B:69:3D:6A:18:42:4A:DD:8F:02:65:39:FD:35:24:86:78:91:16:30
+
+            X509v3 CRL Number: 
+                71584
+Revoked Certificates:
+    Serial Number: 6CB8
+        Revocation Date: Aug 15 20:49:21 2011 GMT
+    Serial Number: 0954B7
+        Revocation Date: Nov 26 17:34:40 2012 GMT
+    Serial Number: 07DC6A
+        Revocation Date: Mar 15 14:38:08 2013 GMT
+    Serial Number: 0A1FAE
+        Revocation Date: Mar 15 14:32:07 2013 GMT
+    Serial Number: 069102
+        Revocation Date: May 21 18:37:08 2012 GMT
+    Serial Number: 0A57B2
+        Revocation Date: Mar 21 17:29:39 2013 GMT
+    Serial Number: 09DB5E
+        Revocation Date: Mar 15 14:27:26 2013 GMT
+    Serial Number: 060BC2
+        Revocation Date: Apr 12 22:27:34 2012 GMT
+    Serial Number: 0A2BE3
+        Revocation Date: Mar 15 14:34:44 2013 GMT
+    Serial Number: 06EBE3
+        Revocation Date: Feb 20 19:28:47 2013 GMT
+    Serial Number: 08AB6C
+        Revocation Date: Oct 12 15:28:24 2012 GMT
+    Serial Number: 068FDA
+        Revocation Date: May 21 18:39:27 2012 GMT
+    Serial Number: 0A3111
+        Revocation Date: Mar  3 14:30:03 2013 GMT
+    Serial Number: 0AD3F8
+        Revocation Date: Mar 22 22:03:02 2013 GMT
+    Serial Number: 09B51C
+        Revocation Date: Jan  9 20:11:22 2013 GMT
+    Serial Number: 073CC0
+        Revocation Date: Mar 15 14:37:11 2013 GMT
+    Serial Number: 0B2DC0
+        Revocation Date: Apr  2 21:21:19 2013 GMT
+    Serial Number: 081CE2
+        Revocation Date: Sep  6 13:56:45 2012 GMT
+    Serial Number: 0AD3EF
+        Revocation Date: Mar 22 22:04:39 2013 GMT
+    Serial Number: 8B06
+        Revocation Date: Jun 17 10:59:59 2011 GMT
+    Serial Number: 075B89
+        Revocation Date: Feb 20 19:27:50 2013 GMT
+    Serial Number: 04AB27
+        Revocation Date: Jan  9 23:20:03 2012 GMT
+    Serial Number: 07D71A
+        Revocation Date: Sep 28 22:29:25 2012 GMT
+    Serial Number: 0A742E
+        Revocation Date: Feb 19 18:37:20 2013 GMT
+    Serial Number: 09B1B9
+        Revocation Date: Jan 21 10:02:18 2013 GMT
+    Serial Number: 057858
+        Revocation Date: Mar  5 17:14:07 2012 GMT
+    Serial Number: 6F29
+        Revocation Date: Aug 15 20:48:57 2011 GMT
+    Serial Number: 08D36A
+        Revocation Date: Mar 15 14:31:24 2013 GMT
+    Serial Number: 0A9ABF
+        Revocation Date: Mar 15 14:27:59 2013 GMT
+    Serial Number: 091C83
+        Revocation Date: Jan 28 20:18:48 2013 GMT
+    Serial Number: 08D367
+        Revocation Date: Mar 15 14:37:37 2013 GMT
+    Serial Number: 09A0FB
+        Revocation Date: Mar 15 14:38:36 2013 GMT
+    Serial Number: 0B0EDB
+        Revocation Date: Apr  4 13:21:53 2013 GMT
+    Serial Number: 0A6601
+        Revocation Date: Mar 15 14:24:22 2013 GMT
+    Serial Number: 0A00B2
+        Revocation Date: Mar 15 14:26:20 2013 GMT
+    Serial Number: 09A0F2
+        Revocation Date: Mar 15 14:25:52 2013 GMT
+    Serial Number: 0A600B
+        Revocation Date: Mar 27 15:22:27 2013 GMT
+    Serial Number: 0972E9
+        Revocation Date: Mar 15 14:20:58 2013 GMT
+    Serial Number: 058B2F
+        Revocation Date: Mar  9 14:41:20 2012 GMT
+    Serial Number: 07E27F
+        Revocation Date: Sep 28 22:28:09 2012 GMT
+    Serial Number: 09DA0D
+        Revocation Date: Mar 15 14:26:57 2013 GMT
+    Serial Number: 094CA9
+        Revocation Date: Mar 21 17:32:06 2013 GMT
+    Serial Number: 0ACD1D
+        Revocation Date: Mar 22 16:05:57 2013 GMT
+    Serial Number: 0A7DB2
+        Revocation Date: Feb 19 18:38:01 2013 GMT
+    Serial Number: 085FE3
+        Revocation Date: Mar 15 14:34:05 2013 GMT
+    Serial Number: 0ABD23
+        Revocation Date: Mar 15 14:25:22 2013 GMT
+    Serial Number: 099A8E
+        Revocation Date: Feb 20 19:23:30 2013 GMT
+    Serial Number: 087CCE
+        Revocation Date: Mar 15 14:43:12 2013 GMT
+    Serial Number: 090797
+        Revocation Date: Mar 15 14:30:52 2013 GMT
+    Serial Number: 0ACA18
+        Revocation Date: Apr  2 21:19:54 2013 GMT
+    Serial Number: 0840AD
+        Revocation Date: Feb 20 19:27:03 2013 GMT
+    Serial Number: 02D8DC
+        Revocation Date: Aug 30 14:39:39 2011 GMT
+    Serial Number: 0AE3B0
+        Revocation Date: Mar 15 14:24:53 2013 GMT
+    Serial Number: 087677
+        Revocation Date: Mar 15 14:29:18 2013 GMT
+    Serial Number: 07BEC4
+        Revocation Date: Feb 20 19:29:59 2013 GMT
+    Serial Number: 067891
+        Revocation Date: Mar 22 22:03:45 2013 GMT
+    Signature Algorithm: sha1WithRSAEncryption
+        17:12:0c:91:7b:a2:cd:7e:13:b8:5e:7c:0f:bf:43:b8:7b:73:
+        6e:9a:4c:bb:b6:33:7d:47:b9:98:69:5a:df:d8:9b:bd:3f:81:
+        1f:8e:0d:8d:d6:2b:e5:91:01:97:92:86:95:e0:25:77:9d:97:
+        3b:d6:b2:4b:0f:8d:e6:64:ec:96:8a:fd:cb:d1:67:2e:e0:3f:
+        90:90:71:fc:92:49:ce:90:f2:aa:c7:f6:07:fe:62:2f:c2:86:
+        07:6a:e0:15:bb:8d:00:ba:07:e7:20:45:74:8d:53:a0:66:f8:
+        0a:67:35:f5:58:94:14:4b:58:ee:99:24:78:1d:28:ac:c8:03:
+        42:13:c4:da:6a:f5:55:7c:03:ac:8c:46:b3:5b:93:12:64:d5:
+        04:21:5e:60:99:d1:56:8a:51:8e:ae:3e:78:b2:14:24:1c:f5:
+        fd:b0:fb:c1:58:04:9e:f0:8c:49:3a:d6:45:27:7b:30:0f:97:
+        b2:37:0b:a0:ab:92:bb:ad:29:f7:5e:6f:b6:25:f4:78:c3:8a:
+        13:bb:f5:94:0a:b8:a7:fc:d7:e4:ff:23:ad:36:e2:c6:d3:64:
+        a7:73:d1:e0:39:08:15:a4:3f:11:72:93:65:3b:9f:3c:20:8b:
+        61:ea:ab:47:4d:e4:d2:38:d3:0d:cf:09:26:8c:98:50:73:a9:
+        a3:ba:06:14
+-----BEGIN X509 CRL-----
+MIIGizCCBXMCAQEwDQYJKoZIhvcNAQEFBQAwPDELMAkGA1UEBhMCVVMxFzAVBgNV
+BAoTDkdlb1RydXN0LCBJbmMuMRQwEgYDVQQDEwtSYXBpZFNTTCBDQRcNMTMwNDE1
+MTQ0MzAwWhcNMTMwNDI1MTQ0MzAwWjCCBM4wEwICbLgXDTExMDgxNTIwNDkyMVow
+FAIDCVS3Fw0xMjExMjYxNzM0NDBaMBQCAwfcahcNMTMwMzE1MTQzODA4WjAUAgMK
+H64XDTEzMDMxNTE0MzIwN1owFAIDBpECFw0xMjA1MjExODM3MDhaMBQCAwpXshcN
+MTMwMzIxMTcyOTM5WjAUAgMJ214XDTEzMDMxNTE0MjcyNlowFAIDBgvCFw0xMjA0
+MTIyMjI3MzRaMBQCAwor4xcNMTMwMzE1MTQzNDQ0WjAUAgMG6+MXDTEzMDIyMDE5
+Mjg0N1owFAIDCKtsFw0xMjEwMTIxNTI4MjRaMBQCAwaP2hcNMTIwNTIxMTgzOTI3
+WjAUAgMKMREXDTEzMDMwMzE0MzAwM1owFAIDCtP4Fw0xMzAzMjIyMjAzMDJaMBQC
+Awm1HBcNMTMwMTA5MjAxMTIyWjAUAgMHPMAXDTEzMDMxNTE0MzcxMVowFAIDCy3A
+Fw0xMzA0MDIyMTIxMTlaMBQCAwgc4hcNMTIwOTA2MTM1NjQ1WjAUAgMK0+8XDTEz
+MDMyMjIyMDQzOVowFAIDAIsGFw0xMTA2MTcxMDU5NTlaMBQCAwdbiRcNMTMwMjIw
+MTkyNzUwWjAUAgMEqycXDTEyMDEwOTIzMjAwM1owFAIDB9caFw0xMjA5MjgyMjI5
+MjVaMBQCAwp0LhcNMTMwMjE5MTgzNzIwWjAUAgMJsbkXDTEzMDEyMTEwMDIxOFow
+FAIDBXhYFw0xMjAzMDUxNzE0MDdaMBMCAm8pFw0xMTA4MTUyMDQ4NTdaMBQCAwjT
+ahcNMTMwMzE1MTQzMTI0WjAUAgMKmr8XDTEzMDMxNTE0Mjc1OVowFAIDCRyDFw0x
+MzAxMjgyMDE4NDhaMBQCAwjTZxcNMTMwMzE1MTQzNzM3WjAUAgMJoPsXDTEzMDMx
+NTE0MzgzNlowFAIDCw7bFw0xMzA0MDQxMzIxNTNaMBQCAwpmARcNMTMwMzE1MTQy
+NDIyWjAUAgMKALIXDTEzMDMxNTE0MjYyMFowFAIDCaDyFw0xMzAzMTUxNDI1NTJa
+MBQCAwpgCxcNMTMwMzI3MTUyMjI3WjAUAgMJcukXDTEzMDMxNTE0MjA1OFowFAID
+BYsvFw0xMjAzMDkxNDQxMjBaMBQCAwfifxcNMTIwOTI4MjIyODA5WjAUAgMJ2g0X
+DTEzMDMxNTE0MjY1N1owFAIDCUypFw0xMzAzMjExNzMyMDZaMBQCAwrNHRcNMTMw
+MzIyMTYwNTU3WjAUAgMKfbIXDTEzMDIxOTE4MzgwMVowFAIDCF/jFw0xMzAzMTUx
+NDM0MDVaMBQCAwq9IxcNMTMwMzE1MTQyNTIyWjAUAgMJmo4XDTEzMDIyMDE5MjMz
+MFowFAIDCHzOFw0xMzAzMTUxNDQzMTJaMBQCAwkHlxcNMTMwMzE1MTQzMDUyWjAU
+AgMKyhgXDTEzMDQwMjIxMTk1NFowFAIDCECtFw0xMzAyMjAxOTI3MDNaMBQCAwLY
+3BcNMTEwODMwMTQzOTM5WjAUAgMK47AXDTEzMDMxNTE0MjQ1M1owFAIDCHZ3Fw0x
+MzAzMTUxNDI5MThaMBQCAwe+xBcNMTMwMjIwMTkyOTU5WjAUAgMGeJEXDTEzMDMy
+MjIyMDM0NVqgMTAvMB8GA1UdIwQYMBaAFGtpPWoYQkrdjwJlOf01JIZ4kRYwMAwG
+A1UdFAQFAgMBF6AwDQYJKoZIhvcNAQEFBQADggEBABcSDJF7os1+E7hefA+/Q7h7
+c26aTLu2M31HuZhpWt/Ym70/gR+ODY3WK+WRAZeShpXgJXedlzvWsksPjeZk7JaK
+/cvRZy7gP5CQcfySSc6Q8qrH9gf+Yi/Chgdq4BW7jQC6B+cgRXSNU6Bm+ApnNfVY
+lBRLWO6ZJHgdKKzIA0ITxNpq9VV8A6yMRrNbkxJk1QQhXmCZ0VaKUY6uPniyFCQc
+9f2w+8FYBJ7wjEk61kUnezAPl7I3C6CrkrutKfdeb7Yl9HjDihO79ZQKuKf81+T/
+I6024sbTZKdz0eA5CBWkPxFyk2U7nzwgi2Hqq0dN5NI40w3PCSaMmFBzqaO6BhQ=
+-----END X509 CRL-----
