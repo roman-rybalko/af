@@ -1,6 +1,6 @@
 * локальные порты 25 137 138 139 445
 
-* получение сисеной настройки trustedports (137 138 139 445)
+* получение системной настройки trustedports (137 138 139 445)
 ** received_port in trustedports => sys_trustedport
 sys_trustedport
 
