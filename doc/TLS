@@ -6,3 +6,7 @@
 
 /etc/ssl/ - для доступа к инфраструктуре, один внутренний ЦС и сертификат для хоста (`hostname`.crt/.key)
 /usr/local/etc/ssl/ - для внешних сервисов, один или несколько сертификатов и набор ЦС для сервисов (smtp.advancedfiltering.net, clients.advancedfiltering.ru/.com)
+
+/etc/ssl нужен для deploy,
+для работы при отмонтированном /usr/local (который может быть зашифрован),
+для запуска системы (примонтировать /usr/local, запустить сервисы из /usr/local/etc/rc.d) удаленно через deploy.
