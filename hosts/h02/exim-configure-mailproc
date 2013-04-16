@@ -9,10 +9,10 @@ ignore_bounce_errors_after = 2d
 timeout_frozen_after = 7d
 tls_advertise_hosts = *
 tls_verify_hosts = *
-tls_certificate = /usr/local/etc/ssl/${primary_hostname}.crt
-tls_privatekey = /usr/local/etc/ssl/${primary_hostname}.key
-tls_verify_certificates = /usr/local/etc/ssl/ca
-tls_crl = /usr/local/etc/ssl/ca
+tls_certificate = /etc/ssl/${primary_hostname}.crt
+tls_privatekey = /etc/ssl/${primary_hostname}.key
+tls_verify_certificates = /etc/ssl/ca
+tls_crl = /etc/ssl/ca
 log_selector = +all -arguments
 
 begin acl
