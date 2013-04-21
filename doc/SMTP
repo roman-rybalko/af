@@ -1,3 +1,5 @@
+TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
+
 * локальные порты 25 137 138 139 445
 
 * получение системной настройки trustedports (137 138 139 445)
@@ -23,9 +25,11 @@ flag_dnsbl
 helo
 * flag_sys_wl => ok, stop
 * flag_spamtrap => ok, stop
-* проверка системных черных списков (certificate)
+* проверка сертификата
+** fail => flag_cert
+* ! flag_cert => проверка системных черных списков (certificate)
 ** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
-* проверка системных белых списков (certificate)
+* ! flag_cert => проверка системных белых списков (certificate)
 ** ok => flag_sys_wl, ok, stop
 flag_spamtrap
 flag_sys_wl
@@ -34,10 +38,10 @@ mail
 * flag_sys_wl => ok, stop
 * flag_spamtrap => ok, stop
 * проверка spf
-** fail => flag_spf, ok, stop
-* проверка системных черных списков (addr from)
+** fail => flag_spf
+* ! flag_spf => проверка системных черных списков (addr from)
 ** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
-* проверка системных белых списков (addr from)
+* ! flag_spf => проверка системных белых списков (addr from)
 ** ok => flag_sys_wl, ok, stop
 flag_spamtrap
 flag_sys_wl

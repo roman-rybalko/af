@@ -1,4 +1,4 @@
-dn: olcDatabase={0}config,cn=config
+dn: olcDatabase={2}mdb,cn=config
 changetype: modify
 replace: olcAccess
 olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break

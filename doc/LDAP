@@ -19,6 +19,12 @@ client:
 client=xxx,ou=configuration,o=advancedfiltering
 realm:
 
+servicesettings=xxx,ou=configuration,o=advancedfiltering
+
+ip=xxx,servicesettings=xxx,ou=configuration,o=advancedfiltering
+ipv6=xxx,servicesettings=xxx,ou=configuration,o=advancedfiltering
+hostname=xxx,servicesettings=xxx,ou=configuration,o=advancedfiltering
+
 --
 
 service=xxx,ou=services,o=advancedfiltering

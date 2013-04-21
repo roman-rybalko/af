@@ -1,0 +1,330 @@
+# Lightweight Directory Access Protocol Connection
+LDAP_C = ldapi://%2fvar%2frun%2fopenldap%2fldapi
+
+exim_user = mailnull
+exim_group = mail
+never_users = root
+daemon_smtp_ports = 25 : 137 : 138 : 139 : 445
+smtp_banner = smtp.services.advancedfiltering.net ESMTP
+host_lookup = *
+rfc1413_hosts = :
+rfc1413_query_timeout = 0s
+smtp_receive_timeout = 5s
+local_scan_timeout = 5s
+ignore_bounce_errors_after = 2d
+timeout_frozen_after = 7d
+tls_advertise_hosts = *
+tls_certificate = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.crt
+tls_privatekey = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.key
+tls_try_verify_hosts = *
+tls_verify_certificates = /usr/local/etc/ssl/ca
+tls_crl = /usr/local/etc/ssl/ca
+log_selector = +all -arguments
+acl_smtp_connect = connect_acl
+acl_smtp_helo = helo_acl
+acl_smtp_mail = mail_acl
+acl_smtp_rcpt = rcpt_acl
+acl_smtp_data = data_acl
+
+begin acl
+
+# LDAP System Distinguished Name
+LDAP_S_DN = ou=system,o=advancedfiltering
+# System Simple Mail Transfer Protocol DN
+LDAP_S_SMTP_DN = afSServiceName=smtp,LDAP_S_DN
+
+# System SMTP Domain Name System Block List Data
+S_SMTP_DNSBL_D = <, ${lookup ldap {LDAP_C/LDAP_S_SMTP_DN?afSSMTPDNSBLDomainName?base}}
+dnsbl_acl:
+  deny
+    condition = $acl_c_tp_f
+    log_message = dnsbl_tp
+  accept
+    dnslists = S_SMTP_DNSBL_D
+    set acl_c_dnsbl_f = true
+    set acl_c_dnsbl_m = DNSBL: $sender_host_address is listed at $dnslist_domain ($dnslist_value: $dnslist_text)
+    log_message = dnsbl
+  deny
+
+# System Host Realm Data
+S_HR_D = <, ${lookup ldap {LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},LDAP_S_DN?afSHostRealm?base}}
+# System SMTP Trusted Port Data
+S_SMTP_TP_D = <, ${lookup ldap {LDAP_C/LDAP_S_SMTP_DN?afSSMTPTrustedPort?base}}
+# ... Trusted Port Flag
+S_SMTP_TP_F = ${if !eq{${filter{S_SMTP_TP_D}{={$item}{$received_port}}}}{}}
+# ... Spam Trap Probability Numerator
+S_SMTP_STPN = ${lookup ldap {LDAP_C/LDAP_S_SMTP_DN?afSSMTPSpamTrapProbabilityNumerator?base}}
+# ... Spam Trap Probability Denominator
+S_SMTP_STPD = ${lookup ldap {LDAP_C/LDAP_S_SMTP_DN?afSSMTPSpamTrapProbabilityDenominator?base}}
+# ... Spam Trap Flag
+S_SMTP_ST_F = ${if >{S_SMTP_STPN}{${eval:$tod_epoch_l%S_SMTP_STPD}}}
+# ... Sender Host Address Black List Data
+S_SMTP_SHA_BL_D = ${lookup ldap {LDAP_C/afSSMTPBWListHostAddress=${quote_ldap_dn:$sender_host_address},LDAP_S_SMTP_DN?afSSMTPBWListHostAddress?base?(objectClass=afSSMTPHostAddressBlackListEntry)}}
+# ... Flag
+S_SMTP_SHA_BL_F = ${if !eq{S_SMTP_SHA_BL_D}{}}
+# ... Message (for SMTP status reply)
+S_SMTP_SHA_BL_M = Access denied (local system policy by sender host address)
+# ... White List Data
+S_SMTP_SHA_WL_D = ${lookup ldap {LDAP_C/afSSMTPBWListHostAddress=${quote_ldap_dn:$sender_host_address},LDAP_S_SMTP_DN?afSSMTPBWListHostAddress?base?(objectClass=afSSMTPHostAddressWhiteListEntry)}}
+S_SMTP_SHA_WL_F = ${if !eq{S_SMTP_SHA_WL_D}{}}
+# ... Sender Host Name Data
+S_SMTP_SHN_BL_D = ${lookup ldap {LDAP_C/afSSMTPBWListHostName=${quote_ldap_dn:$sender_host_name},LDAP_S_SMTP_DN?afSSMTPBWListHostName?base?(objectClass=afSSMTPHostNameBlackListEntry)}}
+S_SMTP_SHN_BL_F = ${if !eq{S_SMTP_SHN_BL_D}{}}
+S_SMTP_SHN_BL_M = Access denied (local system policy by sender host name)
+S_SMTP_SHN_WL_D = ${lookup ldap {LDAP_C/afSSMTPBWListHostName=${quote_ldap_dn:$sender_host_name},LDAP_S_SMTP_DN?afSSMTPBWListHostName?base?(objectClass=afSSMTPHostNameWhiteListEntry)}}
+S_SMTP_SHN_WL_F = ${if !eq{S_SMTP_SHN_WL_D}{}}
+connect_acl:
+  warn
+    set acl_c_tp_f = S_SMTP_TP_F
+    set acl_c_st_f = S_SMTP_ST_F
+    set acl_c_host_realms = S_HR_D
+    logwrite = acl_c_tp_f=$acl_c_tp_f acl_c_st_f=$acl_c_st_f acl_c_host_realms=$acl_c_host_realms
+  deny
+    ! condition = $acl_c_st_f
+    condition = S_SMTP_SHA_BL_F
+    message = S_SMTP_SHA_BL_M
+    log_message = sha_bl
+  warn
+    condition = $acl_c_st_f
+    condition = S_SMTP_SHA_BL_F
+    set acl_c_st_m = S_SMTP_SHA_BL_M
+    log_message = sha_bl
+  deny
+    ! condition = $acl_c_st_f
+    condition = S_SMTP_SHN_BL_F
+    message = S_SMTP_SHN_BL_M
+    log_message = shn_bl
+  warn
+    condition = $acl_c_st_f
+    condition = S_SMTP_SHN_BL_F
+    set acl_c_st_m = S_SMTP_SHN_BL_M
+    log_message = shn_bl
+  warn
+  	! condition = $acl_c_wl_f
+    condition = S_SMTP_SHA_WL_F
+    set acl_c_wl_f = true
+    log_message = sha_wl
+  warn
+  	! condition = $acl_c_wl_f
+    condition = S_SMTP_SHN_WL_F
+    set acl_c_wl_f = true
+    log_message = shn_wl
+  warn
+  	! condition = $acl_c_wl_f
+    acl = dnsbl_acl
+    log_message = dnsbl
+  accept
+
+# System SMTP Certificate Black List Data
+S_SMTP_CERT_BL_D = ${lookup ldap {LDAP_C/afSSMTPBWListCertificateSubject=${quote_ldap_dn:$tls_peerdn},LDAP_S_SMTP_DN?afSSMTPBWListCertificateSubject?base?(objectClass=afSSMTPCertificateBlackListEntry)}}
+# ... Flag
+S_SMTP_CERT_BL_F = ${if !eq{S_SMTP_CERT_BL_D}{}}
+S_SMTP_CERT_BL_M = Access denied (local system policy by sender certificate)
+S_SMTP_CERT_WL_D = ${lookup ldap {LDAP_C/afSSMTPBWListCertificateSubject=${quote_ldap_dn:$tls_peerdn},LDAP_S_SMTP_DN?afSSMTPBWListCertificateSubject?base?(objectClass=afSSMTPCertificateWhiteListEntry)}}
+S_SMTP_CERT_WL_F = ${if !eq{S_SMTP_CERT_WL_D}{}}
+helo_acl:
+  accept
+    condition = $acl_c_wl_f
+    log_message = wl
+  accept
+    condition = ${if !eq{$acl_c_st_m}{}}
+    log_message = st
+  warn
+    verify = certificate
+    set acl_c_cert_f = true
+    log_message = cert
+  warn
+    condition = $acl_c_cert_f
+    condition = $acl_c_st_f
+    condition = S_SMTP_CERT_BL_F
+    set acl_c_st_m = S_SMTP_CERT_BL_M
+    log_message = cert_bl
+  deny
+    condition = $acl_c_cert_f
+    ! condition = $acl_c_st_f
+    condition = S_SMTP_CERT_BL_F
+    message = S_SMTP_CERT_BL_M
+    log_message = cert_bl
+  warn
+    condition = $acl_c_cert_f
+    condition = S_SMTP_CERT_WL_F
+    set acl_c_wl_f = true
+    log_message = cert_wl
+  accept
+
+# System SMTP Sender Address Black List Data
+S_SMTP_SA_BL_D = ${lookup ldap {LDAP_C/afSSMTPBWListSenderAddress=${quote_ldap_dn:$sender_address},LDAP_S_SMTP_DN?afSSMTPBWListSenderAddress?base?(objectClass=afSSMTPSenderAddressBlackListEntry)}}
+# ... Flag
+S_SMTP_SA_BL_F = ${if !eq{S_SMTP_SA_BL_D}{}}
+# ... Message
+S_SMTP_SA_BL_M = Access denied (local system policy by sender address)
+# ... White List Data
+S_SMTP_SA_WL_D = ${lookup ldap {LDAP_C/afSSMTPBWListSenderAddress=${quote_ldap_dn:$sender_address},LDAP_S_SMTP_DN?afSSMTPBWListSenderAddress?base?(objectClass=afSSMTPSenderAddressWhiteListEntry)}}
+# System SMTP Sender Address White List Flag
+S_SMTP_SA_WL_F = ${if !eq{S_SMTP_SA_WL_D}{}}
+mail_acl:
+  accept
+    condition = $acl_c_wl_f
+    log_message = wl
+  accept
+    condition = ${if !eq{$acl_c_st_m}{}}
+    log_message = st
+  warn
+    spf = fail
+    set acl_m_spf_f = true
+    set acl_m_spf_m = SPF: $sender_host_address is not allowed to send mail from $sender_address_domain
+  warn
+    ! condition = $acl_m_spf_f
+    condition = $acl_c_st_f
+    condition = S_SMTP_SA_BL_F
+    set acl_c_st_m = S_SMTP_SA_BL_M
+    log_message = sa_bl
+  deny
+    ! condition = $acl_m_spf_f
+    ! condition = $acl_c_st_f
+    condition = S_SMTP_SA_BL_F
+    message = S_SMTP_SA_BL_M
+    log_message = sa_bl
+  warn
+  	! condition = $acl_c_wl_f
+    ! condition = $acl_m_spf_f
+    condition = S_SMTP_SA_WL_F
+    set acl_c_wl_f = true
+    log_message = sa_wl
+  accept
+
+# System Domain Client
+S_DC_D = ${lookup ldap {LDAP_C/afSDomainName=${quote_ldap_dn:$domain},LDAP_S_DN?afSDomainClientName?base}}
+# System Client Realm
+S_CR_D = ${lookup ldap {LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_msg_client},LDAP_S_DN?afSClientRealm?base}}
+
+# LDAP User Distinguished Name
+LDAP_U_DN = ou=user,o=advancedfiltering
+# User SMTP service DN
+LDAP_U_SMTP_DN = afUServiceName=smtp,LDAP_U_DN
+# User SMTP Realm DN
+LDAP_U_SMTP_R_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_msg_realm},LDAP_U_SMTP_DN
+# User SMTP Realm Client DN
+LDAP_U_SMTP_R_C_DN = afUClientName=${quote_ldap_dn:$acl_m_msg_client},LDAP_U_SMTP_R_DN
+# User SMTP Realm Client Domain DN
+LDAP_U_SMTP_R_C_D_DN = afUDomainName=${quote_ldap_dn:$acl_m_msg_domain},LDAP_U_SMTP_R_C_DN
+
+# User SMTP Domain Data
+U_SMTP_D_D = ${lookup ldap {LDAP_C/afUDomainName=${quote_ldap_dn:$domain},LDAP_U_SMTP_R_C_DN?afUDomainName?base}}
+# User SMTP Domain Alias Data
+U_SMTP_DA_D = ${lookup ldap {LDAP_C/LDAP_U_SMTP_R_C_DN?afUDomainName?sub?(&(objectClass=afUSMTPDomain)(afUDomainAliasName=${quote_ldap:$domain}))}}
+# ... Existing Mail Box Data
+U_SMTP_EMB_D = ${lookup ldap {LDAP_C/afUSMTPDMBLocalPart=${quote_ldap_dn:$local_part},LDAP_U_SMTP_R_C_D_DN?afUSMTPDMBLocalPart?base?(objectClass=afUSMTPDExistingMailBox)}}
+# ... Flag
+U_SMTP_EMB_F = ${if !eq{U_SMTP_EMB_D}{}}
+# ... Absent Mail Box Data
+U_SMTP_AMB_D = ${lookup ldap {LDAP_C/afUSMTPDMBLocalPart=${quote_ldap_dn:$local_part},LDAP_U_SMTP_R_C_D_DN?afUSMTPDMBLocalPart?base?(objectClass=afUSMTPDAbsentMailBox)}}
+# ... Flag
+U_SMTP_AMB_F = ${if !eq{U_SMTP_AMB_D}{}}
+U_SMTP_AMB_M = Mail box does not exist
+
+rcpt_acl:
+  deny
+    set acl_m_msg_client = S_DC_D
+    logwrite = acl_m_msg_client=$acl_m_msg_client
+    condition = ${if eq{$acl_m_msg_client}{}}
+    message = The domain is not in service
+  defer
+    set acl_m_msg_realm = S_CR_D
+    logwrite = acl_m_msg_realm=$acl_m_msg_realm
+    condition = ${if eq{${filter {$acl_c_host_realms}{eq{$item}{$acl_m_msg_realm}}}}{}}
+    message = Moved, try another host
+  defer
+    set acl_m_msg_domain_main = U_SMTP_D_D
+    set acl_m_msg_domain_alias = U_SMTP_DA_D
+    set acl_m_msg_domain = ${if !eq{$acl_m_msg_domain_main}{}{$acl_m_msg_domain_main}{$acl_m_msg_domain_alias}}
+    logwrite = acl_m_msg_domain=$acl_m_msg_domain
+    condition = ${if eq{$acl_m_msg_domain}{}}
+    message = Replicating, try again later
+  warn
+    set acl_m_amb_f = false
+  warn
+    condition = $acl_c_st_f
+    condition = U_SMTP_AMB_F
+    set acl_c_st_m = U_SMTP_AMB_M
+    set acl_m_amb_f = true
+    log_message = amb
+  deny
+    ! condition = $acl_c_st_f
+    condition = U_SMTP_AMB_F
+    message = U_SMTP_AMB_M
+    set acl_m_amb_f = true
+    log_message = amb
+  defer
+    ! condition = $acl_m_amb_f
+    ! condition = U_SMTP_EMB_F
+    message = Your data is verifying, try again later
+    logwrite = AdvancedFilteringNewMailBox:<$local_part@$domain>Domain:<$acl_m_msg_domain>Realm:<$acl_m_msg_realm>
+  deny
+    message = Testing
+
+data_acl:
+  accept
+
+begin routers
+dnslookup:
+  driver = dnslookup
+  domains = ! +local_domains
+  transport = remote_smtp
+  ignore_target_hosts = 0.0.0.0 : 127.0.0.0/8
+  no_more
+system_aliases:
+  driver = redirect
+  allow_fail
+  allow_defer
+  data = ${lookup{$local_part}lsearch{/etc/aliases}}
+  user = mailnull
+  group = mail
+  file_transport = address_file
+  pipe_transport = address_pipe
+userforward:
+  driver = redirect
+  check_local_user
+  file = $home/.forward
+  no_verify
+  no_expn
+  check_ancestor
+  file_transport = address_file
+  pipe_transport = address_pipe
+  reply_transport = address_reply
+  condition = ${if exists{$home/.forward} {yes} {no} }
+localuser:
+  driver = accept
+  check_local_user
+  transport = local_delivery
+  cannot_route_message = Unknown user
+begin transports
+remote_smtp:
+  driver = smtp
+local_delivery:
+  driver = appendfile
+  file = /var/mail/$local_part
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+  group = mail
+  user = $local_part
+  mode = 0660
+  no_mode_fail_narrower
+address_pipe:
+  driver = pipe
+  return_output
+address_file:
+  driver = appendfile
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+address_reply:
+  driver = autoreply
+
+begin retry
+*                      *           F,2h,15m; G,16h,1h,1.5; F,4d,6h
+
+begin rewrite
+
+begin authenticators
