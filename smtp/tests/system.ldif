@@ -1,0 +1,57 @@
+# Запись 1: ou=system,o=advancedfiltering
+dn: ou=system,o=advancedfiltering
+objectclass: organizationalUnit
+ou: system
+
+# Запись 2: afSClientName=cli1,ou=system,o=advancedfiltering
+dn: afSClientName=cli1,ou=system,o=advancedfiltering
+afsclientname: cli1
+afsclientrealm: r1
+objectclass: afSClient
+objectclass: top
+
+# Запись 3: afSHostName=h01.hosts.advancedfiltering.net,ou=system,o...
+dn: afSHostName=h01.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: h01.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: smtp
+afshostservicename: mdb
+objectclass: afSHost
+objectclass: top
+
+# Запись 4: afSServiceName=smtp,ou=system,o=advancedfiltering
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+afsservicename: smtp
+afssmtpdnsbldomainname: bl.spamcop.net
+afssmtpmaxmessagesize: 30000000
+afssmtpspamtrapprobabilitydenominator: 100
+afssmtpspamtrapprobabilitynumerator: 0
+afssmtptrustedmessagesize: 2000000
+afssmtptrustedport: 445
+objectclass: afSSMTPService
+objectclass: top
+
+# Запись 5: afSMTPBWListHostAddress=1.2.3.4,afSServiceName=smtp,ou=...
+dn: afSMTPBWListHostAddress=1.2.3.4,afSServiceName=smtp,ou=system,o=advanced
+ filtering
+afsmtpbwlisthostaddress: 1.2.3.4
+afsmtpbwlistisblack: TRUE
+objectclass: afSMTPHostAddressBWListEntry
+objectclass: top
+
+# Запись 6: afSSMTPDomainName=test-alias.com,afSServiceName=smtp,ou...
+dn: afSSMTPDomainName=test-alias.com,afSServiceName=smtp,ou=system,o=advance
+ dfiltering
+afssmtpdomainclientname: cli1
+afssmtpdomainname: test-alias.com
+objectclass: afSSMTPDomain
+objectclass: top
+
+# Запись 7: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=syste...
+dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfilte
+ ring
+afssmtpdomainclientname: cli1
+afssmtpdomainname: test.com
+objectclass: afSSMTPDomain
+objectclass: top

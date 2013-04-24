@@ -1,0 +1,48 @@
+# Запись 1: ou=user,o=advancedfiltering
+dn: ou=user,o=advancedfiltering
+objectclass: organizationalUnit
+ou: user
+
+# Запись 2: afUServiceName=smtp,ou=user,o=advancedfiltering
+dn: afUServiceName=smtp,ou=user,o=advancedfiltering
+afuservicename: smtp
+objectclass: afUService
+objectclass: top
+
+# Запись 3: afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advanc...
+dn: afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afuservicerealm: r1
+objectclass: afUSRealm
+objectclass: top
+
+# Запись 4: afUClientName=cli1,afUServiceRealm=r1,afUServiceName=sm...
+dn: afUClientName=cli1,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=adva
+ ncedfiltering
+afuclientname: cli1
+objectclass: afUSRClient
+objectclass: top
+
+# Запись 5: afUSMTPDomainName=test.com,afUClientName=cli1,afUServic...
+dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1,afUServ
+ iceName=smtp,ou=user,o=advancedfiltering
+afusmtpdomainaliasname: test-alias.com
+afusmtpdomainname: test.com
+objectclass: afUSMTPDomain
+objectclass: top
+
+# Запись 6: afUSMTPDMBLocalPart=absent,afUSMTPDomainName=test.com,a...
+dn: afUSMTPDMBLocalPart=absent,afUSMTPDomainName=test.com,afUClientName=cli1
+ ,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpdmbisabsent: TRUE
+afusmtpdmblocalpart: absent
+afusmtpdmbtimecreated: 1366488166
+objectclass: afUSMTPDMailBox
+objectclass: top
+
+# Запись 7: afUSMTPDMBLocalPart=existing,afUSMTPDomainName=test.com...
+dn: afUSMTPDMBLocalPart=existing,afUSMTPDomainName=test.com,afUClientName=cl
+ i1,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpdmblocalpart: existing
+afusmtpdmbtimecreated: 1366488165
+objectclass: afUSMTPDMailBox
+objectclass: top
