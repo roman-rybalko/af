@@ -1,4 +1,7 @@
 TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
+TODO: логирование приема, отправки, ошибки 5xx и 4хх
+TODO: учитывать время создания записи MailBox
+TODO: чистить записи ThreadIndex и MessageId (спустя сутки или неделю)
 
 * локальные порты 25 137 138 139 445
 
@@ -53,17 +56,17 @@ rcpt
 ** чужой realm => 4xx Moved, try another host, stop
 * проверка адреса получателя в afMailBox
 ** fail => 4xx Your data is verifying, try again in 5 minutes, log_message, stop
-** ok, afNotExists => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
+** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
 * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
 ** ok => 5xx Access denied (local user policy), stop
 * проверка белых списков (ip, hostname, certificate) для [addr to, domain to, client to]
 ** ok => flag_user_wl+=1, ok, stop
-* flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF violation: ...)", stop : 5xx Access denied (SPF violation: ...), stop
+* flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
 * проверка черных списков (addr from) для [addr to, domain to, client to]
 ** ok => 5xx Access denied (local user policy), stop
 * проверка белых списков (addr from) для [addr to, domain to, client to]
 ** ok => flag_user_wl+=1, ok, stop
-* flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL policy: ...)", stop : 5xx Access denied (DNSBL policy: ...), stop
+* flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
 flag_user_wl
 
 data
@@ -71,6 +74,7 @@ data
 
 data_end
 * flag_sys_wl => ok, stop
+* flag_spamtrap => ok, stop
 * flag_user_wl == recipients_count => ok, stop
 * проверка Thread-Index в afMessageThread
 ** ok => ok, stop

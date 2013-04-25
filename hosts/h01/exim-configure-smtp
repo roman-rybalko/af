@@ -19,7 +19,6 @@ tls_privatekey = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.key
 tls_try_verify_hosts = *
 tls_verify_certificates = /usr/local/etc/ssl/ca
 tls_crl = /usr/local/etc/ssl/ca
-log_selector = +all -arguments
 acl_smtp_connect = connect_acl
 acl_smtp_helo = helo_acl
 acl_smtp_mail = mail_acl
@@ -29,6 +28,7 @@ acl_smtp_data = data_acl
 begin acl
 
 # Domain Name System Block List
+# accept - match, deny - not match
 dnsbl_acl:
   deny
     condition = $acl_c_tp_f
@@ -40,6 +40,7 @@ dnsbl_acl:
   deny
 
 # General Black/White List
+# accept - match, deny - not match
 gen_bwl_acl:
   warn
     set acl_c_bwl_d = ${lookup ldap{LDAP_C/$acl_c_bwl_ldap_q,$acl_c_bwl_ldap_dn?objectClass,afSMTPBWListIsBlack?base}}
@@ -55,6 +56,7 @@ gen_bwl_acl:
   deny
 
 # Sender Host Black/White List
+# accept - match, deny - not match
 sh_bwl_acl:
   accept
     set acl_c_bwl_ldap_q = afSMTPBWListHostAddress=${quote_ldap_dn:$sender_host_address}
@@ -72,6 +74,7 @@ sh_bwl_acl:
   deny
 
 # Certificate Black/White List
+# accept - match, deny - not match
 cert_bwl_acl:
   deny
     ! verify = certificate
@@ -87,9 +90,10 @@ cert_bwl_acl:
 SA_BWL_LDAP_Q = afSMTPBWListSenderAddress=${quote_ldap_dn:$sender_address}
 # ... Black List Message
 SA_BL_M = sender address
+# accept - match, deny - not match
 sa_bwl_acl:
   deny
-    condition = $acl_m_spf_f
+    condition = ${if bool_lax{$acl_m_spf_m}}
     logwrite = DEBUG: sa_bwl: spf fail
   accept
     set acl_c_bwl_ldap_q = SA_BWL_LDAP_Q
@@ -98,37 +102,29 @@ sa_bwl_acl:
     logwrite = DEBUG: sa_bwl
   deny
 
-# Black/White List Message
-BWL_M = Access denied ($acl_c_bwl_category_m, $acl_c_bwl_m)
-# Black/White List
+# System Black List Message
+S_BL_M = Access denied (system policy, $acl_c_bwl_m)
+# System Black/White List
 # include by "require"
-bwl_acl:
+# accept - continue, deny - 5xx
+s_bwl_acl:
   accept
-	set acl_c_bwl_r = ""
-    ! acl = $acl_c_bwl_acl
-    logwrite = DEBUG: bwl: $acl_c_bwl_acl: no match
+    set acl_c_bwl_r = ""
+    ! acl = $acl_c_s_bwl_acl
   deny
-    # user lists shouldn't reach spamtrap
-    condition = $acl_m_bwl_user_f
-    condition = ${if eq{$acl_c_bwl_r}{black}}
-    message = BWL_M
-    logwrite = DEBUG: bwl: deny (user)
-  deny
-    ! condition = $acl_m_bwl_user_f
     ! condition = $acl_c_st_f
     condition = ${if eq{$acl_c_bwl_r}{black}}
-    message = BWL_M
-    logwrite = DEBUG: bwl: deny
+    message = S_BL_M
+    logwrite = DEBUG: s_bwl: black
   accept
-    ! condition = $acl_m_bwl_user_f
     condition = $acl_c_st_f
     condition = ${if eq{$acl_c_bwl_r}{black}}
-    set acl_c_st_m = BWL_M
-    logwrite = DEBUG: bwl: spamtrap
+    set acl_c_st_m = S_BL_M
+    logwrite = DEBUG: s_bwl: black (spamtrap)
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
-    set acl_c_wl_f = true
-    logwrite = DEBUG: bwl: accept
+    set acl_c_s_wl_f = true
+    logwrite = DEBUG: s_bwl: white
   accept
     logwrite = ERROR: UNKNOWN BWL RESULT: $acl_c_bwl_r
 
@@ -155,134 +151,226 @@ connect_acl:
     set acl_c_st_f = S_ST_F
     set acl_c_host_realms = S_HR_D
     set acl_c_bwl_ldap_dn = S_SMTP_LDAP_DN
-    set acl_c_bwl_category_m = system policy
     logwrite = DEBUG: acl_c_tp_f=$acl_c_tp_f acl_c_st_f=$acl_c_st_f acl_c_host_realms=$acl_c_host_realms
   require
-    set acl_c_bwl_acl = sh_bwl_acl
-    acl = bwl_acl
+    set acl_c_s_bwl_acl = sh_bwl_acl
+    acl = s_bwl_acl
   warn
-  	! condition = $acl_c_wl_f
+  	! condition = $acl_c_s_wl_f
     set acl_c_dnsbl_ldap_dn = S_SMTP_LDAP_DN
     acl = dnsbl_acl
-    set acl_c_dnsbl_f = true
   accept
 
 helo_acl:
   accept
-    condition = $acl_c_wl_f
-    log_message = whitelist
+    condition = $acl_c_s_wl_f
+    log_message = system whitelist
   accept
     condition = ${if bool_lax{$acl_c_st_m}}
     log_message = spamtrap
   require
-    set acl_c_bwl_acl = cert_bwl_acl
-    acl = bwl_acl
+    set acl_c_s_bwl_acl = cert_bwl_acl
+    acl = s_bwl_acl
   accept
 
 mail_acl:
   accept
-    condition = $acl_c_wl_f
-    log_message = whitelist
+    condition = $acl_c_s_wl_f
+    log_message = system whitelist
   accept
     condition = ${if bool_lax{$acl_c_st_m}}
     log_message = spamtrap
   warn
     spf = fail
-    set acl_m_spf_f = true
     set acl_m_spf_m = $sender_host_address is not allowed to send mail from $sender_address_domain
   require
-    set acl_c_bwl_acl = sa_bwl_acl
-    acl = bwl_acl
+    set acl_c_s_bwl_acl = sa_bwl_acl
+    acl = s_bwl_acl
   accept
 
 # User SMTP LDAP DN
 U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # User SMTP Realm DN
-U_SMTP_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_msg_realm},U_SMTP_LDAP_DN
+U_SMTP_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm},U_SMTP_LDAP_DN
 # User SMTP Realm Client DN
-U_SMTP_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_msg_client},U_SMTP_R_LDAP_DN
+U_SMTP_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_u_client},U_SMTP_R_LDAP_DN
 # User SMTP Realm Client Domain DN
-U_SMTP_R_C_D_LDAP_DN = afUSMTPDomainName=${quote_ldap_dn:$acl_m_msg_domain},U_SMTP_R_C_LDAP_DN
+U_SMTP_R_C_D_LDAP_DN = afUSMTPDomainName=${quote_ldap_dn:$acl_m_u_domain},U_SMTP_R_C_LDAP_DN
 # User SMTP Realm Client Domain Mail Box DN
 U_SMTP_R_C_D_MB_LDAP_DN = afUSMTPDMBLocalPart=${quote_ldap_dn:$local_part},U_SMTP_R_C_D_LDAP_DN
 
 # Lookup recipient domain
 domain_rcpt_acl:
   accept
-    set acl_m_msg_domain = ${lookup ldap{LDAP_C/afUSMTPDomainName=${quote_ldap_dn:$domain},U_SMTP_R_C_LDAP_DN?afUSMTPDomainName?base}}
-    condition = ${if bool_lax{$acl_m_msg_domain}}
-    logwrite = DEBUG: acl_m_msg_domain=$acl_m_msg_domain
+    # User Domain
+    set acl_m_u_domain = ${lookup ldap{LDAP_C/afUSMTPDomainName=${quote_ldap_dn:$domain},U_SMTP_R_C_LDAP_DN?afUSMTPDomainName?base}}
+    condition = ${if bool_lax{$acl_m_u_domain}}
+    logwrite = DEBUG: acl_m_u_domain=$acl_m_u_domain
   accept
-    set acl_m_msg_domain = ${lookup ldap{LDAP_C/U_SMTP_R_C_LDAP_DN?afUSMTPDomainName?sub?(&(objectClass=afUSMTPDomain)(afUSMTPDomainAliasName=${quote_ldap:$domain}))}}
-    condition = ${if bool_lax{$acl_m_msg_domain}}
-    logwrite = DEBUG: acl_m_msg_domain=$acl_m_msg_domain (alias)
+    set acl_m_u_domain = ${lookup ldap{LDAP_C/U_SMTP_R_C_LDAP_DN?afUSMTPDomainName?sub?(&(objectClass=afUSMTPDomain)(afUSMTPDomainAliasName=${quote_ldap:$domain}))}}
+    condition = ${if bool_lax{$acl_m_u_domain}}
+    logwrite = DEBUG: acl_m_u_domain=$acl_m_u_domain (alias)
   defer
     message = Replicating, try again later
 
+# User Black List Message
+U_BL_M = Access denied ($acl_m_bwl_category_m, $acl_c_bwl_m)
+# User Black/White List
+# accept - match, deny - not match
+u_bwl_acl:
+  deny
+    set acl_c_bwl_r = ""
+    ! acl = $acl_m_u_bwl_acl
+  accept
+    condition = ${if eq{$acl_c_bwl_r}{black}}
+    # User Black List Message
+    set acl_m_u_bl_m = U_BL_M
+    logwrite = DEBUG: u_bwl: black
+  accept
+    condition = ${if eq{$acl_c_bwl_r}{white}}
+    # User White List Count
+    set acl_m_u_wl_c = ${eval:$acl_m_u_wl_c+1}
+    logwrite = DEBUG: u_bwl: white
+  deny
+    logwrite = ERROR: UNKNOWN BWL RESULT: $acl_c_bwl_r
+
 # User Mail Box Absent Message
 U_MBA_M = Mail box does not exist
+# User SPF Message
+U_SPF_M = Access denied (SPF: $acl_m_spf_m)
+# User DNSBL Message
+U_DNSBL_M = Access denied (DNSBL: $acl_c_dnsbl_m)
 
 rcpt_acl:
+  # * проверка realm для домена
+  # ** нет домена => 5xx The domain is not in service, stop
+  # ** чужой realm => 4xx Moved, try another host, stop
   deny
-    set acl_m_msg_client = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$domain},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
-    logwrite = DEBUG: acl_m_msg_client=$acl_m_msg_client
-    ! condition = ${if bool_lax{$acl_m_msg_client}}
+    # User Client (name/id)
+    set acl_m_u_client = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$domain},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
+    logwrite = DEBUG: acl_m_u_client=$acl_m_u_client
+    ! condition = ${if bool_lax{$acl_m_u_client}}
     message = The domain is not in service
   defer
-    set acl_m_msg_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_msg_client},S_LDAP_DN?afSClientRealm?base}}
-    logwrite = DEBUG: acl_m_msg_realm=$acl_m_msg_realm
-    ! condition = ${if forany{$acl_c_host_realms}{eq{$item}{$acl_m_msg_realm}}}
+    # User Realm
+    set acl_m_u_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_u_client},S_LDAP_DN?afSClientRealm?base}}
+    logwrite = DEBUG: acl_m_u_realm=$acl_m_u_realm
+    ! condition = ${if forany{$acl_c_host_realms}{eq{$item}{$acl_m_u_realm}}}
     message = Moved, try another host
   require
     acl = domain_rcpt_acl
+
+  # * проверка адреса получателя в afMailBox
+  # ** fail => 4xx Your data is verifying, try again in 5 minutes, log_message, stop
+  # ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
   defer
-    set acl_m_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?afUSMTPDMBTimeCreated,afUSMTPDMBIsAbsent?base}}
-    ! condition = ${if bool_lax{$acl_m_mb_d}}
+    # User Mail Box Data
+    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?afUSMTPDMBTimeCreated,afUSMTPDMBIsAbsent?base}}
+    ! condition = ${if bool_lax{$acl_m_u_mb_d}}
     message = Your data is verifying, try again later
-    logwrite = AdvancedFilteringNewMailBox:<$local_part@$domain>Domain:<$acl_m_msg_domain>Realm:<$acl_m_msg_realm>
+    logwrite = AdvancedFiltering:NewMailBox:<$local_part@$domain>Domain:<$acl_m_u_domain>Realm:<$acl_m_u_realm>
   deny
     ! condition = $acl_c_st_f
-    condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_mb_d}{true}{false}}
+    condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     message = U_MBA_M
-  warn
+  accept
     condition = $acl_c_st_f
-    condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_mb_d}{true}{false}}
+    condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     set acl_c_st_m = U_MBA_M
+    log_message = spamtrap
+
+  # * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
+  # ** ok => 5xx Access denied (local user policy), stop
+  # * проверка белых списков (ip, hostname, certificate) для [addr to, domain to, client to]
+  # ** ok => flag_user_wl+=1, ok, stop
   warn
-    set acl_m_bwl_user_f = true
-  require
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_MB_LDAP_DN
-    set acl_c_bwl_category_m = user recipient policy
-    logwrite = DEBUG: user bwl: $acl_c_bwl_category_m
-    set acl_c_bwl_acl = sh_bwl_acl
-    acl = bwl_acl
-    set acl_c_bwl_acl = cert_bwl_acl
-    acl = bwl_acl
-    set acl_c_bwl_acl = sa_bwl_acl
-    acl = bwl_acl
-  require
+    set acl_m_bwl_category_m = user recipient policy
+    set acl_m_u_bwl_acl = sh_bwl_acl
+    ! acl = u_bwl_acl
+    set acl_m_u_bwl_acl = cert_bwl_acl
+    ! acl = u_bwl_acl
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_LDAP_DN
-    set acl_c_bwl_category_m = user domain policy
-    logwrite = DEBUG: user bwl: $acl_c_bwl_category_m
-    set acl_c_bwl_acl = sh_bwl_acl
-    acl = bwl_acl
-    set acl_c_bwl_acl = cert_bwl_acl
-    acl = bwl_acl
-    set acl_c_bwl_acl = sa_bwl_acl
-    acl = bwl_acl
-  require
+    set acl_m_bwl_category_m = user domain policy
+    set acl_m_u_bwl_acl = sh_bwl_acl
+    ! acl = u_bwl_acl
+    set acl_m_u_bwl_acl = cert_bwl_acl
+    ! acl = u_bwl_acl
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_LDAP_DN
-    set acl_c_bwl_category_m = user policy
-    logwrite = DEBUG: user bwl: $acl_c_bwl_category_m
-    set acl_c_bwl_acl = sh_bwl_acl
-    acl = bwl_acl
-    set acl_c_bwl_acl = cert_bwl_acl
-    acl = bwl_acl
-    set acl_c_bwl_acl = sa_bwl_acl
-    acl = bwl_acl
+    set acl_m_bwl_category_m = user policy
+    set acl_m_u_bwl_acl = sh_bwl_acl
+    ! acl = u_bwl_acl
+    set acl_m_u_bwl_acl = cert_bwl_acl
+    ! acl = u_bwl_acl
+  deny
+    condition = ${if eq{$acl_c_bwl_r}{black}}
+    message = $acl_m_u_bl_m
+    log_message = user blacklist
+    logwrite = AdvancedFiltering:Log:Reject
+  accept
+    condition = ${if eq{$acl_c_bwl_r}{white}}
+    log_message = user whitelist
+
+  # * flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
+  deny
+    ! condition = $acl_c_st_f
+    condition = ${if bool_lax{$acl_m_spf_m}}
+    message = U_SPF_M
+  accept
+    condition = $acl_c_st_f
+    condition = ${if bool_lax{$acl_m_spf_m}}
+    set acl_c_st_m = U_SPF_M
+    log_message = spamtrap
+
+  # * проверка черных списков (addr from) для [addr to, domain to, client to]
+  # ** ok => 5xx Access denied (local user policy), stop
+  # * проверка белых списков (addr from) для [addr to, domain to, client to]
+  # ** ok => flag_user_wl+=1, ok, stop
+  warn
+    set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_MB_LDAP_DN
+    set acl_m_bwl_category_m = user recipient policy
+    set acl_m_u_bwl_acl = sa_bwl_acl
+    ! acl = u_bwl_acl
+    set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_LDAP_DN
+    set acl_m_bwl_category_m = user domain policy
+    set acl_m_u_bwl_acl = sa_bwl_acl
+    ! acl = u_bwl_acl
+    set acl_c_bwl_ldap_dn = U_SMTP_R_C_LDAP_DN
+    set acl_m_bwl_category_m = user policy
+    set acl_m_u_bwl_acl = sa_bwl_acl
+    ! acl = u_bwl_acl
+  deny
+    condition = ${if eq{$acl_c_bwl_r}{black}}
+    message = $acl_m_u_bl_m
+    log_message = user blacklist
+    logwrite = AdvancedFiltering:Log:Reject
+  accept
+    condition = ${if eq{$acl_c_bwl_r}{white}}
+    log_message = user whitelist
+  
+  # * flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
+  deny
+    ! condition = $acl_c_st_f
+    condition = ${if bool_lax{$acl_c_dnsbl_m}}
+    message = U_DNSBL_M
+  accept
+    condition = $acl_c_st_f
+    condition = ${if bool_lax{$acl_c_dnsbl_m}}
+    set acl_c_st_m = U_DNSBL_M
+    log_message = spamtrap
+  
   accept
 
 data_acl:
+  accept
+    condition = $acl_c_s_wl_f
+    log_message = system whitelist
+  accept
+    condition = ${if bool_lax{$acl_c_st_m}}
+    log_message = spamtrap
+  accept
+    condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
+    log_message = user whitelist
   accept
 
 begin routers

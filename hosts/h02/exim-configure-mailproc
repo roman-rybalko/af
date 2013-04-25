@@ -13,7 +13,6 @@ tls_privatekey = /etc/ssl/${primary_hostname}.key
 tls_verify_hosts = *
 tls_verify_certificates = /etc/ssl/ca
 tls_crl = /etc/ssl/ca
-log_selector = +all -arguments
 acl_smtp_rcpt = rcpt_acl
 
 begin acl
