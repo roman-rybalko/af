@@ -1,7 +1,8 @@
 TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
 TODO: логирование приема, отправки, ошибки 5xx и 4хх
 TODO: учитывать время создания записи MailBox
-TODO: чистить записи ThreadIndex и MessageId (спустя сутки или неделю)
+TODO: чистить записи MessageId (спустя сутки или неделю)
+TODO: размер сообщения
 
 * локальные порты 25 137 138 139 445
 
@@ -75,15 +76,14 @@ data
 http://www.jwz.org/doc/threading.html
 
 data_end
+* flag_spamtrap => 5xx $flag_spamtrap, stop
 * flag_sys_wl => ok, stop
-* flag_spamtrap => ok, stop
 * flag_user_wl == recipients_count => ok, stop
-* проверка In-Reply-To, References в afMessageOutgoing
-** ok => ok, stop
+* sys_trustedport => ok, stop
 * проверка Message-Id в afMessageIncoming
-** нет MessageId => sys_spamtrap ? flag_spamtrap+="No Message-Id header, submission is prohibited" : 5xx No Message-Id header, submission is prohibited, stop
+** нет MessageId => 5xx No Message-Id header, submission is prohibited, stop
 ** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop
 ** ok => ok, stop
-* flag_spamtrap => 5xx $flag_spamtrap, forward to spamtrap
-* sys_trustedport => ok, stop
+* проверка In-Reply-To, References в afMessageOutgoing
+** ok => ok, stop
 * 4xx Your data is verifying, try again in 5 minutes, forward to mailproc
