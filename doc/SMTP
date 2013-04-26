@@ -72,12 +72,12 @@ flag_user_wl
 data
 * ok
 
+http://www.jwz.org/doc/threading.html
+
 data_end
 * flag_sys_wl => ok, stop
 * flag_spamtrap => ok, stop
 * flag_user_wl == recipients_count => ok, stop
-* проверка Thread-Index в afMessageThread
-** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop
 * проверка Message-Id в afMessageIncoming

@@ -86,19 +86,16 @@ cert_bwl_acl:
     logwrite = DEBUG: cert_bwl
   deny
 
-# Sender Address Black/White List LDAP Query
-SA_BWL_LDAP_Q = afSMTPBWListSenderAddress=${quote_ldap_dn:$sender_address}
-# ... Black List Message
-SA_BL_M = sender address
+# Sender Address Black/White List
 # accept - match, deny - not match
 sa_bwl_acl:
   deny
     condition = ${if bool_lax{$acl_m_spf_m}}
     logwrite = DEBUG: sa_bwl: spf fail
   accept
-    set acl_c_bwl_ldap_q = SA_BWL_LDAP_Q
+    set acl_c_bwl_ldap_q = afSMTPBWListSenderAddress=${quote_ldap_dn:$sender_address}
     acl = gen_bwl_acl
-    set acl_c_bwl_m = SA_BL_M
+    set acl_c_bwl_m = sender address
     logwrite = DEBUG: sa_bwl
   deny
 
@@ -133,25 +130,26 @@ S_LDAP_DN = ou=system,o=advancedfiltering
 # System SMTP LDAP DN
 S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
 
-# System Host Realm Data
-S_HR_D = <, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base}}
 # System SMTP Trusted Port Data
-S_TP_D = <, ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedPort?base}}
+S_TP_D = ${sg {${lookup ldap {LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedPort?base} }} {,\\s*} {:} }
 # ... Trusted Port Flag
-S_TP_F = ${if forany{S_TP_D}{={$item}{$received_port}}}
+S_TP_F = ${if inlist{$received_port}{S_TP_D}}
 # ... Spam Trap Probability Numerator
 S_STPN = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityNumerator?base}}
 # ... Spam Trap Probability Denominator
 S_STPD = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityDenominator?base}}
 # ... Spam Trap Flag
-S_ST_F = ${if >{S_STPN}{${eval:$tod_epoch_l%S_STPD}}}
+S_ST_F = ${if >{S_STPN}{${randint:S_STPD}}}
 connect_acl:
   warn
+    # Trusted Port Flag
     set acl_c_tp_f = S_TP_F
+    # SpamTrap Flag
     set acl_c_st_f = S_ST_F
-    set acl_c_host_realms = S_HR_D
+    # System Realm(s)
+    set acl_c_s_realms = ${sg {${lookup ldap {LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
     set acl_c_bwl_ldap_dn = S_SMTP_LDAP_DN
-    logwrite = DEBUG: acl_c_tp_f=$acl_c_tp_f acl_c_st_f=$acl_c_st_f acl_c_host_realms=$acl_c_host_realms
+    logwrite = DEBUG: acl_c_tp_f=$acl_c_tp_f acl_c_st_f=$acl_c_st_f acl_c_s_realms=$acl_c_s_realms
   require
     set acl_c_s_bwl_acl = sh_bwl_acl
     acl = s_bwl_acl
@@ -255,7 +253,7 @@ rcpt_acl:
     # User Realm
     set acl_m_u_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_u_client},S_LDAP_DN?afSClientRealm?base}}
     logwrite = DEBUG: acl_m_u_realm=$acl_m_u_realm
-    ! condition = ${if forany{$acl_c_host_realms}{eq{$item}{$acl_m_u_realm}}}
+    ! condition = ${if inlist{$acl_m_u_realm}{$acl_c_s_realms}}
     message = Moved, try another host
   require
     acl = domain_rcpt_acl
@@ -361,6 +359,31 @@ rcpt_acl:
   
   accept
 
+# Message References
+U_MR_D = $bheader_in-reply-to: $bheader_references:
+# Message References Fix 1
+U_MR_F1 = ${sg{U_MR_D}{\\s+\<}{ }}
+# Message References Fix 2
+U_MR_F2 = ${sg{U_MR_F1}{\>\\s+}{ }}
+U_MR_F3 = ${sg{U_MR_F2}{^\\s*\<}{}}
+U_MR_F4 = ${sg{U_MR_F3}{\>\\s*\$}{}}
+U_MR_F5 = ${sg{U_MR_F4}{[:\\|]}{}}
+U_MR_F6 = ${sg{U_MR_F5}{\\s+}{:}}
+# Message References Final Fix
+U_MR_FF = U_MR_F6
+
+# User Message DataBase LDAP DN
+U_MDB_LDAP_DN = afUServiceName=mdb,ou=user,o=advancedfiltering
+# User Message DataBase Realm LDAP DNs
+U_MDB_R_LDAP_DNs = ${map{$acl_c_s_realms}{afUServiceRealm=${quote_ldap_dn:$item},U_MDB_LDAP_DN}}
+
+# User MDB Realm Message Outgoing
+U_MDB_R_MO_VALUE_ORIG = ${sg {$value} {\\|.*\$} {} }
+U_MDB_R_MO_VALUE_MID = ${sg {:U_MDB_R_MO_VALUE_ORIG} {:} {:afUMDBMessageId=${quote_ldap_dn:$item},} }
+U_MDB_R_MO_VALUE_ALL = ${reduce {U_MR_FF} {U_MDB_R_LDAP_DNs|} {${value}U_MDB_R_MO_VALUE_MID} }
+U_MDB_R_MO_LDAP_DNs = ${sg {U_MDB_R_MO_VALUE_ALL} {^.+\\|:} {} }
+U_MDB_R_MO_LDAP_ITEM = ${lookup ldap {LDAP_C/$item?afUMDBMessageSenderMailAddress?base?(objectClass=afUMDBMessageOutgoing)}}
+
 data_acl:
   accept
     condition = $acl_c_s_wl_f
@@ -371,7 +394,18 @@ data_acl:
   accept
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
     log_message = user whitelist
-  accept
+  
+  # * проверка In-Reply-To, References в afMessageOutgoing
+  # ** ok => ok, stop
+  defer
+    logwrite = DEBUG: In-Reply-To, References LDAP DNs: U_MDB_R_MO_LDAP_DNs
+    logwrite = DEBUG: senders: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value U_MDB_R_MO_LDAP_ITEM} }
+    logwrite = DEBUG: recipients: $recipients
+    condition = ${if forany {U_MDB_R_MO_LDAP_DNs} { inlist {U_MDB_R_MO_LDAP_ITEM} {$recipients} } }
+    message = Testing
+
+  deny
+    message = Testing
 
 begin routers
 dnslookup:
