@@ -1,7 +1,9 @@
 Входящий роутинг
 
-* services
-* backup
+* service
+* mailproc
 * spam
+* spamtrap
+* backup
 * mx
-* submission
+* submission (user senders only)

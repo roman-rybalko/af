@@ -1,4 +1,2 @@
 internet -> smtp -> submission:25 -> internet
-smtp -> mx
-mx -> submission:587
-
+smtp -> mx -> submission:587

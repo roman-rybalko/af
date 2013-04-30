@@ -3,6 +3,7 @@ TODO: логирование приема, отправки, ошибки 5xx и
 TODO: учитывать время создания записи MailBox
 TODO: чистить записи MessageId (спустя сутки или неделю)
 TODO: размер сообщения
+TODO: логировать ID-theft (несовпадение sender для Message-Id)
 
 * локальные порты 25 137 138 139 445
 
@@ -79,7 +80,7 @@ data_end
 * flag_spamtrap => 5xx $flag_spamtrap, stop
 * flag_sys_wl => ok, stop
 * flag_user_wl == recipients_count => ok, stop
-* sys_trustedport => ok, stop
+--- * sys_trustedport => ok, stop (на trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами)
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx No Message-Id header, submission is prohibited, stop
 ** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop

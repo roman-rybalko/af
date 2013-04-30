@@ -3,4 +3,11 @@ postmaster@hosts.advancedfiltering.net
 
 mailproc@services.advancedfiltering.net
 spamtrap@services.advancedfiltering.net
+bounce@services.advancedfiltering.net
+error@services.advancedfiltering.net
+xxx@services.advancedfiltering.net
+
 xxx@clientrealms.advancedfiltering.net
+
+Admin Email - для организационных сообщений
+Tech Email - для технических автогенерированных сообщений (только адреса в клиентских доменах, т.к. с этих адресов идут бэкапы и спам, иначе нарушаем SPF)
