@@ -1,9 +1,96 @@
-dn: ou=system,o=advancedfiltering
-changetype: add
-objectClass: organizationalUnit
-ou: system
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcDbDirectory: /usr/local/var/db/openldap-data/ou=ldap
+olcSuffix: ou=ldap
+olcLastMod: TRUE
+olcDbCheckpoint: 102400 1
+olcDbNoSync: TRUE
+olcDbIndex: objectClass eq
+olcDbIndex: entryCSN,entryUUID eq
+olcDbMaxSize: 33554432
+olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
+olcAccess: to attrs=userPassword by anonymous auth by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=roma,ou=ldap" manage by * break
+olcLimits: dn="cn=roma,ou=ldap" size=100000
+olcRootDN: cn=tvorg8TRpo1U,cn=config
 
-dn: ou=user,o=advancedfiltering
-changetype: add
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcDbDirectory: /usr/local/var/db/openldap-data/ou=system,o=advancedfiltering
+olcSuffix: ou=system,o=advancedfiltering
+olcLastMod: TRUE
+olcDbCheckpoint: 102400 1
+olcDbNoSync: TRUE
+olcDbIndex: objectClass eq
+olcDbIndex: entryCSN,entryUUID eq
+olcDbMaxSize: 2147483648
+olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
+olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
+olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=ldap" read by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=roma,ou=ldap" manage by * break
+olcLimits: dn="cn=syncrepl,ou=ldap" size=unlimited time=unlimited
+olcLimits: dn="cn=roma,ou=ldap" size=100000
+olcRootDN: cn=tvorg8TRpo1U,cn=config
+
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcDbDirectory: /usr/local/var/db/openldap-data/ou=user,o=advancedfiltering
+olcSuffix: ou=user,o=advancedfiltering
+olcLastMod: TRUE
+olcDbCheckpoint: 102400 1
+olcDbNoSync: TRUE
+olcDbIndex: objectClass eq
+olcDbIndex: entryCSN,entryUUID eq
+olcDbMaxSize: 4294967296
+olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
+olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
+olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=ldap" read by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=roma,ou=ldap" manage by * break
+olcLimits: dn="cn=syncrepl,ou=ldap" size=unlimited time=unlimited
+olcLimits: dn="cn=roma,ou=ldap" size=100000
+olcRootDN: cn=tvorg8TRpo1U,cn=config
+
+dn: olcOverlay=syncprov,olcDatabase={2}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+olcSpCheckpoint: 1024 1
+olcSpSessionlog: 1024
+
+dn: olcOverlay=syncprov,olcDatabase={3}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+olcSpCheckpoint: 1024 1
+olcSpSessionlog: 1024
+
+dn: ou=ldap
 objectClass: organizationalUnit
-ou: user
+ou: ldap
+
+dn: cn=roma,ou=ldap
+cn: roma
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+objectclass: top
+userpassword: {SSHA}Z/zqVfaTCFXGkQ0MXZ697BJXCre+jRIS
+
+dn: cn=syncrepl,ou=ldap
+cn: syncrepl
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+objectclass: top
+userpassword: {SSHA}Vz042UudN/ghVStR8sR9lI3IuIw3eQ/c
+
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
+olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
+olcAccess: to dn.subtree="" by dn.exact="cn=roma,ou=ldap" manage by * break

@@ -5,3 +5,18 @@ olcRootDN: cn=tvorg8TRpo1U,cn=config
 -
 add: olcRootPW
 olcRootPW: 1
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcRootDN
+olcRootDN: cn=tvorg8TRpo1U,cn=config
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcRootDN
+olcRootDN: cn=tvorg8TRpo1U,cn=config
+
+dn: olcDatabase={3}mdb,cn=config
+changetype: modify
+add: olcRootDN
+olcRootDN: cn=tvorg8TRpo1U,cn=config

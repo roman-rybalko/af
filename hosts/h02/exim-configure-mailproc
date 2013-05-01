@@ -36,11 +36,29 @@ mailproc_router:
   local_parts = mailproc
   transport = mailproc_transport
   errors_to = error@services.advancedfiltering.net
+error_router:
+  driver = accept
+  local_parts = error
+  transport = error_transport
+  errors_to = ""
+bounce_router:
+  driver = accept
+  local_parts = bounce
+  transport = bounce_transport
+  errors_to = error@services.advancedfiltering.net
 
 begin transports
 mailproc_transport:
   driver = appendfile
   directory = /usr/local/var/spool/advancedfiltering/mailproc
+  mode = 0660
+error_transport:
+  driver = appendfile
+  directory = /usr/local/var/spool/advancedfiltering/error
+  mode = 0660
+bounce_transport:
+  driver = appendfile
+  directory = /usr/local/var/spool/advancedfiltering/bounce
   mode = 0660
 
 begin retry

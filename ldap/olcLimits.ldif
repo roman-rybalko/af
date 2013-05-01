@@ -1,0 +1,5 @@
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcLimits
+olcLimits: dn="cn=syncrepl,ou=ldap" size=unlimited time=unlimited
+olcLimits: dn="cn=roma,ou=ldap" size=100000

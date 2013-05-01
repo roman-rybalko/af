@@ -1,7 +1,0 @@
-dn: olcDatabase={1}mdb,cn=config
-changetype: modify
-delete: olcRootDN
-
-dn: olcDatabase={2}mdb,cn=config
-changetype: modify
-delete: olcRootDN

@@ -24,6 +24,9 @@ acl_smtp_helo = helo_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_data = data_acl
+received_header_text = Received: from $sender_rcvhost\n \
+ by $primary_hostname${if def:received_protocol { with $received_protocol} }${if def:tls_cipher { ($tls_cipher)} }\n \
+ id $message_exim_id${if def:sender_address { (envelope-from <$sender_address>)}}${if def:received_for { for $received_for}}
 
 # Lightweight Directory Access Protocol Connection
 LDAP_C = ldapi://%2fvar%2frun%2fopenldap%2fldapi
@@ -31,6 +34,8 @@ LDAP_C = ldapi://%2fvar%2frun%2fopenldap%2fldapi
 S_LDAP_DN = ou=system,o=advancedfiltering
 # System SMTP LDAP DN
 S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
+# User SMTP LDAP DN
+U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # System Realms
 S_REALMS = ${sg {${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
 
@@ -190,8 +195,6 @@ mail_acl:
     acl = s_bwl_acl
   accept
 
-# User SMTP LDAP DN
-U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # User SMTP Realm DN
 U_SMTP_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm},U_SMTP_LDAP_DN
 # User SMTP Realm Client DN
@@ -482,7 +485,7 @@ service_verify_router:
 service_router:
   domains = services.advancedfiltering.net
   driver = manualroute
-  route_data = ${tr {${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_AD_R_LDAP_Q)(afSHostServiceName=$local_part))} }} {\n} {:} }
+  route_data = ${tr {${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_S_R_LDAP_Q)(afSHostServiceName=$local_part))} }} {\n} {:} }
   hosts_randomize = true
   transport = service_transport
   address_data = system_authenticator="true" $address_data
@@ -534,16 +537,16 @@ R_CS_D = ""
 
 # Router Copy Headers Delete
 # X-AdvancedFiltering-Sender-XXX header for separate batch
-R_CH_D = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CH_D = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-XXX
 # Router Copy Headers Add
 R_CH_A = X-AdvancedFiltering-Return-Path: $sender_address
 
 # * spam
 
-R_CT_D == ${lookup ldapm{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
-
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_mailbox_router:
   condition = ${if bool_lax{$acl_c_st_m}}
   condition = ${if bool_lax{R_CLIENT}}
@@ -557,6 +560,8 @@ spam_user_mailbox_router:
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_domain_router:
   condition = ${if bool_lax{$acl_c_st_m}}
   condition = ${if bool_lax{R_CLIENT}}
@@ -570,6 +575,8 @@ spam_user_domain_router:
 
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_client_router:
   condition = ${if bool_lax{$acl_c_st_m}}
   condition = ${if bool_lax{R_CLIENT}}
@@ -592,10 +599,12 @@ spamtrap_router:
 
 # * backup
 
-R_CT_D == ${lookup ldapm{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -608,6 +617,8 @@ backup_user_mailbox_router:
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_domain_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -620,6 +631,8 @@ backup_user_domain_router:
   
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_client_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -633,29 +646,35 @@ backup_user_client_router:
 # * mx
 
 # Router Mail Exchanger Data
-R_MX_D = ${tr {${map {<\n ${lookup ldapm{LDAP_C/R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort?sub?(objectClass=afUSMTPMailExchanger)} }} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
+R_MX_D = ""
 
 R_LDAP_DN == R_CDM_LDAP_DN
+R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
 user_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
-  route_data = R_MX_D
+  route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   transport = user_transport
   errors_to = bounce@services.advancedfiltering.net
 
 R_LDAP_DN == R_CD_LDAP_DN
+R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
 user_domain_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
-  route_data = R_MX_D
+  route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   transport = user_transport
   errors_to = bounce@services.advancedfiltering.net
 
 R_LDAP_DN == R_C_LDAP_DN
+R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
 user_client_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
-  route_data = R_MX_D
+  route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   transport = user_transport
   errors_to = bounce@services.advancedfiltering.net
 
@@ -693,25 +712,18 @@ service_transport:
   driver = smtp
   # mandatory tls
   hosts_require_tls = *
-  # system cert
+  # system cert, verify
   tls_certificate = /etc/ssl/$primary_hostname.crt
   tls_privatekey = /etc/ssl/$primary_hostname.key
   tls_verify_certificates = /etc/ssl/ca
   tls_crl = /etc/ssl/ca
   # no return path fix
 
-user_transport:
-  driver = smtp
-  # mandatory auth & tls if required
-  # public cert
-  # return path fix (sender_address)
-  return_path = $sender_address
-
 submission_transport:
   driver = smtp
   # mandatory tls
   hosts_require_tls = *
-  # system cert
+  # system cert, verify
   tls_certificate = /etc/ssl/$primary_hostname.crt
   tls_privatekey = /etc/ssl/$primary_hostname.key
   tls_verify_certificates = /etc/ssl/ca
@@ -719,23 +731,51 @@ submission_transport:
   # return path fix (address_data)
   return_path = ${extract {sender} {$address_data} }
 
+# Transport LDAP DN
+T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
+# Transport Auth-required Hosts
+T_AH_D = ${tr {${lookup ldapm{LDAP_C/ou=settings,T_LDAP_DN?afUSMTPMXHostName?sub?(&(afUSMTPMXAuthUser=*)(objectClass=afUSMTPMailExchanger))} }} {\n} {:} }
+# Transport TLS-required Hosts
+T_TH_D = ${tr {${lookup ldapm{LDAP_C/ou=settings,T_LDAP_DN?afUSMTPMXHostName?sub?(&(afUSMTPMXIsTLSRequired=TRUE)(objectClass=afUSMTPMailExchanger))} }} {\n} {:} }
+
+user_transport:
+  driver = smtp
+  # mandatory auth & tls
+  hosts_require_auth = T_AH_D
+  hosts_require_tls = T_TH_D
+  # public cert, no verify
+  tls_certificate = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.crt
+  tls_privatekey = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.key
+  # return path fix (sender_address)
+  return_path = $sender_address
+
 begin retry
-*                      *           F,2h,15m; G,16h,1h,1.5; F,4d,6h
+#*                      *           F,2h,15m; G,16h,1h,1.5; F,4d,6h
+*                      *           F,24h,5s
 
 begin rewrite
 
 begin authenticators
 
-# TODO
-user_plain_authenticator:
-  client_condition = false
-  driver = plaintext
-  public_name = PLAIN
-  client_send = ^username^mysecret
+# client_send does not allow ":" in the data
+A_USER = ${extract {${host}_user} {$address_data} }
+A_PASSWORD = ${extract {${host}_password} {$address_data} }
 
-# TODO
+user_cram_md5_authenticator:
+  client_condition = ${if bool_lax{A_USER}}
+  driver = cram_md5
+  public_name = CRAM-MD5
+  client_name = A_USER
+  client_secret = A_PASSWORD
+
 user_login_authenticator:
-  client_condition = false
+  client_condition = ${if bool_lax{A_USER}}
   driver = plaintext
   public_name = LOGIN
-  client_send = : username : mysecret
+  client_send = :A_USER:A_PASSWORD
+
+user_plain_authenticator:
+  client_condition = ${if bool_lax{A_USER}}
+  driver = plaintext
+  public_name = PLAIN
+  client_send = ^A_USER^A_PASSWORD
