@@ -50,15 +50,15 @@ bounce_router:
 begin transports
 mailproc_transport:
   driver = appendfile
-  directory = /usr/local/var/spool/advancedfiltering/mailproc
+  directory = /usr/local/var/advancedfiltering/mailproc
   mode = 0660
 error_transport:
   driver = appendfile
-  directory = /usr/local/var/spool/advancedfiltering/error
+  directory = /usr/local/var/advancedfiltering/error
   mode = 0660
 bounce_transport:
   driver = appendfile
-  directory = /usr/local/var/spool/advancedfiltering/bounce
+  directory = /usr/local/var/advancedfiltering/bounce
   mode = 0660
 
 begin retry
