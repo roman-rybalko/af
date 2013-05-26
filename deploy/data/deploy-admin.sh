@@ -1,4 +1,4 @@
 #!/bin/sh
 
-u="deploy/root"
+u="deploy/init"
 p="YiKr1vWrvnn8iLVeiqJUww04tq6gwwoDOiQuOIVEH9"

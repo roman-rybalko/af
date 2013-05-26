@@ -21,7 +21,7 @@ pkg_add -r expect-5.43.0_3
 H=`hostname`
 expect -c "spawn ktutil get -p deploy/init host/$H ; \
     expect assword: ; \
-    send \"YXwC0qcEGICs0DqkWltMaTStiRB9W5zooQd4Z1hUk3\\n\" ; \
+    send \"YiKr1vWrvnn8iLVeiqJUww04tq6gwwoDOiQuOIVEH9\\n\" ; \
     interact"
 pw groupadd krb5kt
 chgrp krb5kt /etc/krb5.keytab

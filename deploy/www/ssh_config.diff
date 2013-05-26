@@ -1,0 +1,12 @@
+--- ssh_config.orig	2012-12-04 13:34:45.000000000 +0400
++++ ssh_config	2013-05-26 14:37:57.000000000 +0400
+@@ -26,7 +26,9 @@
+ #   PasswordAuthentication yes
+ #   HostbasedAuthentication no
+ #   GSSAPIAuthentication no
++  GSSAPIAuthentication yes
+ #   GSSAPIDelegateCredentials no
++  GSSAPIDelegateCredentials yes
+ #   BatchMode no
+ #   CheckHostIP no
+ #   AddressFamily any

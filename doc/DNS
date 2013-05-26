@@ -2,7 +2,7 @@
 (требуются PTR-записи для серых адресов, для Kerberos)
 Slave-DNS-сервер будет размещен в каждом сегменте сети каждого хостинга.
 Master-DNS-сервер будет размещен совместно с мастером LDAP ou=system.
-Будет 3 основных зоны: advancedfiltering.net, 10.in-addr.arpa, 168.192.in-addr.arpa (172.16 не используется, пока).
+Будет 3 основных зоны: advancedfiltering.net, 10.in-addr.arpa, 168.192.in-addr.arpa (172.16 не используется).
 
 www.advancedfiltering.net
 kb.advancedfiltering.net
