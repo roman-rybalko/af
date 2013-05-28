@@ -2,6 +2,7 @@
 
 tasklist=$1
 hostlist=$2
+taskcnt=10
 
 [ -n "$tasklist" ]
 [ -d $tasklist ]
@@ -18,14 +19,10 @@ done
 for h in $hostlist/*
 do
 	[ -f $h ]
+	[ ! -e $h.ok ]
+	[ ! -e $h.fail ]
+	[ ! -e $h.log ]
 done
 
-[ -f deploy.keytab ]
-
-KRB5CCNAME=FILE:/tmp/krb5cc_deploy
-export KRB5CCNAME
-kinit -t deploy.keytab deploy
-
-unset SSH_AUTH_SOCK
-
-./sched.sh "./run.sh $tasklist" 10 $hostlist/*
+hosts="`for h in $hostlist/*; do basename $h .pw; done | sort -u`"
+./sched.sh "./run.sh $tasklist" $taskcnt `for h in $hosts; do echo $hostlist/$h; done`

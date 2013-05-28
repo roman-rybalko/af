@@ -16,16 +16,7 @@ done
 [ -f $hostpath ]
 [ ! -e $hostpath.ok ]
 [ ! -e $hostpath.fail ]
-
-if [ -e $hostpath.pw ]
-then
-	[ -f $hostpath.pw ]
-	sshprefix="./sshpass.sh $hostpath.pw"
-	sshopt1="-o StrictHostKeyChecking=no"
-	sshuser=root
-else
-	sshuser=deploy
-fi
+[ ! -e $hostpath.log ]
 
 tasks="`for t in $tasklist/*; do basename $t; done | sort`"
 host=`basename $hostpath`
@@ -39,7 +30,7 @@ do
 	cp -a $tasklist/$t $localtaskdir/
 	cd $localtaskdir/$t
 	echo "LOCAL TASK: $t"
-	if ./local.sh $host
+	if ./local.sh $host 2>&1 # errors to the host log
 	then
 		echo "LOCAL RESULT: $t: OK"
 	else
@@ -50,10 +41,25 @@ do
 		rm -R $localtaskdir
 		exit $result
 	fi
-done 2>&1 >>"$localworkdir/$hostpath.log"
+done >>"$localworkdir/$hostpath.log" # errors to the general log
 cd "$localworkdir"
 
-remotetaskdir=`$sshprefix ssh $sshopt1 $sshuser@$host mktemp -d /tmp/deploy-XX | tr -d '[[:space:]]'`
+if [ -e $hostpath.pw ]
+then
+	[ -f $hostpath.pw ]
+	sshuser=root
+	sshprefix="./sshpass.sh $hostpath.pw"
+	sshopt1="-o StrictHostKeyChecking=no"
+else
+	[ -f deploy.keytab ]
+	sshuser=deploy
+	sshopt="-o BatchMode=yes"
+	KRB5CCNAME=FILE:$localtaskdir/.krb5cc
+	export KRB5CCNAME
+	kinit -t deploy.keytab deploy
+fi
+
+remotetaskdir=`$sshprefix ssh $sshopt1 $sshopt $sshuser@$host mktemp -d /tmp/deploy-XX | tr -d '[[:space:]]'`
 if [ -z "$remotetaskdir" ]
 then
 	echo "ssh failed" >>$hostpath.log
@@ -62,8 +68,9 @@ then
 	exit 1
 fi
 [ ${#remotetaskdir} -eq 14 ]
-$sshprefix ssh $sshuser@$host test -d $remotetaskdir
-$sshprefix scp -r $localtaskdir/* remoterun.sh $sshuser@$host:$remotetaskdir
-$sshprefix ssh $sshuser@$host $remotetaskdir/remoterun.sh $tasks 2>&1 >>$hostpath.log && mv $hostpath.log $hostpath.ok || mv $hostpath.log $hostpath.fail
-$sshprefix ssh $sshuser@$host rm -R $remotetaskdir
+$sshprefix ssh $sshopt $sshuser@$host test -d $remotetaskdir
+$sshprefix scp $sshopt -r $localtaskdir/* remoterun.sh $sshuser@$host:$remotetaskdir
+# errors to stdout->host log (see remoterun.sh)
+$sshprefix ssh $sshopt $sshuser@$host $remotetaskdir/remoterun.sh $tasks >>$hostpath.log && mv $hostpath.log $hostpath.ok || mv $hostpath.log $hostpath.fail
+$sshprefix ssh $sshopt $sshuser@$host rm -R $remotetaskdir
 rm -R $localtaskdir

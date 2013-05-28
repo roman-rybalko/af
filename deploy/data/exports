@@ -1,2 +1,0 @@
-/usr/ports/packages -ro -mapall=nobody
-/usr/ports/distfiles -ro -mapall=nobody

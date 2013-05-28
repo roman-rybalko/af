@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 if [ `id -u` -eq 0 ]
 then
@@ -15,7 +15,7 @@ do
 	shift
 	cd "$workdir/$task"
 	echo "REMOTE TASK: $task$tasknote"
-	if $taskprefix ./remote.sh
+	if $taskprefix ./remote.sh 2>&1 # errors to the host log
 	then
 		echo "REMOTE RESULT: $task: OK"
 	else
