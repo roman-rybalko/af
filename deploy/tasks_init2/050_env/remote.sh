@@ -5,7 +5,8 @@ chmod o-rwx,g-w /root
 echo 'setenv PACKAGEROOT http://deploy/packages' >> /root/.cshrc
 echo 'export PACKAGEROOT=http://deploy/packages' >> /root/.profile
 
-# TODO: add search hosts.advancedfiltering.net to /etc/resolv.conf
+grep nameserver /etc/resolv.conf > /etc/resolv.conf.new
+mv -f /etc/resolv.conf.new /etc/resolv.conf
 
 pkg_add -r bash-completion
 
