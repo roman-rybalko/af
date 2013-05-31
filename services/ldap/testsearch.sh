@@ -2,8 +2,8 @@
 
 set -ex
 
-base=$1
-attr=$2
-[ -n "$base" ]
-
-ldapsearch -h h01.hosts.advancedfiltering.net -Z -b $base -s base -LLL $attr
+ldapsearch -h deploy.hosts.advancedfiltering.net \
+ -ZZ \
+ -x -D cn=admin,ou=system,o=advancedfiltering -w admin \
+ -LLL \
+ -b ou=system,o=advancedfiltering -s base

@@ -6,4 +6,4 @@ host="$1"
 file="$2"
 [ -n "$host" ]
 [ -n "$file" ]
-ldapmodify -h "$host" -Z -f "$file" -a -D cn=roma,ou=ldap -w roma
+ldapmodify -h "$host" -ZZ -f "$file" -a -x -D cn=admin,ou=system,o=advancedfiltering -w admin
