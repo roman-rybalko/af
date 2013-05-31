@@ -1,5 +1,11 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcLimits
+olcLimits: dn="cn=syncrepl,ou=system,o=advancedfiltering" size=unlimited time=unlimited
+olcLimits: dn="cn=admin,ou=system,o=advancedfiltering" size=100000
+
 dn: olcDatabase={2}mdb,cn=config
 changetype: modify
 replace: olcLimits
-olcLimits: dn="cn=syncrepl,ou=ldap" size=unlimited time=unlimited
-olcLimits: dn="cn=roma,ou=ldap" size=100000
+olcLimits: dn="cn=syncrepl,ou=system,o=advancedfiltering" size=unlimited time=unlimited
+olcLimits: dn="cn=admin,ou=system,o=advancedfiltering" size=100000
