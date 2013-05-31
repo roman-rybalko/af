@@ -9,8 +9,11 @@ R	230412142036Z	130415151154Z	08	unknown	/O=advancedfiltering/OU=hosts/CN=h01.ho
 R	230412142042Z	130415151146Z	09	unknown	/O=advancedfiltering/OU=hosts/CN=deploy.hosts.advancedfiltering.net
 R	230413135207Z	130415151209Z	0A	unknown	/O=advancedfiltering/OU=hosts/CN=test4
 R	230413135558Z	130415151211Z	0B	unknown	/O=advancedfiltering/OU=hosts/CN=test5
-V	230413151839Z		0C	unknown	/O=advancedfiltering/OU=hosts/CN=deploy.hosts.advancedfiltering.net
+R	230413151839Z	130531154908Z	0C	unknown	/O=advancedfiltering/OU=hosts/CN=deploy.hosts.advancedfiltering.net
 V	230413151846Z		0D	unknown	/O=advancedfiltering/OU=hosts/CN=h01.hosts.advancedfiltering.net
 V	230413151851Z		0E	unknown	/O=advancedfiltering/OU=hosts/CN=h02.hosts.advancedfiltering.net
 V	230414110037Z		0F	unknown	/O=advancedfiltering/OU=hosts/CN=smtp.services.advancedfiltering.net
-V	230526105613Z		10	unknown	/O=advancedfiltering/OU=hosts/CN=test1.hosts.advancedfiltering.net
+R	230526105613Z	130531154917Z	10	unknown	/O=advancedfiltering/OU=hosts/CN=test1.hosts.advancedfiltering.net
+R	230527092459Z	130531154921Z	11	unknown	/O=advancedfiltering/OU=hosts/CN=test2.hosts.advancedfiltering.net
+V	230529155238Z		12	unknown	/O=advancedfiltering/OU=hosts/CN=deploy.hosts.advancedfiltering.net
+V	230529160832Z		13	unknown	/O=advancedfiltering/OU=hosts/CN=test2.hosts.advancedfiltering.net
