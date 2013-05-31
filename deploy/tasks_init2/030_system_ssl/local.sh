@@ -12,7 +12,7 @@ then
 	workdir="`pwd`"
 	cd $easyrsa
 	. vars
-	./build-key $host
+	./build-key-server $host
 	cd "$workdir"
 fi
 
