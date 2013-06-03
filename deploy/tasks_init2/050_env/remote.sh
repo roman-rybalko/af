@@ -25,3 +25,6 @@ patch /etc/ssh/ssh_config ssh_config.diff
 rm -vf /.cshrc /.profile
 
 ln -sv /usr/local/advancedfiltering/rc.conf /etc/rc.conf.local
+
+patch /etc/mail/aliases aliases.diff
+newaliases

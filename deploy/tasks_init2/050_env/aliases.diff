@@ -1,0 +1,11 @@
+--- aliases.orig	2013-06-03 09:43:32.000000000 +0400
++++ aliases	2013-06-03 09:43:50.000000000 +0400
+@@ -17,7 +17,7 @@
+ # you would do well in either reading root's mailbox or forwarding
+ # root's email from here.
+ 
+-# root:	me@my.domain
++root:	root@hosts.advancedfiltering.net
+ 
+ # Basic system aliases -- these MUST be present
+ MAILER-DAEMON: postmaster
