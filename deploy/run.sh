@@ -27,7 +27,7 @@ localtaskdir=`mktemp -d /tmp/deploy-$host-XX`
 for t in $tasks
 do
 	cd "$localworkdir"
-	cp -a $tasklist/$t $localtaskdir/
+	cp -RL $tasklist/$t $localtaskdir/
 	cd $localtaskdir/$t
 	echo "LOCAL TASK: $t"
 	if ./local.sh $host 2>&1 # errors to the host log
