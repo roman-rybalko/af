@@ -26,3 +26,4 @@ done
 
 hosts="`for h in $hostlist/*; do basename $h .pw; done | sort -u`"
 ./sched.sh "./run.sh $tasklist" $taskcnt `for h in $hosts; do echo $hostlist/$h; done`
+echo $hostlist/*.fail
