@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 [ -n "$disk" ]
 [ ! -e /usr/local/advancedfiltering ]
 gpart add -t freebsd-ufs -l advancedfiltering $disk

@@ -1,2 +1,2 @@
 #!/bin/sh -ex
-. test.conf
+. ./test.conf

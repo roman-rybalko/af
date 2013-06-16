@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-. remote.conf
+. ./remote.conf
 date `cat curtime` || true
 pkg_add -r expect # for sshpass
 ./sshpass.sh deploy-init.pw ktutil get -p deploy/init host/`hostname`

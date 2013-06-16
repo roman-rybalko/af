@@ -3,6 +3,6 @@
 host=$1
 [ -n "$host" ]
 
-. local.conf
+. ./local.conf
 
 cp -a $ca ./ca

@@ -3,7 +3,7 @@
 host=$1
 [ -n "$host" ]
 
-. local.conf
+. ./local.conf
 
 host=$host.$domain
 
@@ -11,7 +11,7 @@ if [ ! -e $easyrsa/keys/$host.crt ]
 then
 	workdir="`pwd`"
 	cd $easyrsa
-	. vars
+	. ./vars
 	./build-key-server $host
 	cd "$workdir"
 fi

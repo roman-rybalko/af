@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 
 adduser -f adduser.batch -M 0700 -w no -G wheel
 tar -zxvf k5login.tgz -C /home/roma/

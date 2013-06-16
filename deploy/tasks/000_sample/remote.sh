@@ -1,2 +1,2 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf

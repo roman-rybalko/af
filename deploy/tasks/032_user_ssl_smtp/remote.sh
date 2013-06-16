@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 
 pw groupadd ssl-key || true
 mkdir -p /usr/local/etc/ssl

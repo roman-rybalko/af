@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 
 mkdir -p /usr/local/etc/ssl
 cp -Rf ca /usr/local/etc/ssl/

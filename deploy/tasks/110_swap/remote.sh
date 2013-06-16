@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 
 dd if=/dev/zero of=/swap bs=1M count=1024
 chmod og-rwx /swap

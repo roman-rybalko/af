@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 
 pw groupadd ssl-key || true
 cp -Rf `hostname`.crt `hostname`.key ca /etc/ssl/

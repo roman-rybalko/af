@@ -1,5 +1,5 @@
 #!/bin/sh -ex
-. remote.conf
+. ./remote.conf
 
 chmod o-rwx,g-w /root
 echo 'setenv PACKAGEROOT http://deploy/packages' >> /root/.cshrc

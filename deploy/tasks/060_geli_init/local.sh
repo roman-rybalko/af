@@ -3,7 +3,7 @@
 host=$1
 [ -n "$host" ]
 
-. local.conf
+. ./local.conf
 
 [ -n "$geli" ]
 

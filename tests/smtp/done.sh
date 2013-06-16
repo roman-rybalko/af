@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-. test.conf
+. ./test.conf
 
 cat system.ldif user.ldif \
 	| ./ldif_nl.pl \
