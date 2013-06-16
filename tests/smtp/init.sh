@@ -5,7 +5,7 @@ which ldapmodify
 which ldapdelete
 #./smtp_server.pl -t
 
-. ./test.conf
+. $TESTCONF
 
 cat system.ldif user.ldif \
 	| ./ldif_nl.pl \

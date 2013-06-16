@@ -1,8 +1,6 @@
 #!/bin/sh -ex
 
 testdir=$1
-[ -n "$testdir" ]
-[ -d "$testdir" ]
 
 checktest()
 {
@@ -12,18 +10,21 @@ checktest()
 	if [ -e $testdir/init.sh ]
 	then
 		[ -f $testdir/init.sh ]
+		[ -r $testdir/init.sh ]
 		[ -x $testdir/init.sh ]
 	fi
 
 	if [ -e $testdir/test.sh ]
 	then
 		[ -f $testdir/test.sh ]
+		[ -r $testdir/test.sh ]
 		[ -x $testdir/test.sh ]
 	fi
 
 	if [ -e $testdir/done.sh ]
 	then
 		[ -f $testdir/done.sh ]
+		[ -r $testdir/done.sh ]
 		[ -x $testdir/done.sh ]
 	fi
 
@@ -37,5 +38,10 @@ checktest()
 	done
 }
 
+[ -n "$testdir" ]
+[ -d "$testdir" ]
+[ -x "$testdir" ]
+[ -f $testdir.conf ]
+[ -r $testdir.conf ]
 checktest $testdir
 echo "OK (`basename $0`)"

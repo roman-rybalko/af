@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-. ./test.conf
+. $TESTCONF
 
 swaks -f test@advancedfiltering.net -t mail@unhandled.com -s $DST_HOST -q rcpt | grep "The domain is not in service"
 swaks -f test@advancedfiltering.net -t mail@test-r2.com -s $DST_HOST -q rcpt | grep "Moved, try another host"

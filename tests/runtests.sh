@@ -1,8 +1,6 @@
 #!/bin/sh -ex
 
 testdir=$1
-[ -n "$testdir" ]
-[ -d "$testdir" ]
 "`dirname $0`"/checktests.sh $testdir
 
 push1d()
@@ -68,7 +66,10 @@ runtest()
 	[ -e $testdir/test.ok ]
 }
 
+TESTCONF="`pwd`"/$testdir.conf
+export TESTCONF
 runtest $testdir || true
+
 find $testdir -name init.fail | grep fail && exit 1 || true
 find $testdir -name test.fail | grep fail && exit 1 || true
 echo "OK (`basename $0`)"
