@@ -1,3 +1,5 @@
 #!/bin/sh -ex
+
 . "$TESTCONF"
-[ $TESTVAR = qwaszx ]
+
+del_ldif system.ldif

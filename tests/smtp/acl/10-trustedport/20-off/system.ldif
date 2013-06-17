@@ -1,0 +1,6 @@
+
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+changetype: modify
+replace: afssmtptrustedport
+afssmtptrustedport: 135
+afssmtptrustedport: 137

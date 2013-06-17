@@ -1,3 +1,5 @@
 #!/bin/sh -ex
+
 . "$TESTCONF"
-[ $TESTVAR = qwaszx ]
+
+add_ldif system.ldif

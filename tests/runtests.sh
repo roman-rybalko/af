@@ -68,6 +68,8 @@ runtest()
 
 TESTCONF="`pwd`"/$testdir.conf
 export TESTCONF
+TESTDIR="`pwd`"/$testdir
+export TESTDIR
 runtest $testdir || true
 
 find $testdir -name init.fail | grep fail && exit 1 || true

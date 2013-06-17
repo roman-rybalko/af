@@ -1,0 +1,37 @@
+
+# Запись 2: afSClientName=cli1,ou=system,o=advancedfiltering
+dn: afSClientName=cli1,ou=system,o=advancedfiltering
+afsclientname: cli1
+afsclientrealm: r1
+objectclass: afSClient
+objectclass: top
+
+# Запись 3: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o...
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: dst.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: smtp
+afshostservicename: mdb
+objectclass: afSHost
+objectclass: top
+
+# Запись 4: afSServiceName=smtp,ou=system,o=advancedfiltering
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+afsservicename: smtp
+afssmtpdnsbldomainname: bl.spamcop.net
+afssmtpmaxmessagesize: 30000000
+afssmtpspamtrapprobabilitydenominator: 100
+afssmtpspamtrapprobabilitynumerator: 0
+afssmtptrustedmessagesize: 2000000
+afssmtptrustedport: 445
+objectclass: afSSMTPService
+objectclass: top
+
+# Запись 5: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=syste...
+dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfilte
+ ring
+afssmtpdomainclientname: cli1
+afssmtpdomainname: test.com
+objectclass: afSSMTPDomain
+objectclass: top

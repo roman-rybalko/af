@@ -1,0 +1,7 @@
+
+dn: cn=tests,ou=system,o=advancedfiltering
+cn: tests
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+objectclass: top
+userpassword: {SSHA}zAoWeBxOp7mc7P6zhYxHHPDozKRodI3P

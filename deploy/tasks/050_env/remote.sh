@@ -17,6 +17,7 @@ fi
 
 pkg_add -r screen
 pkg_add -r mc
+pkg_add -r rsync
 
 tar -xvf mc-config.tgz -C /root/
 

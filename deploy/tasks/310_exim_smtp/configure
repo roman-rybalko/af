@@ -1,12 +1,12 @@
-exim_user = mailnull
-exim_group = mail
+exim_user = exim
+exim_group = exim
 log_file_path = /usr/local/advancedfiltering/exim/%slog
 process_log_path = /usr/local/advancedfiltering/exim/exim-process.info
 spool_directory = /usr/local/advancedfiltering/exim
 split_spool_directory = true
 never_users = root
 daemon_smtp_ports = 25 : 137 : 138 : 139 : 445
-smtp_banner = smtp.services.advancedfiltering.net ESMTP
+smtp_banner = smtp.services.advancedfiltering.net ESMTP${if bool_lax{$acl_c_s_tp_f}{ trustedport}{}}${if bool_lax{$acl_c_s_st_f}{ spamtrap}{}}
 host_lookup = *
 rfc1413_hosts = :
 rfc1413_query_timeout = 0s

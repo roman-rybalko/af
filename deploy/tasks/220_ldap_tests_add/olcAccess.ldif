@@ -1,0 +1,10 @@
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=tests,ou=system,o=advancedfiltering" manage by * break
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=tests,ou=system,o=advancedfiltering" manage by * break
