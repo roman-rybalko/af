@@ -15,7 +15,7 @@ do
 	shift
 	cd "$workdir/$task"
 	echo "REMOTE TASK: $task$tasknote"
-	if $taskprefix ./remote.sh 2>&1 # errors to the host log
+	if $taskprefix ./remote.sh </dev/null 2>&1 # errors to the host log
 	then
 		echo "REMOTE RESULT: $task: OK"
 	else
