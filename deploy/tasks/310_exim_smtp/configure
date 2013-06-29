@@ -116,6 +116,8 @@ sa_bwl_acl:
 
 # System Black List Message
 S_BL_M = Access denied (system policy, $acl_c_bwl_m)
+# System White List Message
+S_WL_M = OK (system policy, $acl_c_bwl_m)
 # System Black/White List
 # include by "require"
 # accept - continue, deny - 5xx
@@ -136,6 +138,7 @@ s_bwl_acl:
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
     set acl_c_s_wl_f = true
+    set acl_c_s_wl_m = S_WL_M
     logwrite = DEBUG: s_bwl: white
   accept
     logwrite = ERROR: UNKNOWN BWL RESULT: $acl_c_bwl_r
@@ -185,6 +188,7 @@ mail_acl:
   accept
     condition = $acl_c_s_wl_f
     log_message = system whitelist
+    message = $acl_c_s_wl_m
   accept
     condition = ${if bool_lax{$acl_c_st_m}}
     log_message = spamtrap

@@ -15,3 +15,5 @@ sleep 120
 rm -vf hosts/*.ok
 ./deploy.sh tasks_init3 hosts
 for f in hosts/*.fail; do [ ! -e $f ]; done
+
+echo OK

@@ -7,6 +7,16 @@ checktest()
 	local testdir
 	testdir=$1
 
+	if [ -n "$TESTPREFIX" ]
+	then
+		if expr $testdir : ^$TESTPREFIX || expr $TESTPREFIX : ^$testdir
+		then
+			true
+		else
+			return 0
+		fi
+	fi
+
 	if [ -e $testdir/init.sh ]
 	then
 		[ -f $testdir/init.sh ]

@@ -22,6 +22,16 @@ runtest()
 	local testdir
 	testdir=$1
 
+	if [ -n "$TESTPREFIX" ]
+	then
+		if expr $testdir : ^$TESTPREFIX || expr $TESTPREFIX : ^$testdir
+		then
+			true
+		else
+			return 0
+		fi
+	fi
+
 	if [ -e $testdir/init.sh ]
 	then
 		push1d $testdir
@@ -29,6 +39,13 @@ runtest()
 		pop1d
 	else
 		touch $testdir/init.ok
+	fi
+
+	if [ "$TESTDEBUG" = $testdir ]
+	then
+		push1d $testdir
+		sh || mv -f $testdir/init.ok $testdir/init.fail
+		pop1d
 	fi
 
 	if [ -e $testdir/init.ok ]
