@@ -32,7 +32,7 @@ helo
 * flag_spamtrap => ok, stop
 * проверка сертификата
 ** fail => flag_cert
-* ! flag_cert => проверка системных черных списков (certificate)
+* проверка системных черных списков (certificate)
 ** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
 * ! flag_cert => проверка системных белых списков (certificate)
 ** ok => flag_sys_wl, ok, stop
@@ -44,7 +44,7 @@ mail
 * flag_spamtrap => ok, stop
 * проверка spf
 ** fail => flag_spf
-* ! flag_spf => проверка системных черных списков (addr from)
+* проверка системных черных списков (addr from)
 ** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
 * ! flag_spf => проверка системных белых списков (addr from)
 ** ok => flag_sys_wl, ok, stop

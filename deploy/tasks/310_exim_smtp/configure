@@ -107,17 +107,23 @@ cert_bwl_acl:
     condition = ${if eq{$acl_c_bwl_r}{black}}
   deny
 
-# Sender Address Black/White List
+# Sender Mail Address Black/White List
 # accept - match, deny - not match
-sa_bwl_acl:
-  deny
-    condition = ${if bool_lax{$acl_m_spf_m}}
-    logwrite = DEBUG: sa_bwl: spf fail
-  accept
-    set acl_c_bwl_ldap_q = afSMTPBWListSenderAddress=${quote_ldap_dn:$sender_address}
+sma_bwl_acl:
+  warn
+    set acl_c_bwl_m = ""
+  warn
+    set acl_c_bwl_ldap_q = afSMTPBWListSenderMailAddress=${quote_ldap_dn:$sender_address}
     acl = gen_bwl_acl
-    set acl_c_bwl_m = sender address
-    logwrite = DEBUG: sa_bwl
+    set acl_c_bwl_m = sender mail address
+    logwrite = DEBUG: sma_bwl
+  accept
+    condition = ${if bool_lax{$acl_c_bwl_m}}
+    condition = ${if eq{$acl_c_bwl_r}{white}}
+    ! condition = ${if bool_lax{$acl_m_spf_m}}
+  accept
+    condition = ${if bool_lax{$acl_c_bwl_m}}
+    condition = ${if eq{$acl_c_bwl_r}{black}}
   deny
 
 # System Black List Message
@@ -143,7 +149,6 @@ s_bwl_acl:
     logwrite = DEBUG: s_bwl: black (spamtrap)
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
-    set acl_c_s_wl_f = true
     set acl_c_s_wl_m = S_WL_M
     logwrite = DEBUG: s_bwl: white
   accept
@@ -173,14 +178,14 @@ connect_acl:
     set acl_c_s_bwl_acl = sh_bwl_acl
     acl = s_bwl_acl
   warn
-  	! condition = $acl_c_s_wl_f
+  	! condition = ${if bool_lax{$acl_c_s_wl_m}}
     set acl_c_dnsbl_ldap_dn = S_SMTP_LDAP_DN
     acl = dnsbl_acl
   accept
 
 helo_acl:
   accept
-    condition = $acl_c_s_wl_f
+    condition = ${if bool_lax{$acl_c_s_wl_m}}
     log_message = system whitelist
   accept
     condition = ${if bool_lax{$acl_c_st_m}}
@@ -192,7 +197,7 @@ helo_acl:
 
 mail_acl:
   accept
-    condition = $acl_c_s_wl_f
+    condition = ${if bool_lax{$acl_c_s_wl_m}}
     log_message = system whitelist
     message = $acl_c_s_wl_m
   accept
@@ -201,9 +206,14 @@ mail_acl:
   warn
     spf = fail
     set acl_m_spf_m = $sender_host_address is not allowed to send mail from $sender_address_domain
+    logwrite = DEBUG: spf fail
   require
-    set acl_c_s_bwl_acl = sa_bwl_acl
+    set acl_c_s_bwl_acl = sma_bwl_acl
     acl = s_bwl_acl
+  accept
+    condition = ${if bool_lax{$acl_c_s_wl_m}}
+    log_message = system whitelist
+    message = $acl_c_s_wl_m
   accept
 
 # User SMTP Realm DN
@@ -347,15 +357,15 @@ rcpt_acl:
   warn
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_MB_LDAP_DN
     set acl_m_bwl_category_m = user recipient policy
-    set acl_m_u_bwl_acl = sa_bwl_acl
+    set acl_m_u_bwl_acl = sma_bwl_acl
     ! acl = u_bwl_acl
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_LDAP_DN
     set acl_m_bwl_category_m = user domain policy
-    set acl_m_u_bwl_acl = sa_bwl_acl
+    set acl_m_u_bwl_acl = sma_bwl_acl
     ! acl = u_bwl_acl
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_LDAP_DN
     set acl_m_bwl_category_m = user policy
-    set acl_m_u_bwl_acl = sa_bwl_acl
+    set acl_m_u_bwl_acl = sma_bwl_acl
     ! acl = u_bwl_acl
   deny
     condition = ${if eq{$acl_c_bwl_r}{black}}
@@ -426,7 +436,7 @@ data_acl:
     log_message = spamtrap
     control = fakereject/$acl_c_st_m
   accept
-    condition = $acl_c_s_wl_f
+    condition = ${if bool_lax{$acl_c_s_wl_m}}
     log_message = system whitelist
   accept
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
