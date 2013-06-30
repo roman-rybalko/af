@@ -91,14 +91,20 @@ sh_bwl_acl:
 # Certificate Black/White List
 # accept - match, deny - not match
 cert_bwl_acl:
-  deny
-    ! verify = certificate
-    logwrite = DEBUG: cert_bwl: cert verify fail
-  accept
+  warn
+    set acl_c_bwl_m = ""
+  warn
     set acl_c_bwl_ldap_q = afSMTPBWListCertificateSubject=${quote_ldap_dn:$tls_peerdn}
     acl = gen_bwl_acl
     set acl_c_bwl_m = certificate
-    logwrite = DEBUG: cert_bwl
+    logwrite = DEBUG: cert_bwl ($tls_peerdn)
+  accept
+    condition = ${if bool_lax{$acl_c_bwl_m}}
+    condition = ${if eq{$acl_c_bwl_r}{white}}
+    verify = certificate
+  accept
+    condition = ${if bool_lax{$acl_c_bwl_m}}
+    condition = ${if eq{$acl_c_bwl_r}{black}}
   deny
 
 # Sender Address Black/White List
@@ -115,7 +121,7 @@ sa_bwl_acl:
   deny
 
 # System Black List Message
-S_BL_M = Access denied (system policy, $acl_c_bwl_m)
+S_BL_M = 5.7.0 Access denied (system policy, $acl_c_bwl_m)
 # System White List Message
 S_WL_M = OK (system policy, $acl_c_bwl_m)
 # System Black/White List

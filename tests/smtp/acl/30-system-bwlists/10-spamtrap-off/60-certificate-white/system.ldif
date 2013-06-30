@@ -1,0 +1,5 @@
+dn: afSMTPBWListCertificateSubject=/O\3Dadvancedfiltering/OU\3Dhosts/CN\3Dtest
+ s-bwlist,afSServiceName=smtp,ou=system,o=advancedfiltering
+afSMTPBWListCertificateSubject: /O=advancedfiltering/OU=hosts/CN=tests-bwlist
+objectClass: afSMTPCertificateBWListEntry
+objectClass: top
