@@ -182,6 +182,9 @@ connect_acl:
     set acl_c_dnsbl_ldap_dn = S_SMTP_LDAP_DN
     acl = dnsbl_acl
   accept
+    condition = ${if bool_lax{$acl_c_s_wl_m}}
+    message = $acl_c_s_wl_m
+  accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
     message = $acl_c_s_st_m
   accept
@@ -195,11 +198,16 @@ helo_acl:
     set acl_c_s_bwl_acl = cert_bwl_acl
     acl = s_bwl_acl
   accept
+    condition = ${if bool_lax{$acl_c_s_wl_m}}
+    message = $acl_c_s_wl_m
+  accept
+    condition = ${if bool_lax{$acl_c_s_st_m}}
+    message = $acl_c_s_st_m
+  accept
 
 mail_acl:
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    message = $acl_c_s_wl_m
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
   warn
@@ -212,6 +220,9 @@ mail_acl:
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
     message = $acl_c_s_wl_m
+  accept
+    condition = ${if bool_lax{$acl_c_s_st_m}}
+    message = $acl_c_s_st_m
   accept
 
 # User SMTP Realm DN
