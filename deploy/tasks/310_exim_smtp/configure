@@ -145,7 +145,7 @@ s_bwl_acl:
   accept
     condition = $acl_c_s_st_f
     condition = ${if eq{$acl_c_bwl_r}{black}}
-    set acl_c_st_m = S_BL_M
+    set acl_c_s_st_m = S_BL_M
     logwrite = DEBUG: s_bwl: black (spamtrap)
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
@@ -182,13 +182,17 @@ connect_acl:
     set acl_c_dnsbl_ldap_dn = S_SMTP_LDAP_DN
     acl = dnsbl_acl
   accept
+    condition = ${if bool_lax{$acl_c_s_st_m}}
+    log_message = spamtrap
+    message = $acl_c_s_st_m
+  accept
 
 helo_acl:
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
     log_message = system whitelist
   accept
-    condition = ${if bool_lax{$acl_c_st_m}}
+    condition = ${if bool_lax{$acl_c_s_st_m}}
     log_message = spamtrap
   require
     set acl_c_s_bwl_acl = cert_bwl_acl
@@ -201,7 +205,7 @@ mail_acl:
     log_message = system whitelist
     message = $acl_c_s_wl_m
   accept
-    condition = ${if bool_lax{$acl_c_st_m}}
+    condition = ${if bool_lax{$acl_c_s_st_m}}
     log_message = spamtrap
   warn
     spf = fail
@@ -304,7 +308,7 @@ rcpt_acl:
   accept
     condition = $acl_c_s_st_f
     condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
-    set acl_c_st_m = U_MBA_M
+    set acl_c_s_st_m = U_MBA_M
     log_message = spamtrap
 
   # * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
@@ -347,7 +351,7 @@ rcpt_acl:
   accept
     condition = $acl_c_s_st_f
     condition = ${if bool_lax{$acl_m_spf_m}}
-    set acl_c_st_m = U_SPF_M
+    set acl_c_s_st_m = U_SPF_M
     log_message = spamtrap
 
   # * проверка черных списков (addr from) для [addr to, domain to, client to]
@@ -384,7 +388,7 @@ rcpt_acl:
   accept
     condition = $acl_c_s_st_f
     condition = ${if bool_lax{$acl_c_dnsbl_m}}
-    set acl_c_st_m = U_DNSBL_M
+    set acl_c_s_st_m = U_DNSBL_M
     log_message = spamtrap
   
   accept
@@ -432,9 +436,9 @@ data_acl:
   warn
     set acl_m_u_recipients = $recipients
   accept
-    condition = ${if bool_lax{$acl_c_st_m}}
+    condition = ${if bool_lax{$acl_c_s_st_m}}
     log_message = spamtrap
-    control = fakereject/$acl_c_st_m
+    control = fakereject/$acl_c_s_st_m
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
     log_message = system whitelist
@@ -569,7 +573,7 @@ R_CS_D == $local_part@$domain
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_mailbox_router:
-  condition = ${if bool_lax{$acl_c_st_m}}
+  condition = ${if bool_lax{$acl_c_s_st_m}}
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D
@@ -584,7 +588,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_domain_router:
-  condition = ${if bool_lax{$acl_c_st_m}}
+  condition = ${if bool_lax{$acl_c_s_st_m}}
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D
@@ -599,7 +603,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_client_router:
-  condition = ${if bool_lax{$acl_c_st_m}}
+  condition = ${if bool_lax{$acl_c_s_st_m}}
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D
@@ -611,7 +615,7 @@ spam_user_client_router:
 
 # * spamtrap
 spamtrap_router:
-  condition = ${if bool_lax{$acl_c_st_m}}
+  condition = ${if bool_lax{$acl_c_s_st_m}}
   driver = redirect
   data = spamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
