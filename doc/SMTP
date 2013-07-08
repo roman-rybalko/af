@@ -57,7 +57,7 @@ rcpt
 ** нет домена => 5xx The domain is not in service, stop
 ** чужой realm => 4xx Moved, try another host, stop
 * проверка адреса получателя в afMailBox
-** fail => 4xx Your data is verifying, try again in 5 minutes, log_message, stop
+** fail => 4xx Your data is verifying, try again in 5 minutes, log, stop
 ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
 * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
 ** ok => 5xx Access denied (local user policy), stop

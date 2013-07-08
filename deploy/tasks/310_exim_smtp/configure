@@ -183,17 +183,14 @@ connect_acl:
     acl = dnsbl_acl
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
-    log_message = spamtrap
     message = $acl_c_s_st_m
   accept
 
 helo_acl:
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    log_message = system whitelist
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
-    log_message = spamtrap
   require
     set acl_c_s_bwl_acl = cert_bwl_acl
     acl = s_bwl_acl
@@ -202,11 +199,9 @@ helo_acl:
 mail_acl:
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    log_message = system whitelist
     message = $acl_c_s_wl_m
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
-    log_message = spamtrap
   warn
     spf = fail
     set acl_m_spf_m = $sender_host_address is not allowed to send mail from $sender_address_domain
@@ -216,7 +211,6 @@ mail_acl:
     acl = s_bwl_acl
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    log_message = system whitelist
     message = $acl_c_s_wl_m
   accept
 
@@ -293,7 +287,7 @@ rcpt_acl:
     acl = domain_rcpt_acl
 
   # * проверка адреса получателя в afMailBox
-  # ** fail => 4xx Your data is verifying, try again in 5 minutes, log_message, stop
+  # ** fail => 4xx Your data is verifying, try again in 5 minutes, log, stop
   # ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
   defer
     # User Mail Box Data
@@ -309,7 +303,6 @@ rcpt_acl:
     condition = $acl_c_s_st_f
     condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     set acl_c_s_st_m = U_MBA_M
-    log_message = spamtrap
 
   # * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
   # ** ok => 5xx Access denied (local user policy), stop
@@ -337,11 +330,9 @@ rcpt_acl:
   deny
     condition = ${if eq{$acl_c_bwl_r}{black}}
     message = $acl_m_u_bl_m
-    log_message = user blacklist
     logwrite = AdvancedFiltering:Log:Reject
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
-    log_message = user whitelist
 
   # * flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
   deny
@@ -352,7 +343,6 @@ rcpt_acl:
     condition = $acl_c_s_st_f
     condition = ${if bool_lax{$acl_m_spf_m}}
     set acl_c_s_st_m = U_SPF_M
-    log_message = spamtrap
 
   # * проверка черных списков (addr from) для [addr to, domain to, client to]
   # ** ok => 5xx Access denied (local user policy), stop
@@ -374,11 +364,9 @@ rcpt_acl:
   deny
     condition = ${if eq{$acl_c_bwl_r}{black}}
     message = $acl_m_u_bl_m
-    log_message = user blacklist
     logwrite = AdvancedFiltering:Log:Reject
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
-    log_message = user whitelist
   
   # * flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
   deny
@@ -389,7 +377,6 @@ rcpt_acl:
     condition = $acl_c_s_st_f
     condition = ${if bool_lax{$acl_c_dnsbl_m}}
     set acl_c_s_st_m = U_DNSBL_M
-    log_message = spamtrap
   
   accept
 
@@ -437,14 +424,11 @@ data_acl:
     set acl_m_u_recipients = $recipients
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
-    log_message = spamtrap
     control = fakereject/$acl_c_s_st_m
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    log_message = system whitelist
   accept
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
-    log_message = user whitelist
   
   # * проверка Message-Id в afMessageIncoming
   # ** нет MessageId => 5xx No Message-Id header, submission is prohibited, stop
@@ -453,7 +437,6 @@ data_acl:
   deny
     ! condition = ${if bool_lax{U_MI_D}}
     message = No Message-ID header, submission is prohibited
-    log_message = no mid
   warn
     logwrite = DEBUG: mids: U_MDB_R_MI_LDAP_DNs
     # User Message Incoming Data
@@ -463,7 +446,6 @@ data_acl:
   deny
     condition = ${if bool_lax{$acl_m_u_mi_s_m}}
     message = Spam detected: $acl_m_u_mi_s_m
-    log_message = spam
   accept
     condition = ${if bool_lax{$acl_m_u_mi_d}}
   
