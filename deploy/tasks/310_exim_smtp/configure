@@ -190,6 +190,9 @@ helo_acl:
   accept
     condition = ${if bool_lax{$acl_c_st_m}}
     log_message = spamtrap
+  require
+    set acl_c_s_bwl_acl = cert_bwl_acl
+    acl = s_bwl_acl
   accept
 
 mail_acl:
@@ -200,9 +203,6 @@ mail_acl:
   accept
     condition = ${if bool_lax{$acl_c_st_m}}
     log_message = spamtrap
-  require
-    set acl_c_s_bwl_acl = cert_bwl_acl
-    acl = s_bwl_acl
   warn
     spf = fail
     set acl_m_spf_m = $sender_host_address is not allowed to send mail from $sender_address_domain
