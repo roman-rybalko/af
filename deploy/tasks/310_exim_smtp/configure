@@ -92,6 +92,8 @@ sh_bwl_acl:
 cert_bwl_acl:
   warn
     set acl_c_bwl_m = ""
+  deny
+    ! condition = ${if bool_lax{$tls_peerdn}}
   warn
     set acl_c_bwl_ldap_q = afSMTPBWListCertificateSubject=${quote_ldap_dn:$tls_peerdn}
     acl = gen_bwl_acl
