@@ -6,7 +6,6 @@ spool_directory = /usr/local/advancedfiltering/exim
 split_spool_directory = true
 never_users = root
 daemon_smtp_ports = 25 : 137 : 138 : 139 : 445
-smtp_banner = smtp.services.advancedfiltering.net ESMTP${if bool_lax{$acl_c_s_tp_f}{ trustedport}{}}${if bool_lax{$acl_c_s_st_f}{ spamtrap}{}}
 host_lookup = *
 rfc1413_hosts = :
 rfc1413_query_timeout = 0s
@@ -183,11 +182,13 @@ connect_acl:
     acl = dnsbl_acl
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    message = $acl_c_s_wl_m
+    message = smtp.services.advancedfiltering.net ESMTP $acl_c_s_wl_m
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
     message = $acl_c_s_st_m
   accept
+    # smtp_banner
+    message = smtp.services.advancedfiltering.net ESMTP${if bool_lax{$acl_c_s_tp_f}{ trustedport}{}}${if bool_lax{$acl_c_s_st_f}{ spamtrap}{}}
 
 helo_acl:
   accept
@@ -199,11 +200,12 @@ helo_acl:
     acl = s_bwl_acl
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    message = $acl_c_s_wl_m
+    message = smtp.services.advancedfiltering.net $acl_c_s_wl_m
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
     message = $acl_c_s_st_m
   accept
+    message = smtp.services.advancedfiltering.net
 
 mail_acl:
   accept
