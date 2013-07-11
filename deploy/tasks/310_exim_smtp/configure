@@ -318,6 +318,7 @@ rcpt_acl:
     condition = $acl_c_s_st_f
     condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     set acl_c_s_st_m = U_MBA_M
+    message = U_MBA_M
 
   # * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
   # ** ok => 5xx Access denied (local user policy), stop
