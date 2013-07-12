@@ -254,6 +254,8 @@ domain_rcpt_acl:
 
 # User Black List Message
 U_BL_M = Access denied ($acl_m_bwl_category_m, $acl_c_bwl_m)
+# User White List Message
+U_WL_M = OK ($acl_m_bwl_category_m, $acl_c_bwl_m)
 # User Black/White List
 # accept - match, deny - not match
 u_bwl_acl:
@@ -262,11 +264,12 @@ u_bwl_acl:
     ! acl = $acl_m_u_bwl_acl
   accept
     condition = ${if eq{$acl_c_bwl_r}{black}}
-    # User Black List Message
-    set acl_m_u_bl_m = U_BL_M
+    # User Black/White List Message
+    set acl_m_u_bwl_m = U_BL_M
     logwrite = DEBUG: u_bwl: black
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
+    set acl_m_u_bwl_m = U_WL_M
     # User White List Count
     set acl_m_u_wl_c = ${eval:$acl_m_u_wl_c+1}
     logwrite = DEBUG: u_bwl: white
@@ -345,10 +348,11 @@ rcpt_acl:
     ! acl = u_bwl_acl
   deny
     condition = ${if eq{$acl_c_bwl_r}{black}}
-    message = $acl_m_u_bl_m
+    message = $acl_m_u_bwl_m
     logwrite = AdvancedFiltering:Log:Reject
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
+    message = $acl_m_u_bwl_m
 
   # * flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
   deny
@@ -379,10 +383,11 @@ rcpt_acl:
     ! acl = u_bwl_acl
   deny
     condition = ${if eq{$acl_c_bwl_r}{black}}
-    message = $acl_m_u_bl_m
+    message = $acl_m_u_bwl_m
     logwrite = AdvancedFiltering:Log:Reject
   accept
     condition = ${if eq{$acl_c_bwl_r}{white}}
+    message = $acl_m_u_bwl_m
   
   # * flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
   deny
