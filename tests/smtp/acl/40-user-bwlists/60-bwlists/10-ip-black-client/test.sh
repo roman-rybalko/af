@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -f test@advancedfiltering.net -t mbox@test.com -s $DST_HOST -q RCPT | grep -A1 RCPT | grep "550.Access denied (user policy, sender host address)"
+swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -q RCPT | grep -A1 RCPT | grep "550.Access denied (user policy, sender host address)"

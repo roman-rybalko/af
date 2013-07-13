@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -f test@advancedfiltering.net -t mail@test.com -s $DST_HOST -q helo | grep ESMTP | grep spamtrap
+swaks -f test@tests.advancedfiltering.net -t mail@test.com -s $DST_HOST -q helo | grep ESMTP | grep spamtrap
