@@ -1,6 +1,6 @@
 
-dn: afSMTPBWListSenderMailAddress=test@tests-nospf.advancedfiltering.net,afSServic
- eName=smtp,ou=system,o=advancedfiltering
+dn: afSMTPBWListSenderMailAddress=test@tests-nospf.advancedfiltering.net,
+ afSServiceName=smtp,ou=system,o=advancedfiltering
 afsmtpbwlistsendermailaddress: test@tests-nospf.advancedfiltering.net
 objectclass: afSMTPSenderMailAddressBWListEntry
 objectclass: top

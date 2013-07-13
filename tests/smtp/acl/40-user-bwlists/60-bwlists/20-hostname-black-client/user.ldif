@@ -1,0 +1,7 @@
+
+dn: afSMTPBWListHostName=src.hosts.advancedfiltering.net,
+ afUClientName=cli1,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afsmtpbwlisthostname: src.hosts.advancedfiltering.net
+afsmtpbwlistisblack: TRUE
+objectclass: afSMTPHostNameBWListEntry
+objectclass: top
