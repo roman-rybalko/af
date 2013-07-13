@@ -363,6 +363,7 @@ rcpt_acl:
     condition = $acl_c_s_st_f
     condition = ${if bool_lax{$acl_m_spf_m}}
     set acl_c_s_st_m = U_SPF_M
+    message = U_SPF_M
 
   # * проверка черных списков (addr from) для [addr to, domain to, client to]
   # ** ok => 5xx Access denied (local user policy), stop
