@@ -1,0 +1,43 @@
+
+dn: afSClientName=cli2,ou=system,o=advancedfiltering
+afsclientname: cli2
+afsclientrealm: r2
+objectclass: afSClient
+objectclass: top
+
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: dst.hosts.advancedfiltering.net
+afshostrealm: r2
+afshostservicename: smtp
+afshostservicename: mdb
+objectclass: afSHost
+objectclass: top
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: src.hosts.advancedfiltering.net
+afshostrealm: r2
+afshostservicename: mailproc
+afshostservicename: spamtrap
+afshostservicename: error
+objectclass: afSHost
+objectclass: top
+
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+afsservicename: smtp
+afssmtpdnsbldomainname: bl.spamcop.net
+afssmtpmaxmessagesize: 30000000
+afssmtpspamtrapprobabilitydenominator: 100
+afssmtpspamtrapprobabilitynumerator: 0
+afssmtptrustedmessagesize: 2000000
+afssmtptrustedport: 445
+objectclass: afSSMTPService
+objectclass: top
+
+dn: afSSMTPDomainName=test2.com,afSServiceName=smtp,ou=system,o=advancedfilte
+ ring
+afssmtpdomainclientname: cli2
+afssmtpdomainname: test2.com
+objectclass: afSSMTPDomain
+objectclass: top

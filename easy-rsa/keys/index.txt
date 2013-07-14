@@ -20,3 +20,4 @@ V	230529160832Z		13	unknown	/O=advancedfiltering/OU=hosts/CN=test2.hosts.advance
 V	230529160833Z		14	unknown	/O=advancedfiltering/OU=hosts/CN=test1.hosts.advancedfiltering.net
 V	230613081517Z		15	unknown	/O=advancedfiltering/OU=hosts/CN=tests
 V	230628061437Z		16	unknown	/O=advancedfiltering/OU=hosts/CN=tests-bwlist
+V	230712161036Z		17	unknown	/O=advancedfiltering/OU=hosts/CN=tests-smtp

@@ -1,0 +1,20 @@
+
+dn: afUSMTPDMBLocalPart=mbox2,afUSMTPDomainName=test.com,afUClientName=cli1
+ ,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpdmblocalpart: mbox2
+afusmtpdmbtimecreated: 1366488166
+objectclass: afUSMTPDMailBox
+objectclass: top
+
+dn: ou=settings,afUClientName=cli1,afUServiceRealm=r1,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+objectclass: organizationalUnit
+objectclass: top
+ou: settings
+
+dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUClientName=cli1,afUServiceRealm=r1,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpmxhostname: src.hosts.advancedfiltering.net
+afusmtpmxtcpport: 2525
+objectclass: afUSMTPMailExchanger
+objectclass: top

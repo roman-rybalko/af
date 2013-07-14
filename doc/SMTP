@@ -91,4 +91,4 @@ data_end
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop
-* 4xx Your data is verifying, try again in 5 minutes, forward to mailproc
+* 4xx Your data is verifying, try again in later, forward to mailproc

@@ -7,7 +7,7 @@ use IO::Socket::SSL;
 use Getopt::Std;
 
 my %opts;
-getopts('hp:f:s:c:k:', \%opts);
+getopts('hp:m:e:s:c:k:', \%opts);
 
 if ($opts{h})
 {
@@ -15,7 +15,8 @@ if ($opts{h})
 		"OPTIONS:\n",
 		"\t-h\tThis help screen\n",
 		"\t-p port\tListen port, 25 by default\n",
-		"\t-f file\tSave messages to file, discard by default\n",
+		"\t-m file\tSave messages to file, discard by default\n",
+		"\t-e file\tSave envelope to file, discard by default\n",
 		"\t-s cnt\tAccept cnt sessions then exit, 7777777 by default\n",
 		"\t-c cert\tSSL certificate file\n",
 		"\t-k key\tSSL key file\n",
@@ -25,7 +26,8 @@ if ($opts{h})
 $opts{p} = 25 unless $opts{p};
 $opts{c} = 7777777 unless $opts{c};
 
-my @data;
+my @mime;
+my @env;
 
 sub session
 {
@@ -40,12 +42,12 @@ sub session
 		{
 			if (/^\.$/)
 			{
-				print $s "250 OK", $opts{f} ? " file=".$opts{f} : "", " linescnt=$#data", "\r\n";
+				print $s "250 OK", $opts{m} ? " file=".$opts{m} : "", " linescnt=$#mime", "\r\n";
 				$data = 0;
 			}
 			else
 			{
-				push @data => "$_\n";
+				push @mime => "$_\n";
 			}
 			next;
 		}
@@ -81,6 +83,7 @@ sub session
 		}
 		else
 		{
+			push @env => "$_\n";
 			print $s "250 OK\r\n";
 		}
 	}
@@ -96,9 +99,16 @@ while($opts{s})
 	--$opts{s};
 }
 
-if ($opts{f})
+if ($opts{m})
 {
 	my $f;
-	open $f, ">", $opts{f} or die "Unable to open file ".$opts{f};
-	print $f @data;
+	open $f, ">", $opts{m} or die "Unable to open file ".$opts{m};
+	print $f @mime;
+}
+
+if ($opts{e})
+{
+	my $f;
+	open $f, ">", $opts{e} or die "Unable to open file ".$opts{e};
+	print $f @env;
 }

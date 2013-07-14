@@ -481,7 +481,7 @@ data_acl:
     logwrite = DEBUG: recipients: $recipients
     condition = ${if forany {U_MDB_R_MO_LDAP_DNs} { inlist {U_MDB_R_MO_LDAP_ITEM} {<, $recipients} } }
   
-  # * 4xx Your data is verifying, try again in 5 minutes, forward to mailproc
+  # * 4xx Your data is verifying, try again later, forward to mailproc
   accept
     control = fakedefer/Your data is verifying, try again later
     set acl_m_mp_f = true
