@@ -5,5 +5,5 @@
 swaks --version | grep --extended-regexp '201[345][[:digit:]]{4}'
 which ldapmodify
 which ldapdelete
-smtp_server.pl -t
+smtp_server.pl -h
 which host
