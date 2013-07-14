@@ -83,7 +83,8 @@ data_end
 * flag_spamtrap => 5xx $flag_spamtrap, stop
 * flag_sys_wl => ok, stop
 * flag_user_wl == recipients_count => ok, stop
---- * sys_trustedport => ok, stop (на trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами)
+#* sys_trustedport => ok, stop
+На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx No Message-Id header, submission is prohibited, stop
 ** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop
