@@ -7,7 +7,7 @@ use IO::Socket::SSL;
 use Getopt::Std;
 
 my %opts;
-getopts('hp:m:e:s:c:k:', \%opts);
+getopts('hp:m:e:s:c:k:P:', \%opts);
 
 if ($opts{h})
 {
@@ -20,11 +20,12 @@ if ($opts{h})
 		"\t-s cnt\tAccept cnt sessions then exit, 7777777 by default\n",
 		"\t-c cert\tSSL certificate file\n",
 		"\t-k key\tSSL key file\n",
+		"\t-P file\tWrite self PID to file\n",
 		"";
 	exit 0;
 }
 $opts{p} = 25 unless $opts{p};
-$opts{c} = 7777777 unless $opts{c};
+$opts{s} = 7777777 unless $opts{s};
 
 my @mime;
 my @env;
@@ -89,9 +90,15 @@ sub session
 	}
 }
 
-my $s = IO::Socket::INET->new(Proto => 'tcp', LocalAddr => '0.0.0.0:'.$opts{p}, ReuseAddr => 1);
+my $s = IO::Socket::INET->new(Proto => 'tcp', LocalAddr => '0.0.0.0:'.$opts{p}, ReuseAddr => 1, Listen => 10);
 die "Open tcp socket on port ".$opts{p}." failed" unless $s;
-$s->listen;
+
+if ($opts{P})
+{
+	my $f;
+	open $f, ">", $opts{P} or die "Unable to open file ".$opts{P};
+	print $f $$;
+}
 
 while($opts{s})
 {
@@ -111,4 +118,9 @@ if ($opts{e})
 	my $f;
 	open $f, ">", $opts{e} or die "Unable to open file ".$opts{e};
 	print $f @env;
+}
+
+if ($opts{P})
+{
+	unlink $opts{P};
 }
