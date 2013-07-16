@@ -1,0 +1,13 @@
+
+dn: afSClientName=cli2,ou=system,o=advancedfiltering
+afsclientname: cli2
+afsclientrealm: r2
+objectclass: afSClient
+objectclass: top
+
+dn: afSSMTPDomainName=test2.com,afSServiceName=smtp,ou=system,o=advancedfilte
+ ring
+afssmtpdomainclientname: cli2
+afssmtpdomainname: test2.com
+objectclass: afSSMTPDomain
+objectclass: top

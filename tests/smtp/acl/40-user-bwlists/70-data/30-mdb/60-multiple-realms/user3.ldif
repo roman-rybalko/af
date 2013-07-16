@@ -1,0 +1,46 @@
+
+dn: afUServiceRealm=r3,afUServiceName=mdb,ou=user,o=advancedfiltering
+afuservicerealm: r3
+objectclass: afUSRealm
+objectclass: top
+
+dn: afUServiceRealm=r3,afUServiceName=smtp,ou=user,o=advancedfiltering
+afuservicerealm: r3
+objectclass: afUSRealm
+objectclass: top
+
+dn: afUClientName=cli3,afUServiceRealm=r3,afUServiceName=smtp,ou=user,o=adva
+ ncedfiltering
+afuclientname: cli3
+objectclass: afUSRClient
+objectclass: top
+afUClientAdminMailAddress: admin@tests.advancedfiltering.net
+afUClientTechMailAddress: admin@tests.advancedfiltering.net
+
+dn: afUSMTPDomainName=test3.com,afUClientName=cli3,afUServiceRealm=r3,afUServ
+ iceName=smtp,ou=user,o=advancedfiltering
+afusmtpdomainname: test3.com
+objectclass: afUSMTPDomain
+objectclass: top
+afUSMTPDomainAdminMailAddress: admin@tests.advancedfiltering.net
+afUSMTPDomainTechMailAddress: admin@tests.advancedfiltering.net
+
+dn: afUSMTPDMBLocalPart=mbox2,afUSMTPDomainName=test3.com,afUClientName=cli3
+ ,afUServiceRealm=r3,afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpdmblocalpart: mbox2
+afusmtpdmbtimecreated: 1366488166
+objectclass: afUSMTPDMailBox
+objectclass: top
+
+dn: ou=settings,afUClientName=cli3,afUServiceRealm=r3,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+objectclass: organizationalUnit
+objectclass: top
+ou: settings
+
+dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUClientName=cli3,afUServiceRealm=r3,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpmxhostname: src.hosts.advancedfiltering.net
+afusmtpmxtcpport: 2525
+objectclass: afUSMTPMailExchanger
+objectclass: top

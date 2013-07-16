@@ -1,0 +1,8 @@
+
+dn: afUMDBMessageId=test-outgoing-message-2,afUServiceRealm=r1,afUServiceName=mdb,ou=user,o=advancedf
+ iltering
+afumdbmessageid: test-outgoing-message-2
+afumdbmessagesendermailaddress: mbox2@test.com
+afumdbmessagetimecreated: 1234567890
+objectclass: afUMDBMessageOutgoing
+objectclass: top

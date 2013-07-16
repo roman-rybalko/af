@@ -1,0 +1,7 @@
+
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+changetype: modify
+add: afshostrealm
+afshostrealm: r2
+afshostrealm: r3

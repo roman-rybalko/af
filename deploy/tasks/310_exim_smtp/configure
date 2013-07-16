@@ -411,9 +411,11 @@ U_MR_F2 = ${sg{U_MR_F1}{\>\\s+}{ }}
 U_MR_F3 = ${sg{U_MR_F2}{^.*\<}{}}
 U_MR_F4 = ${sg{U_MR_F3}{\>.*\$}{}}
 U_MR_F5 = ${sg{U_MR_F4}{[:\\|]}{}}
-U_MR_F6 = ${sg{U_MR_F5}{\\s+}{:}}
+U_MR_F6 = ${sg{U_MR_F5}{^\\s+}{}}
+U_MR_F7 = ${sg{U_MR_F6}{\\s+\$}{}}
+U_MR_F8 = ${sg{U_MR_F7}{\\s+}{:}}
 # Message References Final Fix
-U_MR_FF = U_MR_F6
+U_MR_FF = U_MR_F8
 
 # User Message DataBase LDAP DN
 U_MDB_LDAP_DN = afUServiceName=mdb,ou=user,o=advancedfiltering
@@ -479,6 +481,7 @@ data_acl:
     logwrite = DEBUG: references: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value $item} }
     logwrite = DEBUG: senders: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value U_MDB_R_MO_LDAP_ITEM} }
     logwrite = DEBUG: recipients: $recipients
+    logwrite = DEBUG: headers: U_MR_D
     condition = ${if forany {U_MDB_R_MO_LDAP_DNs} { inlist {U_MDB_R_MO_LDAP_ITEM} {<, $recipients} } }
   
   # * 4xx Your data is verifying, try again later, forward to mailproc
