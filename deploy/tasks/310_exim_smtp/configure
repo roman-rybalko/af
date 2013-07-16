@@ -481,7 +481,6 @@ data_acl:
     logwrite = DEBUG: references: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value $item} }
     logwrite = DEBUG: senders: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value U_MDB_R_MO_LDAP_ITEM} }
     logwrite = DEBUG: recipients: $recipients
-    logwrite = DEBUG: headers: U_MR_D
     condition = ${if forany {U_MDB_R_MO_LDAP_DNs} { inlist {U_MDB_R_MO_LDAP_ITEM} {<, $recipients} } }
   
   # * 4xx Your data is verifying, try again later, forward to mailproc
