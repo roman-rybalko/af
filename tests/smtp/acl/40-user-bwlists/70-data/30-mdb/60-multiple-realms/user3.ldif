@@ -28,7 +28,7 @@ afUSMTPDomainTechMailAddress: admin@tests.advancedfiltering.net
 dn: afUSMTPDMBLocalPart=mbox2,afUSMTPDomainName=test3.com,afUClientName=cli3
  ,afUServiceRealm=r3,afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdmblocalpart: mbox2
-afusmtpdmbtimecreated: 1366488166
+afusmtpdmbtimecreated: 1234567890
 objectclass: afUSMTPDMailBox
 objectclass: top
 

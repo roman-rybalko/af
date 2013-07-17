@@ -2,6 +2,6 @@
 dn: afUSMTPDMBLocalPart=spf-test,afUSMTPDomainName=test.com,afUClientName=cli1
  ,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdmblocalpart: spf-test
-afusmtpdmbtimecreated: 1366488166
+afusmtpdmbtimecreated: 1234567890
 objectclass: afUSMTPDMailBox
 objectclass: top
