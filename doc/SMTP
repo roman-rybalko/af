@@ -86,8 +86,8 @@ data_end
 #* sys_trustedport => ok, stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
-** нет MessageId => 5xx No Message-Id header, submission is prohibited, stop
-** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop
+** нет MessageId => 5xx Spam detected: No Message-ID header, stop
+** ok, afIsSpam => 5xx Spam detected: afSpamDescription, stop
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop

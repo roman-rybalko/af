@@ -1,26 +1,16 @@
 
-dn: afSClientName=cli2,ou=system,o=advancedfiltering
-afsclientname: cli2
-afsclientrealm: r2
+dn: afSClientName=cli1,ou=system,o=advancedfiltering
+afsclientname: cli1
+afsclientrealm: r1
 objectclass: afSClient
 objectclass: top
 
 dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
  g
 afshostname: dst.hosts.advancedfiltering.net
-afshostrealm: r2
+afshostrealm: r1
 afshostservicename: smtp
 afshostservicename: mdb
-objectclass: afSHost
-objectclass: top
-
-dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
- g
-afshostname: src.hosts.advancedfiltering.net
-afshostrealm: r2
-afshostservicename: mailproc
-afshostservicename: spamtrap
-afshostservicename: error
 objectclass: afSHost
 objectclass: top
 
@@ -35,9 +25,21 @@ afssmtptrustedport: 445
 objectclass: afSSMTPService
 objectclass: top
 
-dn: afSSMTPDomainName=test2.com,afSServiceName=smtp,ou=system,o=advancedfilte
+dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfilte
  ring
-afssmtpdomainclientname: cli2
-afssmtpdomainname: test2.com
+afssmtpdomainclientname: cli1
+afssmtpdomainname: test.com
 objectclass: afSSMTPDomain
+objectclass: top
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: src.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: mailproc
+afshostservicename: spamtrap
+afshostservicename: error
+afshostservicename: bounce
+afshostservicename: submission
+objectclass: afSHost
 objectclass: top

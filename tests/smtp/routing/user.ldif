@@ -4,8 +4,8 @@ afuservicename: mdb
 objectclass: afUService
 objectclass: top
 
-dn: afUServiceRealm=r2,afUServiceName=mdb,ou=user,o=advancedfiltering
-afuservicerealm: r2
+dn: afUServiceRealm=r1,afUServiceName=mdb,ou=user,o=advancedfiltering
+afuservicerealm: r1
 objectclass: afUSRealm
 objectclass: top
 
@@ -14,30 +14,55 @@ afuservicename: smtp
 objectclass: afUService
 objectclass: top
 
-dn: afUServiceRealm=r2,afUServiceName=smtp,ou=user,o=advancedfiltering
-afuservicerealm: r2
+dn: afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afuservicerealm: r1
 objectclass: afUSRealm
 objectclass: top
 
-dn: afUClientName=cli2,afUServiceRealm=r2,afUServiceName=smtp,ou=user,o=adva
+dn: afUClientName=cli1,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=adva
  ncedfiltering
-afuclientname: cli2
+afuclientname: cli1
 objectclass: afUSRClient
 objectclass: top
-afUClientAdminMailAddress: admin@tests.advancedfiltering.net
-afUClientTechMailAddress: admin@tests.advancedfiltering.net
+afUClientAdminMailAddress: admin-client-admin@tests.advancedfiltering.net
+afUClientTechMailAddress: admin-client-tech@tests.advancedfiltering.net
 
-dn: afUSMTPDomainName=test2.com,afUClientName=cli2,afUServiceRealm=r2,afUServ
+dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1,afUServ
  iceName=smtp,ou=user,o=advancedfiltering
-afusmtpdomainname: test2.com
+afusmtpdomainname: test.com
 objectclass: afUSMTPDomain
 objectclass: top
-afUSMTPDomainAdminMailAddress: admin@tests.advancedfiltering.net
-afUSMTPDomainTechMailAddress: admin@tests.advancedfiltering.net
+afUSMTPDomainAdminMailAddress: admin-domain-admin@tests.advancedfiltering.net
+afUSMTPDomainTechMailAddress: admin-domain-tech@tests.advancedfiltering.net
 
-dn: afUSMTPDMBLocalPart=mbox2,afUSMTPDomainName=test2.com,afUClientName=cli2
- ,afUServiceRealm=r2,afUServiceName=smtp,ou=user,o=advancedfiltering
-afusmtpdmblocalpart: mbox2
-afusmtpdmbtimecreated: 1366488166
+dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1
+ ,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpdmblocalpart: mbox
+afusmtpdmbtimecreated: 1234567890
 objectclass: afUSMTPDMailBox
+objectclass: top
+
+dn: ou=settings,afUClientName=cli1,afUServiceRealm=r1,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+objectclass: organizationalUnit
+objectclass: top
+ou: settings
+
+dn: ou=settings,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+objectclass: organizationalUnit
+objectclass: top
+ou: settings
+
+dn: ou=settings,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+objectclass: organizationalUnit
+objectclass: top
+ou: settings
+
+dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUClientName=cli1,afUServiceRealm=r1,a
+ fUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpmxhostname: src.hosts.advancedfiltering.net
+afusmtpmxtcpport: 2525
+objectclass: afUSMTPMailExchanger
 objectclass: top

@@ -6,6 +6,7 @@ afshostrealm: r1
 afshostservicename: mailproc
 afshostservicename: spamtrap
 afshostservicename: error
+afshostservicename: bounce
 afshostservicename: submission
 objectclass: afSHost
 objectclass: top

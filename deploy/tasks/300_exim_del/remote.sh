@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-service exim stop
+service exim stop || true
 
 pkg_delete `pkg_info -E 'exim-*'`
 
