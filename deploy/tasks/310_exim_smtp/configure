@@ -579,6 +579,7 @@ R_CH_A = X-AdvancedFiltering-Return-Path: $sender_address
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
+# the same for all spam_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_mailbox_router:
@@ -595,6 +596,7 @@ spam_user_mailbox_router:
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
+# the same for all spam_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_domain_router:
@@ -611,6 +613,7 @@ spam_user_domain_router:
 
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
+# the same for all spam_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spam_user_client_router:
@@ -646,10 +649,9 @@ backup_router:
   driver = redirect
   data = ""
 
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
-
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
+# the same for all backup_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_mailbox_router:
@@ -665,6 +667,7 @@ backup_user_mailbox_router:
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
+# the same for all backup_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_domain_router:
@@ -680,6 +683,7 @@ backup_user_domain_router:
   
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
+# the same for all backup_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_client_router:
