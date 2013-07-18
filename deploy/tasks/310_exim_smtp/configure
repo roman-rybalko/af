@@ -650,7 +650,7 @@ R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?s
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
@@ -665,7 +665,7 @@ backup_user_mailbox_router:
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_domain_router:
   condition = ${if bool_lax{R_CLIENT}}
@@ -680,7 +680,7 @@ backup_user_domain_router:
   
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
+R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_user_client_router:
   condition = ${if bool_lax{R_CLIENT}}
