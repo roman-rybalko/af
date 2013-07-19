@@ -1,2 +1,2 @@
-#!/bin/sh -ex
+#!/bin/sh -x
 rm -vf flag
