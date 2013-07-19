@@ -7,7 +7,7 @@ use IO::Socket::SSL;
 use Getopt::Std;
 
 my %opts;
-getopts('hp:m:e:s:c:k:P:r:', \%opts);
+getopts('hp:m:e:s:c:k:P:r:a', \%opts);
 
 if ($opts{h})
 {
@@ -22,6 +22,7 @@ if ($opts{h})
 		"\t-k key\tSSL key file\n",
 		"\t-P file\tWrite self PID to file\n",
 		"\t-r re\tReject client command that contains regexp re\n",
+		"\t-a\tOffer AUTH extension\n",
 		"";
 	exit 0;
 }
@@ -54,6 +55,8 @@ sub session
 			next;
 		}
 
+		push @env => "$_\n";
+
 		if ($opts{r} && /$opts{r}/)
 		{
 			print $s "550 Rejected\r\n";
@@ -64,7 +67,10 @@ sub session
 		$cmd = lc $cmd;
 		if ($cmd eq "ehlo")
 		{
-			print $s "250-OK\r\n","250 STARTTLS\r\n";
+			print $s "250-ESMTP test server\r\n";
+			print $s "250-STARTTLS\r\n" if $opts{c} && $opts{k};
+			print $s "250-AUTH PLAIN\n" if $opts{a};
+			print $s "250 OK\r\n";
 		}
 		elsif ($cmd eq "starttls")
 		{
@@ -91,7 +97,6 @@ sub session
 		}
 		else
 		{
-			push @env => "$_\n";
 			print $s "250 OK\r\n";
 		}
 	}

@@ -1,0 +1,10 @@
+
+dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net+afUSMTPMXTCPPort=25251,
+ ou=settings,afUClientName=cli1,
+ afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpmxauthpassword: password
+afusmtpmxauthuser: user
+afusmtpmxhostname: src.hosts.advancedfiltering.net
+afusmtpmxtcpport: 25251
+objectclass: afUSMTPMailExchanger
+objectclass: top
