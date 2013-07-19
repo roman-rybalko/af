@@ -543,6 +543,7 @@ mailproc_router:
   driver = redirect
   data = mailproc@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_SH_D
   headers_add = R_SH_A
 
@@ -588,7 +589,7 @@ spam_user_mailbox_router:
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = bounce@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_CH_D
   headers_add = R_CH_A
   unseen = true
@@ -605,7 +606,7 @@ spam_user_domain_router:
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = bounce@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_CH_D
   headers_add = R_CH_A
   unseen = true
@@ -622,7 +623,7 @@ spam_user_client_router:
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = bounce@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_CH_D
   headers_add = R_CH_A
   unseen = true
@@ -633,6 +634,7 @@ spam_user_last_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = :blackhole:
+  errors_to = error@services.advancedfiltering.net
 
 # * spamtrap
 spamtrap_router:
@@ -640,6 +642,7 @@ spamtrap_router:
   driver = redirect
   data = spamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_SH_D
   headers_add = R_SH_A
 
@@ -648,6 +651,7 @@ spamtrap_router:
 backup_router:
   driver = redirect
   data = ""
+  errors_to = error@services.advancedfiltering.net
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
@@ -659,7 +663,7 @@ backup_user_mailbox_router:
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = bounce@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_CH_D
   headers_add = R_CH_A
   unseen = true
@@ -675,7 +679,7 @@ backup_user_domain_router:
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = bounce@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_CH_D
   headers_add = R_CH_A
   unseen = true
@@ -691,7 +695,7 @@ backup_user_client_router:
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = bounce@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
   headers_remove = R_CH_D
   headers_add = R_CH_A
   unseen = true
@@ -702,6 +706,7 @@ backup_user_client_router:
 mx_router:
   driver = redirect
   data = ""
+  errors_to = error@services.advancedfiltering.net
 
 # Router Mail Exchanger Data
 R_MX_D = ""
@@ -713,8 +718,8 @@ user_mailbox_router:
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
-  transport = user_transport
   errors_to = bounce@services.advancedfiltering.net
+  transport = user_transport
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
@@ -723,8 +728,8 @@ user_domain_router:
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
-  transport = user_transport
   errors_to = bounce@services.advancedfiltering.net
+  transport = user_transport
 
 R_LDAP_DN == R_C_LDAP_DN
 R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
@@ -733,8 +738,8 @@ user_client_router:
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
-  transport = user_transport
   errors_to = bounce@services.advancedfiltering.net
+  transport = user_transport
 
 user_defer_router:
   condition = ${if bool_lax{R_CLIENT}}
@@ -754,7 +759,7 @@ submission_router:
   hosts_randomize = true
   transport = submission_transport
   address_data = system_authenticator="true" $address_data
-  # loosing a copy mail, is bad but is the best solution
+  # loosing a copy mail, bad but is the best solution
   errors_to = error@services.advancedfiltering.net
 
 submission_defer_router:

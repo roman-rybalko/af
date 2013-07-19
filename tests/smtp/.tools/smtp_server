@@ -7,7 +7,7 @@ use IO::Socket::SSL;
 use Getopt::Std;
 
 my %opts;
-getopts('hp:m:e:s:c:k:P:', \%opts);
+getopts('hp:m:e:s:c:k:P:r:', \%opts);
 
 if ($opts{h})
 {
@@ -21,6 +21,7 @@ if ($opts{h})
 		"\t-c cert\tSSL certificate file\n",
 		"\t-k key\tSSL key file\n",
 		"\t-P file\tWrite self PID to file\n",
+		"\t-r re\tReject client command that contains regexp re\n",
 		"";
 	exit 0;
 }
@@ -50,6 +51,12 @@ sub session
 			{
 				push @mime => "$_\n";
 			}
+			next;
+		}
+
+		if ($opts{r} && /$opts{r}/)
+		{
+			print $s "550 Rejected\r\n";
 			next;
 		}
 

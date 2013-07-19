@@ -1,9 +1,13 @@
 Входящий роутинг
 
-* service
-* mailproc (-> service)
-* spam -> backup
-* spamtrap (-> service)
-* backup -> mx
-* mx
-* submission (user senders only)
+-> - redirect_router
+=> - errors_to
+() - defaults
+
+* service => ? error
+* mailproc (-> service) => error
+* spam -> backup => error
+* spamtrap (-> service) => error
+* backup -> mx => error
+* mx => bounce
+* submission (user senders only) => error
