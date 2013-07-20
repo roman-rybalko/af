@@ -3,9 +3,11 @@
 
 pkg_add -r exim
 
-cat configure > /usr/local/etc/exim/configure
-
 adduser -f adduser.batch -M 0700 -w no -G "ssl-key ldap"
+
+mv /usr/local/etc/exim/configure /usr/local/advancedfiltering/exim/configure
+cat configure > /usr/local/advancedfiltering/exim/configure
+ln -s ../../advancedfiltering/exim/configure /usr/local/etc/exim/configure
 
 grep -v "^exim" /usr/local/advancedfiltering/rc.conf > /usr/local/advancedfiltering/rc.conf.new || true
 sed "s/template.hosts.advancedfiltering.net/`hostname`/" rc.conf >> /usr/local/advancedfiltering/rc.conf.new
