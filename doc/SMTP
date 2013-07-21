@@ -1,4 +1,5 @@
 TODO: retry config (per domain/mx target - whichever possible)
+TODO: SSL Certificate MX auth
 TODO: SMTP-mdb доделать (новый атрибут для incoming, его проверка, изменить проверку sender)
 TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
 TODO: логирование приема, отправки, ошибки 5xx и 4хх
