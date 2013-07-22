@@ -12,7 +12,7 @@ add_ldif()
 
 	cat $* \
 		| ldif_nl.pl \
-		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
+		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/src2.hosts.advancedfiltering.net/$SRC2_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
 		| sed "s/1\\.2\\.3\\.4/$SRC_IP/g;s/4\\.3\\.2\\.1/$DST_IP/g;" \
 		| ldapadd.sh
 }
@@ -22,7 +22,7 @@ del_ldif()
 	cat $* \
 		| ldif_nl.pl \
 		| ldif_dn.pl \
-		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
+		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/src2.hosts.advancedfiltering.net/$SRC2_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
 		| sed "s/1\\.2\\.3\\.4/$SRC_IP/g;s/4\\.3\\.2\\.1/$DST_IP/g;" \
 		| ldapdel.sh
 }
@@ -54,7 +54,7 @@ start_server()
 	if echo $id | grep notls >/dev/null; then
 		smtp_server -P smtp_server_$id.pid $* &
 	else
-		smtp_server -c "$TESTDIR"/.tools/tests.crt -k "$TESTDIR"/.tools/tests.key -P smtp_server_$id.pid $* &
+		smtp_server -c "$TESTDIR"/.tools/tests.crt -k "$TESTDIR"/.tools/tests.key -C "$TESTDIR"/.tools/ca.crt -P smtp_server_$id.pid $* &
 	fi
 	wait_file smtp_server_$id.pid
 }

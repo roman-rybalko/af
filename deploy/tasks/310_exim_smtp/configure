@@ -797,9 +797,15 @@ submission_transport:
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
 # Transport Auth-required Hosts
-T_AH_D = ${tr {${lookup ldapm{LDAP_C/ou=settings,T_LDAP_DN?afUSMTPMXHostName?sub?(&(afUSMTPMXAuthUser=*)(objectClass=afUSMTPMailExchanger))} }} {\n} {:} }
+T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
 # Transport TLS-required Hosts
-T_TH_D = ${tr {${lookup ldapm{LDAP_C/ou=settings,T_LDAP_DN?afUSMTPMXHostName?sub?(&(afUSMTPMXIsTLSRequired=TRUE)(objectClass=afUSMTPMailExchanger))} }} {\n} {:} }
+T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXIsTLSRequired=TRUE)} }
+# Transport TLS Certificate
+T_TLSC = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base} }
+# Transport TLS Key
+T_TLSK = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSKey?base} }
+# Transport TLS Verify data, OpenSSL path to root certificate & crl
+T_TLSV = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCA?base} }
 
 user_transport:
   driver = smtp
@@ -807,8 +813,9 @@ user_transport:
   hosts_require_auth = T_AH_D
   hosts_require_tls = T_TH_D
   # public cert, no verify
-  tls_certificate = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.crt
-  tls_privatekey = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.key
+  tls_certificate = ${if bool_lax{T_TLSC} {/usr/local/etc/exim/ssl/T_TLSC.crt} {/usr/local/etc/ssl/smtp.services.advancedfiltering.net.crt} }
+  tls_privatekey = ${if bool_lax{T_TLSK} {/usr/local/etc/exim/ssl/T_TLSK.key} {/usr/local/etc/ssl/smtp.services.advancedfiltering.net.key} }
+  tls_verify_certificates = ${if bool_lax{T_TLSV} {/usr/local/etc/exim/ssl/T_TLSV} fail }
   # return path fix (sender_address)
   return_path = $sender_address
 

@@ -15,5 +15,5 @@ sed "s/template.hosts.advancedfiltering.net/`hostname`/" rc.conf >> /usr/local/a
 mv -f /usr/local/advancedfiltering/rc.conf.new /usr/local/advancedfiltering/rc.conf
 
 service slapd start
-cat crcfix.ldif db-init.ldif db-init2.ldif olcAccess.ldif olcLimits.ldif | ldapmodify -a -x -D cn=deploy,cn=config -w deploy
+cat crcfix.ldif schema-advancedfiltering.ldif db-init.ldif db-init2.ldif olcAccess.ldif olcLimits.ldif | ldapmodify -a -x -D cn=deploy,cn=config -w deploy
 cat olcRootDel.ldif | ldapmodify -x -D cn=admin,ou=system,o=advancedfiltering -w admin
