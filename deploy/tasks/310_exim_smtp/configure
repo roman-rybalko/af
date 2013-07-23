@@ -717,7 +717,7 @@ mx_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN d_ldap_dn=R_CD_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = user_transport
 
@@ -727,7 +727,7 @@ mx_domain_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN d_ldap_dn=R_CD_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = user_transport
 
@@ -737,7 +737,7 @@ mx_client_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN d_ldap_dn=R_CD_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = user_transport
 
