@@ -1,0 +1,8 @@
+
+dn: afUMDBMessageId=test-message-1,afUServiceRealm=r1,afUServiceName=mdb,ou=
+ user,o=advancedfiltering
+afumdbmessageid: test-message-1
+afumdbmessagesendermailaddress: test2@tests.advancedfiltering.net
+afumdbmessagetimecreated: 1234567890
+objectclass: afUMDBMessageIncoming
+objectclass: top

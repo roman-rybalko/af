@@ -1,5 +1,4 @@
-TODO: SMTP-mdb - изменить проверку sender
-TODO: учитывать время создания записи MailBox, Message
+TODO: учитывать время создания записи MailBox
 TODO: размер сообщения
 TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
 TODO: ETRN внешняя утилита
@@ -85,8 +84,9 @@ data_end
 #* sys_trustedport => ok, stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
-** нет MessageId => 5xx Spam detected: No Message-ID header, stop
-** ok, afIsSpam => 5xx Spam detected: afSpamDescription, stop
+** нет MessageId => 5xx SPAM: No Message-ID header, stop
+** ok, afIsSpam => 5xx SPAM: afSpamDescription, stop
+** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop

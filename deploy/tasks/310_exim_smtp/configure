@@ -419,15 +419,15 @@ U_MR_FF = U_MR_F8
 
 # User Message DataBase LDAP DN
 U_MDB_LDAP_DN = afUServiceName=mdb,ou=user,o=advancedfiltering
-# User Message DataBase Realm LDAP DNs
-U_MDB_R_LDAP_DNs = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:$item},U_MDB_LDAP_DN} }
+# User Message DataBase Realm LDAP DN List
+U_MDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:$item},U_MDB_LDAP_DN} }
 
 # User MDB Realm Message Outgoing
 U_MDB_R_MO_VALUE_ORIG = ${sg {$value} {\\|.*\$} {} }
 U_MDB_R_MO_VALUE_MID = ${sg {:U_MDB_R_MO_VALUE_ORIG} {:} {:afUMDBMessageId=${quote_ldap_dn:$item},} }
-U_MDB_R_MO_VALUE_ALL = ${reduce {U_MR_FF} {U_MDB_R_LDAP_DNs|} {${value}U_MDB_R_MO_VALUE_MID} }
-U_MDB_R_MO_LDAP_DNs = ${sg {U_MDB_R_MO_VALUE_ALL} {^.+\\|:} {} }
-U_MDB_R_MO_LDAP_ITEM = ${lookup ldap{LDAP_C/$item?afUMDBMessageSenderMailAddress?base?(objectClass=afUMDBMessageOutgoing)}}
+U_MDB_R_MO_VALUE_ALL = ${reduce {U_MR_FF} {U_MDB_R_LDAP_DN_L|} {${value}U_MDB_R_MO_VALUE_MID} }
+U_MDB_R_MO_LDAP_DN_L = ${sg {U_MDB_R_MO_VALUE_ALL} {^.+\\|:} {} }
+U_MDB_R_MO_LDAP_I = ${lookup ldap{LDAP_C/$item?afUMDBMessageSenderMailAddress?base?(objectClass=afUMDBMessageOutgoing)}}
 
 # Message Id/Incoming
 U_MI_D = $bheader_message-id:
@@ -439,9 +439,16 @@ U_MI_F2 = ${sg{U_MI_F1}{\>.*\$}{}}
 U_MI_FF = U_MI_F2
 
 # MDB Realm Message Incoming LDAP DNs
-U_MDB_R_MI_LDAP_DNs = ${map {U_MDB_R_LDAP_DNs} {afUMDBMessageId=${quote_ldap_dn:U_MI_FF},$item} }
-# MDB Realm Message Incoming
-U_MDB_R_MI_LDAP_ITEM = ${lookup ldap{LDAP_C/$item?objectClass,afUMDBMessageSpamDescription?base?(&(objectClass=afUMDBMessageIncoming)(afUMDBMessageSenderMailAddress=${quote_ldap:$sender_address}))}}
+U_MDB_R_MI_LDAP_DN_L = ${map {U_MDB_R_LDAP_DN_L} {afUMDBMessageId=${quote_ldap_dn:U_MI_FF},$item} }
+# MDB Realm Message Incoming ... Item
+U_MDB_R_MI_spam_I = ${lookup ldap{LDAP_C/$item?afUMDBMessageSpamDescription?base?(objectClass=afUMDBMessageIncoming)} }
+# ... Data
+U_MDB_R_MI_spam_D = ${reduce {U_MDB_R_MI_LDAP_DN_L} {} {$value U_MDB_R_MI_spam_I} }
+U_MDB_R_MI_sender_I = ${lookup ldap{LDAP_C/$item?afUMDBMessageSenderMailAddress?base} }
+# ... List
+U_MDB_R_MI_sender_L = ${map {U_MDB_R_MI_LDAP_DN_L} {U_MDB_R_MI_sender_I} }
+U_MDB_R_MI_sender_D = ${reduce {U_MDB_R_MI_sender_L} {} {$value $item} }
+U_MDB_R_MI_bad_sender_D = ${filter {U_MDB_R_MI_sender_L} { and{ { bool_lax{$item} } { !eqi{$item}{$sender_address} } } } }
 
 data_acl:
   warn
@@ -455,35 +462,43 @@ data_acl:
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
   
   # * проверка Message-Id в afMessageIncoming
-  # ** нет MessageId => 5xx Spam detected, No Message-ID header, stop
-  # ** ok, afIsSpam => 5xx Spam detected, afSpamDescription, stop
-  # ** ok => ok, stop
+  # ** нет MessageId => 5xx SPAM: No Message-ID header, stop
   warn
     ! condition = ${if bool_lax{U_MI_D}}
     # User Message Incoming Spam Message
     set acl_m_u_mi_s_m = No Message-ID header
+  # ** ok, afIsSpam => 5xx SPAM: afSpamDescription, stop
   warn
-    condition = ${if bool_lax{U_MI_D}}
-    logwrite = DEBUG: mids: U_MDB_R_MI_LDAP_DNs
-    # User Message Incoming Data
-    set acl_m_u_mi_d = ${reduce {U_MDB_R_MI_LDAP_DNs} {} {$value U_MDB_R_MI_LDAP_ITEM} }
-    # User Message Incoming Spam Message
-    set acl_m_u_mi_s_m = ${extract {afUMDBMessageSpamDescription} {$acl_m_u_mi_d} }
+    ! condition = ${if bool_lax{$acl_m_u_mi_s_m}}
+    logwrite = DEBUG: Spam descr: U_MDB_R_MI_spam_D
+    condition = ${if bool_lax{U_MDB_R_MI_spam_D}}
+    set acl_m_u_mi_s_m = U_MDB_R_MI_spam_D
+  # ** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
+  warn
+    ! condition = ${if bool_lax{$acl_m_u_mi_s_m}}
+    logwrite = DEBUG: Bad sender: U_MDB_R_MI_bad_sender_D
+    condition = ${if bool_lax{U_MDB_R_MI_bad_sender_D}}
+    set acl_c_s_st_m = Several senders for the same Message-ID
+  # ... stop
   accept
     condition = ${if bool_lax{$acl_m_u_mi_s_m}}
-    control = fakereject/Spam detected: $acl_m_u_mi_s_m
+    control = fakereject/SPAM: $acl_m_u_mi_s_m
   accept
-    condition = ${if bool_lax{$acl_m_u_mi_d}}
+    condition = ${if bool_lax{$acl_c_s_st_m}}
+    control = fakereject/$acl_c_s_st_m
+  # ** ok => ok, stop
+  accept
+    condition = ${if bool_lax{U_MDB_R_MI_sender_D}}
   
   # * проверка In-Reply-To, References в afMessageOutgoing
   # ** ok => ok, stop
   accept
     condition = ${if bool_lax{U_MR_D}}
     logwrite = DEBUG: realms: ${reduce {$acl_m_u_realms} {} {$value $item} }
-    logwrite = DEBUG: references: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value $item} }
-    logwrite = DEBUG: senders: ${reduce {U_MDB_R_MO_LDAP_DNs} {} {$value U_MDB_R_MO_LDAP_ITEM} }
+    logwrite = DEBUG: references: ${reduce {U_MDB_R_MO_LDAP_DN_L} {} {$value $item} }
+    logwrite = DEBUG: senders: ${reduce {U_MDB_R_MO_LDAP_DN_L} {} {$value U_MDB_R_MO_LDAP_I} }
     logwrite = DEBUG: recipients: $recipients
-    condition = ${if forany {U_MDB_R_MO_LDAP_DNs} { inlist {U_MDB_R_MO_LDAP_ITEM} {<, $recipients} } }
+    condition = ${if forany {U_MDB_R_MO_LDAP_DN_L} { inlist {U_MDB_R_MO_LDAP_I} {<, $recipients} } }
   
   # * 4xx Your data is verifying, try again later, forward to mailproc
   accept
