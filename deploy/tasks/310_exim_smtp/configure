@@ -39,6 +39,11 @@ U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # System Realms
 S_REALMS = ${sg {${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
 
+# Retry Rule Mail Exchanger
+RR_MX_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
+# Retry Rule Domain
+RR_D_LDAP_DN = ${extract {d_ldap_dn} {$address_data} }
+
 begin acl
 
 # Domain Name System Block List
@@ -583,7 +588,7 @@ R_CS_D == $local_part@$domain
 # the same for all spam_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-spam_user_mailbox_router:
+spam_mailbox_router:
   condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -600,7 +605,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
 # the same for all spam_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-spam_user_domain_router:
+spam_domain_router:
   condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -617,7 +622,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
 # the same for all spam_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-spam_user_client_router:
+spam_client_router:
   condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -629,7 +634,7 @@ spam_user_client_router:
   unseen = true
   redirect_router = backup_router
 
-spam_user_last_router:
+spam_last_router:
   condition = ${if bool_lax{$acl_m_u_mi_s_m}}
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
@@ -658,7 +663,7 @@ R_CS_D == $local_part@$domain
 # the same for all backup_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_user_mailbox_router:
+backup_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D
@@ -674,7 +679,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
 # the same for all backup_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_user_domain_router:
+backup_domain_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D
@@ -690,7 +695,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
 # the same for all backup_user_ routers
 R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_user_client_router:
+backup_client_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D
@@ -713,35 +718,35 @@ R_MX_D = ""
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
-user_mailbox_router:
+mx_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN d_ldap_dn=R_CD_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = user_transport
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
-user_domain_router:
+mx_domain_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN d_ldap_dn=R_CD_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = user_transport
 
 R_LDAP_DN == R_C_LDAP_DN
 R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
-user_client_router:
+mx_client_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN d_ldap_dn=R_CD_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = user_transport
 
-user_defer_router:
+mx_defer_router:
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   allow_defer = true
@@ -804,7 +809,7 @@ T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settin
 T_TLSC = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base} }
 # Transport TLS Key
 T_TLSK = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSKey?base} }
-# Transport TLS Verify data, OpenSSL path to root certificate & crl
+# Transport TLS Verify data, OpenSSL path to root certificates & crls
 T_TLSV = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCA?base} }
 
 user_transport:
@@ -820,9 +825,15 @@ user_transport:
   return_path = $sender_address
 
 begin retry
-#*                      *           F,2h,15m; G,16h,1h,1.5; F,4d,6h
-# TODO: retry settings
-* * F,2h,1s
+
+# host retry rule
+"${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,RR_MX_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPEximRetryRule=*)} }" * "${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,RR_MX_LDAP_DN?afUSMTPEximRetryRule?base} }"
+
+# domain retry rule
+"${lookup ldap{LDAP_C/RR_D_LDAP_DN?afUSMTPDomainName?base?(afUSMTPEximRetryRule=*)} }" * "${lookup ldap{LDAP_C/RR_D_LDAP_DN?afUSMTPEximRetryRule?base} }"
+
+# default retry rule
+* * F,2h,15m; G,16h,1h,1.5; F,4d,6h
 
 begin rewrite
 

@@ -55,6 +55,7 @@ olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.2 NAME 'afUSMTPDomainName' DESC '
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.2.1 NAME 'afUSMTPDomainAliasName' DESC 'User (ou=user) Domain Alias Name' SUP afDomainName )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.2.2.1 NAME 'afUSMTPDomainAdminMailAddress' DESC 'User (ou=user) Domain Administrative Mail Address' SUP afMailAddress SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.2.2.2 NAME 'afUSMTPDomainTechMailAddress' DESC 'User (ou=user) Domain Technical Mail Address' SUP afMailAddress SINGLE-VALUE )
+olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3 NAME 'afUSMTPEximRetryRule' DESC 'User (ou=user) SMTP delivery Retry Rule (in Exim format)' SUP afCaseExactString SINGLE-VALUE )
 # user/smtp/mailbox
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.1.1 NAME 'afUSMTPDMBTimeCreated' DESC 'User (ou=user) SMTP Domain Mail Box Time Created' SUP afTime SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.1.2 NAME 'afUSMTPDMBLocalPart' DESC 'User (ou=user) SMTP Domain Mail Box Local Part (user without domain)' SUP afMailAddress SINGLE-VALUE )
@@ -95,9 +96,9 @@ olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.1 NAME 'afUService' DESC 'User (ou
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.2 NAME 'afUSRealm' DESC 'User (ou=user) Service Realm' SUP top STRUCTURAL MUST ( afUServiceRealm ) MAY ( afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.3 NAME 'afUSRClient' DESC 'User (ou=user) Service Realm Client' SUP top STRUCTURAL MUST ( afUClientName $ afUClientAdminMailAddress $ afUClientTechMailAddress ) MAY ( afDescription ) )
 # user/smtp
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.1 NAME 'afUSMTPDomain' DESC 'User (ou=user) SMTP service Domain' SUP top STRUCTURAL MUST ( afUSMTPDomainName $ afUSMTPDomainAdminMailAddress $ afUSMTPDomainTechMailAddress ) MAY ( afUSMTPDomainAliasName $ afDescription ) )
+olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.1 NAME 'afUSMTPDomain' DESC 'User (ou=user) SMTP service Domain' SUP top STRUCTURAL MUST ( afUSMTPDomainName $ afUSMTPDomainAdminMailAddress $ afUSMTPDomainTechMailAddress ) MAY ( afUSMTPDomainAliasName $ afUSMTPEximRetryRule $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.2 NAME 'afUSMTPDMailBox' DESC 'User (ou=user) SMTP Domain Mail Box' SUP top STRUCTURAL MUST ( afUSMTPDMBLocalPart $ afUSMTPDMBTimeCreated ) MAY ( afUSMTPDMBIsAbsent $ afDescription ) )
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.3 NAME 'afUSMTPMailExchanger' DESC 'User (ou=user) SMTP Mail Exchanger' SUP top STRUCTURAL MUST ( afUSMTPMXHostName $ afUSMTPMXTCPPort ) MAY ( afUSMTPMXAuthUser $ afUSMTPMXAuthPassword $ afUSMTPMXIsTLSRequired $ afUSMTPMXAuthTLSCertificate $ afUSMTPMXAuthTLSKey $ afUSMTPMXAuthTLSCA $ afDescription ) )
+olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.3 NAME 'afUSMTPMailExchanger' DESC 'User (ou=user) SMTP Mail Exchanger' SUP top STRUCTURAL MUST ( afUSMTPMXHostName $ afUSMTPMXTCPPort ) MAY ( afUSMTPMXAuthUser $ afUSMTPMXAuthPassword $ afUSMTPMXIsTLSRequired $ afUSMTPMXAuthTLSCertificate $ afUSMTPMXAuthTLSKey $ afUSMTPMXAuthTLSCA $ afUSMTPEximRetryRule $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.4 NAME 'afUSMTPBackupTarget' DESC 'User (ou=user) SMTP Backup Target' SUP top STRUCTURAL MUST ( afUSMTPBackupMailAddress ) MAY ( afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.5 NAME 'afUSMTPSpamTarget' DESC 'User (ou=user) SMTP Spam Target' SUP top STRUCTURAL MUST ( afUSMTPSpamMailAddress ) MAY ( afDescription ) )
 # user/mdb (Message DataBase)

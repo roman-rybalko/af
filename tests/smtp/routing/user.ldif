@@ -34,6 +34,7 @@ objectclass: afUSMTPDomain
 objectclass: top
 afUSMTPDomainAdminMailAddress: admin-domain-admin@tests.advancedfiltering.net
 afUSMTPDomainTechMailAddress: admin-domain-tech@tests.advancedfiltering.net
+afUSMTPEximRetryRule: F,5s,1s
 
 dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1
  ,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
