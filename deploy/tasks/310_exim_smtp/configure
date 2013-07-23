@@ -39,11 +39,6 @@ U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # System Realms
 S_REALMS = ${sg {${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
 
-# Retry Rule Mail Exchanger
-RR_MX_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
-# Retry Rule Domain
-RR_D_LDAP_DN = ${extract {d_ldap_dn} {$address_data} }
-
 begin acl
 
 # Domain Name System Block List
@@ -825,14 +820,8 @@ user_transport:
   return_path = $sender_address
 
 begin retry
-
-# host retry rule
-"${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,RR_MX_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPEximRetryRule=*)} }" * "${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,RR_MX_LDAP_DN?afUSMTPEximRetryRule?base} }"
-
-# domain retry rule
-"${lookup ldap{LDAP_C/RR_D_LDAP_DN?afUSMTPDomainName?base?(afUSMTPEximRetryRule=*)} }" * "${lookup ldap{LDAP_C/RR_D_LDAP_DN?afUSMTPEximRetryRule?base} }"
-
-# default retry rule
+^\N[^@]+@test\d+[^\.]*\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 * * F,2h,15m; G,16h,1h,1.5; F,4d,6h
 
 begin rewrite
