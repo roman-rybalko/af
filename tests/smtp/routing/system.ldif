@@ -22,6 +22,7 @@ afssmtpspamtrapprobabilitydenominator: 100
 afssmtpspamtrapprobabilitynumerator: 0
 afssmtptrustedmessagesize: 2000000
 afssmtptrustedport: 445
+afSSMTPMailBoxTimeout: 14400
 objectclass: afSSMTPService
 objectclass: top
 

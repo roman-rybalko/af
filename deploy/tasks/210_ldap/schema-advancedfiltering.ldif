@@ -42,6 +42,7 @@ olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.2 NAME 'afSServiceName' DESC 'Sys
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.1 NAME 'afSSMTPTrustedPort' DESC 'System (ou=system) SMTP Trusted Port (checks disabled)' SUP afInteger )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.2.1 NAME 'afSSMTPSpamTrapProbabilityNumerator' DESC 'System (ou=system) SMTP SpamTrap probability fraction numerator value' SUP afInteger SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.2.2 NAME 'afSSMTPSpamTrapProbabilityDenominator' DESC 'System (ou=system) SMTP SpamTrap probability fraction denominator value' SUP afInteger SINGLE-VALUE )
+olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.3 NAME 'afSSMTPMailBoxTimeout' DESC 'System (ou=system) SMTP MailBox record Timeout (re-validation trigger)' SUP afInteger SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.7 NAME 'afSSMTPDNSBLDomainName' DESC 'System (ou=system) SMTP DNSBL Domain Name' SUP afDomainName )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.8 NAME 'afSSMTPMaxMessageSize' DESC 'System (ou=system) SMTP Maximum Message Size' SUP afInteger SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.9 NAME 'afSSMTPTrustedMessageSize' DESC 'System (ou=system) SMTP Trusted Message Size (checks disabled)' SUP afInteger SINGLE-VALUE )
@@ -89,7 +90,7 @@ olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.1.3 NAME 'afSClient' DESC 'System (o
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.2 NAME 'afSService' DESC 'System (ou=system) Service' SUP top ABSTRACT MUST ( afSServiceName ) MAY ( afDescription ) )
 # system/smtp
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.2.1 NAME 'afSSMTPService' DESC 'System (ou=system) SMTP Service' SUP afSService STRUCTURAL MUST ( afSSMTPTrustedPort $ afSSMTPSpamTrapProbabilityNumerator $ afSSMTPSpamTrapProbabilityDenominator
- $ afSSMTPMaxMessageSize $ afSSMTPTrustedMessageSize ) MAY ( afSSMTPDNSBLDomainName ) )
+ $ afSSMTPMaxMessageSize $ afSSMTPTrustedMessageSize $ afSSMTPMailBoxTimeout ) MAY ( afSSMTPDNSBLDomainName ) )
 # user ("U" prefix)
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.1 NAME 'afUService' DESC 'User (ou=user) Service' SUP top STRUCTURAL MUST ( afUServiceName ) MAY ( afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.2 NAME 'afUSRealm' DESC 'User (ou=user) Service Realm' SUP top STRUCTURAL MUST ( afUServiceRealm ) MAY ( afDescription ) )

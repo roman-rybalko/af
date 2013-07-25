@@ -1,4 +1,3 @@
-TODO: учитывать время создания записи MailBox
 TODO: размер сообщения
 TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
 TODO: ETRN внешняя утилита
@@ -12,6 +11,9 @@ sys_trustedport
 * получение системной настройки spamtrap
 ** ok => sys_spamtrap
 sys_spamtrap
+
+* получение системной настройки mailboxtimeout
+sys_mailboxtimeout
 
 connect
 * проверка системных черных списков (ip, hostname)
@@ -54,7 +56,7 @@ rcpt
 * проверка realm для домена
 ** нет домена => 5xx The domain is not in service, stop
 ** чужой realm => 4xx Moved, try another host, stop
-* проверка адреса получателя в afMailBox
+* проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
 ** fail => 4xx Your data is verifying, try again in 5 minutes, log, stop
 ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
 * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]

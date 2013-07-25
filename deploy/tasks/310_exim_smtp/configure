@@ -165,12 +165,16 @@ S_STPN = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityNumerator
 S_STPD = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityDenominator?base}}
 # ... Spam Trap Flag
 S_ST_F = ${if >{S_STPN}{${randint:S_STPD}}}
+# System MailBox Timeout Data
+S_MBTO_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMailBoxTimeout?base} }
 connect_acl:
   warn
     # System Trusted Port Flag
     set acl_c_s_tp_f = S_TP_F
     # System SpamTrap Flag
     set acl_c_s_st_f = S_ST_F
+    # System MailBox Cutoff Time Data
+    set acl_c_s_mbct_d = ${eval10:$tod_epoch-S_MBTO_D}
     # System Realm(s)
     set acl_c_s_realms = S_REALMS
     set acl_c_bwl_ldap_dn = S_SMTP_LDAP_DN
@@ -304,12 +308,12 @@ rcpt_acl:
   require
     acl = domain_rcpt_acl
 
-  # * проверка адреса получателя в afMailBox
+  # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
   # ** fail => 4xx Your data is verifying, try again in 5 minutes, log, stop
   # ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
   defer
     # User Mail Box Data
-    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?afUSMTPDMBTimeCreated,afUSMTPDMBIsAbsent?base}}
+    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeCreated>=$acl_c_s_mbct_d)}}
     ! condition = ${if bool_lax{$acl_m_u_mb_d}}
     message = Your data is verifying, try again later
     logwrite = AdvancedFiltering:NewMailBox:<$local_part@$domain>Domain:<$acl_m_u_domain>Realm:<$acl_m_u_realm>
