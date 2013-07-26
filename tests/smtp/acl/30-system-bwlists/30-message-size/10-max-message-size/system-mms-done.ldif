@@ -1,0 +1,5 @@
+
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+changetype: modify
+replace: afSSMTPMaxMessageSize
+afSSMTPMaxMessageSize: 30000000

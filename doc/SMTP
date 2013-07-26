@@ -1,4 +1,3 @@
-TODO: размер сообщения
 TODO: DKIM check (добавить DKIM-подписавшие домены в системные и пользовательсике ч/б списки)
 TODO: ETRN внешняя утилита
 
@@ -14,6 +13,9 @@ sys_spamtrap
 
 * получение системной настройки mailboxtimeout
 sys_mailboxtimeout
+
+* получение системной настройки trustedmessagesize
+sys_trustedmessagesize
 
 connect
 * проверка системных черных списков (ip, hostname)
@@ -91,5 +93,7 @@ data_end
 ** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
+** ok => ok, stop
+* message_size >= sys_trustedmessagesize
 ** ok => ok, stop
 * 4xx Your data is verifying, try again in later, forward to mailproc

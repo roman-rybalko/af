@@ -39,6 +39,8 @@ U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # System Realms
 S_REALMS = ${sg {${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
 
+message_size_limit = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMaxMessageSize?base} }
+
 begin acl
 
 # Domain Name System Block List
@@ -167,6 +169,8 @@ S_STPD = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityDenominat
 S_ST_F = ${if >{S_STPN}{${randint:S_STPD}}}
 # System MailBox Timeout Data
 S_MBTO_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMailBoxTimeout?base} }
+# System Trusted Message Size
+S_TMS_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedMessageSize?base} }
 connect_acl:
   warn
     # System Trusted Port Flag
@@ -175,6 +179,8 @@ connect_acl:
     set acl_c_s_st_f = S_ST_F
     # System MailBox Cutoff Time Data
     set acl_c_s_mbct_d = ${eval10:$tod_epoch-S_MBTO_D}
+    # System Trusted Message Size Data
+    set acl_c_s_tms_d = S_TMS_D
     # System Realm(s)
     set acl_c_s_realms = S_REALMS
     set acl_c_bwl_ldap_dn = S_SMTP_LDAP_DN
@@ -503,6 +509,12 @@ data_acl:
     logwrite = DEBUG: senders: ${reduce {U_MDB_R_MO_LDAP_DN_L} {} {$value U_MDB_R_MO_LDAP_I} }
     logwrite = DEBUG: recipients: $recipients
     condition = ${if forany {U_MDB_R_MO_LDAP_DN_L} { inlist {U_MDB_R_MO_LDAP_I} {<, $recipients} } }
+  
+  # * message_size >= sys_trustedmessagesize
+  # ** ok => ok, stop
+  accept
+    condition = ${if >{$message_size}{$acl_c_s_tms_d}}
+    message = OK id=$message_exim_id (system policy, trusted message size)
   
   # * 4xx Your data is verifying, try again later, forward to mailproc
   accept
