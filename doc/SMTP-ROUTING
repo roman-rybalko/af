@@ -11,3 +11,11 @@
 * backup -> mx => error
 * mx => bounce
 * submission (user senders only) => error
+
+Для spam проверять afUSMTPDMBIsAbsent,
+т.к. отправка производится с адреса afUSMTPDMailBox,
+нет возможности отправлять с несуществующего адреса.
+Нет смысла проверять для backup и mx (теоретически)
+т.к. несуществующий MailBox до этих роутеров не дойдет:
+если включен spamtrap, то сообщение поглотит spam_last_router,
+если spamtrap отключен, тогда будет отвергнут RCPT.

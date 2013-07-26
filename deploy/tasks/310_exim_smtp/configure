@@ -572,6 +572,8 @@ R_C_LDAP_DN = afUClientName=${quote_ldap_dn:R_CLIENT},afUServiceRealm=${quote_ld
 R_CD_LDAP_DN = afUSMTPDomainName=${quote_ldap_dn:$domain},R_C_LDAP_DN
 # Router Client Domain Mail Box LDAP DN
 R_CDM_LDAP_DN = afUSMTPDMBLocalPart=${quote_ldap_dn:$local_part},R_CD_LDAP_DN
+# Router MailBox Absent Data
+R_MBA_D = ${lookup ldap{LDAP_C/R_CDM_LDAP_DN?afUSMTPDMBIsAbsent?base} }
 
 # *************************************************************************************************
 
@@ -605,6 +607,7 @@ R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R
 spam_mailbox_router:
   condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
   condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -679,6 +682,7 @@ R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?s
 R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if !bool_lax{R_MBA_D}} # unreachable
   driver = redirect
   data = R_CT_D
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -734,6 +738,7 @@ R_LDAP_DN == R_CDM_LDAP_DN
 R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
 mx_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if !bool_lax{R_MBA_D}} # unreachable
   driver = manualroute
   route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
