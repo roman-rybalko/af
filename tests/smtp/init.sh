@@ -8,3 +8,4 @@ which ldapdelete
 smtp_server -h
 host localhost
 usleep 1
+dkim_verifier -h
