@@ -1,0 +1,84 @@
+exim_user = exim
+exim_group = exim
+log_file_path = /usr/local/advancedfiltering/exim/%slog
+process_log_path = /usr/local/advancedfiltering/exim/exim-process.info
+spool_directory = /usr/local/advancedfiltering/exim
+split_spool_directory = true
+never_users = root
+smtp_banner = mailproc.services.advancedfiltering.net ESMTP
+host_lookup = :
+rfc1413_hosts = :
+rfc1413_query_timeout = 0s
+smtp_receive_timeout = 5s
+local_scan_timeout = 5s
+ignore_bounce_errors_after = 2d
+timeout_frozen_after = 7d
+tls_advertise_hosts = *
+tls_verify_hosts = *
+tls_certificate = /etc/ssl/${primary_hostname}.crt
+tls_privatekey = /etc/ssl/${primary_hostname}.key
+tls_verify_certificates = /etc/ssl/ca
+tls_crl = /etc/ssl/ca
+acl_smtp_rcpt = rcpt_acl
+received_header_text = Received:\
+  ${if def:sender_rcvhost { from $sender_rcvhost}{ from localhost}} by $primary_hostname\
+  ${if def:received_protocol { with $received_protocol}}\
+  ${if def:tls_cipher { ($tls_cipher)}}\
+  ${if def:tls_peerdn { ($tls_peerdn)}}\n \
+  id $message_exim_id\
+  ${if def:sender_address { (envelope-from <$sender_address>)}}\
+  ${if def:received_for { for $received_for}}
+
+begin acl
+rcpt_acl:
+  warn
+    control = dkim_disable_verify
+  accept
+    hosts = :
+  require
+    verify = certificate
+    verify = recipient
+  accept
+
+begin routers
+spamtrap_router:
+  driver = accept
+  local_parts = spamtrap
+  transport = spamtrap_transport
+  errors_to = error@services.advancedfiltering.net
+mailproc_router:
+  driver = accept
+  local_parts = mailproc
+  transport = mailproc_transport
+  errors_to = error@services.advancedfiltering.net
+error_router:
+  driver = accept
+  local_parts = error
+  transport = error_transport
+  errors_to = ""
+bounce_router:
+  driver = accept
+  local_parts = bounce
+  transport = bounce_transport
+  errors_to = error@services.advancedfiltering.net
+
+begin transports
+spamtrap_transport:
+  driver = appendfile
+  directory = /usr/local/advancedfiltering/exim/spamtrap
+  mode = 0660
+mailproc_transport:
+  driver = appendfile
+  directory = /usr/local/advancedfiltering/exim/mailproc
+  mode = 0660
+error_transport:
+  driver = appendfile
+  directory = /usr/local/advancedfiltering/exim/error
+  mode = 0660
+bounce_transport:
+  driver = appendfile
+  directory = /usr/local/advancedfiltering/exim/bounce
+  mode = 0660
+
+begin retry
+* * F,2h,15m; G,16h,1h,1.5; F,4d,6h

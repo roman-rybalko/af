@@ -3,11 +3,11 @@
 
 service exim stop || true
 
-pkg_delete `pkg_info -E 'exim-*'`
+pkg_delete `pkg_info -E 'exim-*'` || true
 
 grep -v "^exim" /usr/local/advancedfiltering/rc.conf > /usr/local/advancedfiltering/rc.conf.new || true
 mv -f /usr/local/advancedfiltering/rc.conf.new /usr/local/advancedfiltering/rc.conf
 
 rm -Rvf /usr/local/etc/exim /usr/local/advancedfiltering/exim
 
-pw userdel exim || true
+rmuser -yv exim || true
