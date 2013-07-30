@@ -24,9 +24,14 @@ acl_smtp_helo = helo_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_data = data_acl
-received_header_text = Received: from $sender_rcvhost\n \
- by $primary_hostname${if def:received_protocol { with $received_protocol} }${if def:tls_cipher { ($tls_cipher)} }\n \
- id $message_exim_id${if def:sender_address { (envelope-from <$sender_address>)}}${if def:received_for { for $received_for}}
+received_header_text = Received:\
+  ${if def:sender_rcvhost { from $sender_rcvhost}{ from localhost}} by $primary_hostname\
+  ${if def:received_protocol { with $received_protocol}}\
+  ${if def:tls_cipher { ($tls_cipher)}}\
+  ${if def:tls_peerdn { ($tls_peerdn)}}\n \
+  id $message_exim_id\
+  ${if def:sender_address { (envelope-from <$sender_address>)}}\
+  ${if def:received_for { for $received_for}}
 
 # Lightweight Directory Access Protocol Connection
 LDAP_C = ldapi://%2fvar%2frun%2fopenldap%2fldapi
@@ -874,8 +879,6 @@ begin retry
 ^\N[^@]+@test\d+[^\.]*\.hosts\.advancedfiltering\.net$\N * F,5s,1s
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 * * F,2h,15m; G,16h,1h,1.5; F,4d,6h
-
-begin rewrite
 
 begin authenticators
 
