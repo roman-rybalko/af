@@ -14,6 +14,4 @@ mkdir /usr/local/advancedfiltering/https/spamtrap
 chown -Rv spamtrap:www /usr/local/advancedfiltering/https/spamtrap
 chmod 0750 /usr/local/advancedfiltering/https/spamtrap
 
-su -m spamtrap /usr/local/advancedfiltering/spamtrap/bin/cron.sh
-
 crontab -u spamtrap cron.batch
