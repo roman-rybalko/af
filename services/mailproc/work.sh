@@ -2,4 +2,5 @@
 
 . `dirname $0`/mailproc.conf
 export HOME
-exec `dirname $0`/work.pl -1 -2 -3
+sleep 3600
+exec `dirname $0`/work.pl #-1 -2 -3

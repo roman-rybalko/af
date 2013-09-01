@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/sh -ex
 
-set -ex
+host=$1
+[ -n "$host" ]
 
-ldapsearch -h deploy.hosts.advancedfiltering.net -ZZ -x -b "" -s base -LLL namingContexts
+ldapsearch -h $host.hosts.advancedfiltering.net -ZZ -x -b "" -s base -LLL namingContexts

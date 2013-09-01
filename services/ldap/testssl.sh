@@ -1,8 +1,11 @@
-#!/bin/sh
+#!/bin/sh -ex
 
-set -ex
+host=$1
+[ -n "$host" ]
 
-openssl s_client -connect deploy.hosts.advancedfiltering.net:636 \
+openssl s_client -connect $host.hosts.advancedfiltering.net:636 \
  -cert ../../easy-rsa/keys/test-cli.crt -key ../../easy-rsa/keys/test-cli.key \
-# -cert ../../easy-rsa/keys/test-crl.crt -key ../../easy-rsa/keys/test-crl.key \
+ -CApath ../../dist/system-ca -verify 10 \
  -showcerts -state
+
+# -cert ../../easy-rsa/keys/test-crl.crt -key ../../easy-rsa/keys/test-crl.key \

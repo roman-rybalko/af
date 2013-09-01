@@ -1,0 +1,24 @@
+
+dn: afSHostName=test2.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: test2.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: mailproc
+objectclass: afSHost
+objectclass: top
+
+dn: afSHostName=test1.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: test1.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: spamtrap
+objectclass: afSHost
+objectclass: top
+
+dn: afSHostName=lena,ou=system,o=advancedfilterin
+ g
+afshostname: lena
+afshostrealm: r1
+afshostservicename: test
+objectclass: afSHost
+objectclass: top

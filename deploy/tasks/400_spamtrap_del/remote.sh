@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_delete `pkg_info -E 'p5-Mail-SpamAssassin-*'` || true
+pkg_delete -r `pkg_info -E 'p5-Mail-SpamAssassin-*'` || true
 
 rm -Rvf /usr/local/advancedfiltering/spamtrap /usr/local/advancedfiltering/https/spamtrap
 

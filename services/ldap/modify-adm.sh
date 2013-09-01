@@ -6,4 +6,4 @@ host="$1"
 file="$2"
 [ -n "$host" ]
 [ -n "$file" ]
-ldapmodify -h "$host" -ZZ -f "$file" -a -x -D cn=deploy,cn=config -w deploy
+ldapmodify -h $host.hosts.advancedfiltering.net -ZZ -f "$file" -a -x -D cn=deploy,cn=config -w deploy

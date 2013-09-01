@@ -60,8 +60,8 @@ if ($opts{C})
 
 if ($opts{D})
 {
-	$ldap_msg = $ldap->bind($opts{D}, password => $opts{W}) if $opts{W};
-	$ldap_msg = $ldap->bind($opts{D}) if $opts{W};
+	die "-W option is required" unless $opts{W};
+	$ldap_msg = $ldap->bind($opts{D}, password => $opts{W});
 	die "bind: " . $ldap_msg->error_text if $ldap_msg->is_error;
 }
 
@@ -70,35 +70,39 @@ if ($opts{q} eq "hostname")
 {
 	if ($opts{r})
 	{
-		@{$opts{r}} = split(/,/, $opts{r});
+		$opts{r} = [split(/,/, $opts{r})];
 	}
 	else
 	{
 		# find our realm(s)
-		my $base = 'afSHostName='.`hostname`.',ou=system,o=advancedfiltering';
+		my $hostname = `hostname`;
+		$hostname =~ s/\s//g;
+		my $base = "afSHostName=$hostname,ou=system,o=advancedfiltering";
 		$ldap_msg = $ldap->search(
 			filter => '(objectClass=afSHost)',
 			base => $base,
 			scope => 'base',
 			attrs => ['afSHostRealm']);
 		die "search(base=$base): " . $ldap_msg->error_text if $ldap_msg->is_error;
-		@{$opts{r}} = $ldap_msg->entry(0)->get_value('afSHostRealm');
+		$opts{r} = [$ldap_msg->entry(0)->get_value('afSHostRealm')];
 	}
-	my $filter = '(&(objectClass=afSHost)';
-	$filter .= '(|';
-	$filter .= "(afSHostRealm=$_)" foreach @{$opts{r}};
-	$filter .= ')';
-	$filter .= "(afshostservicename=$opts{s})" if $opts{s};
-	$filter .= ')';
-	$ldap_msg = $ldap->search(
-		filter => $filter,
-		base => 'ou=system,o=advancedfiltering',
-		scope => 'sub', # scope=one, but mdb does not handle it efficiently
-		attrs => ['afSHostName']);
-	die "search(filter=$filter): " . $ldap_msg->error_text if $ldap_msg->is_error;
-	if ($opts{1})
+	my %hosts;
+	foreach my $realm (@{$opts{r}})
 	{
-		$ldap_msg->pop_entry while $ldap_msg->count > 1;
+		my $filter = '(&';
+		$filter .= "(objectClass=afSHost)";
+		$filter .= "(afSHostRealm=$realm)";
+		$filter .= "(afSHostServiceName=$opts{s})" if $opts{s};
+		$filter .= ')';
+		$ldap_msg = $ldap->search(
+			filter => $filter,
+			base => 'ou=system,o=advancedfiltering',
+			scope => 'sub', # scope=one, but mdb does not handle it efficiently
+			attrs => ['afSHostName']);
+		die "search(filter=$filter): " . $ldap_msg->error_text if $ldap_msg->is_error;
+		$hosts{$_->get_value('afSHostName')} = 1 foreach $ldap_msg->entries;
+		last if $opts{1} && %hosts;
 	}
-	print $_->get_value('afSHostRealm'),"\n" foreach $ldap_msg->entries;
+	%hosts = ((keys %hosts)[0] => 1) if $opts{1} && %hosts;
+	print $_,"\n" foreach keys %hosts;
 }

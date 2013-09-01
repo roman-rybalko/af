@@ -1,0 +1,4 @@
+MAILTO=root
+PATH=/bin:/usr/bin:/usr/local/bin
+* * * * * /usr/local/advancedfiltering/mailproc/bin/cron.sh
+* * * * * /usr/local/advancedfiltering/mailproc/bin/work-wd.sh
