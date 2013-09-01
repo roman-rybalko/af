@@ -1,0 +1,6 @@
+
+dn: cn=smtp,ou=system,o=advancedfiltering
+changetype: delete
+
+dn: cn=mailproc,ou=system,o=advancedfiltering
+changetype: delete

@@ -3,7 +3,7 @@
 . `dirname $0`/mailproc.conf
 
 SRCDIR=`dirname $0`
-STHOST=`$SRCDIR/ldap.pl -U $LDAP -q hostname -s spamtrap -1`
+STHOST=`$SRCDIR/ldap.pl -U $LDAP -D "$LDAPDN" -W "$LDAPPW" -q hostname -s spamtrap -1`
 mkdir $STUPD || true
 cd $STUPD
 curl --location --fail --remote-time -z db_latest.tgz --cert /etc/ssl/`hostname`.crt --key /etc/ssl/`hostname`.key --capath /etc/ssl/ca https://$STHOST/spamtrap/db_latest.tgz -o db_latest.tgz

@@ -1,0 +1,12 @@
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+delete: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=smtp,ou=system,o=advancedfiltering" read by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=system,o=advancedfiltering" read by * break
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+delete: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=smtp,ou=system,o=advancedfiltering" manage by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=system,o=advancedfiltering" manage by * break
