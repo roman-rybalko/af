@@ -13,5 +13,7 @@ chown -Rv spamtrap:spamtrap /usr/local/advancedfiltering/spamtrap
 mkdir /usr/local/advancedfiltering/https/spamtrap
 chown -Rv spamtrap:www /usr/local/advancedfiltering/https/spamtrap
 chmod 0750 /usr/local/advancedfiltering/https/spamtrap
+chown -Rv spamtrap:exim /usr/local/advancedfiltering/exim/spamtrap
+chmod 0770 /usr/local/advancedfiltering/exim/spamtrap
 
 crontab -u spamtrap cron.batch
