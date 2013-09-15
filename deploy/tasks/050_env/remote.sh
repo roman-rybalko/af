@@ -4,9 +4,6 @@
 echo 'setenv PACKAGEROOT http://deploy/packages' >> /root/.cshrc
 echo 'export PACKAGEROOT=http://deploy/packages' >> /root/.profile
 
-grep nameserver /etc/resolv.conf > /etc/resolv.conf.new
-mv -f /etc/resolv.conf.new /etc/resolv.conf
-
 pkg_add -r bash-completion
 
 if [ -e /usr/local/bin/bash ]; then
