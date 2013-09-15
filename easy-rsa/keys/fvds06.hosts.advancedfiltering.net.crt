@@ -1,0 +1,97 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 26 (0x1a)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: O=advancedfiltering, OU=hosts, CN=Advanced Filtering CA
+        Validity
+            Not Before: Sep 14 18:43:58 2013 GMT
+            Not After : Sep 12 18:43:58 2023 GMT
+        Subject: O=advancedfiltering, OU=hosts, CN=fvds06.hosts.advancedfiltering.net
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (2048 bit)
+                Modulus (2048 bit):
+                    00:c4:a1:49:61:c2:2e:cb:19:5c:e2:a4:3c:d0:ca:
+                    68:f4:f0:c3:da:93:4d:ab:fc:ab:26:f1:4a:23:74:
+                    3b:8e:e8:ea:81:49:26:9d:67:f5:81:45:14:8a:b7:
+                    8a:9e:8f:50:a2:9a:ad:b8:4b:06:de:5c:f7:84:f3:
+                    0a:2b:eb:eb:c3:d5:02:c0:49:b9:b6:f0:c8:e6:6d:
+                    e0:59:01:92:07:fe:a9:7e:d2:4a:b6:d3:0d:18:70:
+                    16:e6:ed:30:3b:a5:3f:86:52:41:22:bc:ed:27:c0:
+                    92:d8:4a:a8:5e:d8:86:87:bf:c8:3a:2a:64:ce:55:
+                    f7:dd:e1:32:9d:df:23:13:12:ee:79:01:97:56:c6:
+                    82:2e:d7:8c:7d:8c:8c:5e:ed:30:d8:09:e5:e7:07:
+                    06:71:f9:89:f3:80:57:84:15:86:76:dd:67:53:68:
+                    ae:a2:39:cf:05:6a:8f:1e:bf:43:76:6f:e9:13:89:
+                    80:f0:4f:d6:e6:b4:c0:2a:01:8e:b7:96:c9:1c:4e:
+                    22:b0:c8:53:67:04:48:3e:e6:10:43:c4:3a:d1:ba:
+                    d0:c2:6a:42:16:d0:c4:69:4d:02:56:f8:c8:8e:eb:
+                    d2:21:55:e8:59:f8:3b:0f:46:ce:fc:b6:ac:ce:a9:
+                    af:78:84:3f:c0:51:fb:7e:82:ee:db:ce:23:d7:ff:
+                    fb:49
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Subject Key Identifier: 
+                68:BA:07:5A:CA:C2:83:1F:16:AB:7F:2E:69:9C:BB:00:F8:F3:12:77
+            X509v3 Authority Key Identifier: 
+                keyid:C6:7C:3F:DA:E9:AC:6B:2F:A3:8F:26:03:15:0B:DC:65:08:51:98:9D
+                DirName:/O=advancedfiltering/OU=hosts/CN=Advanced Filtering CA
+                serial:8C:32:88:59:79:7B:3C:CC
+
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment
+            X509v3 CRL Distribution Points: 
+                URI:http://deploy.hosts.advancedfiltering.net/public/ca-advancedfiltering.crl
+
+            Authority Information Access: 
+                CA Issuers - URI:http://deploy.hosts.advancedfiltering.net/public/ca-advancedfiltering.crt
+
+    Signature Algorithm: sha256WithRSAEncryption
+        96:ab:e3:b8:bd:7f:ff:5a:84:a9:84:d7:04:92:de:60:ae:30:
+        97:55:3e:bf:11:8c:e9:9b:b0:cb:83:a1:a6:05:30:b0:ba:1c:
+        39:c3:33:22:db:6c:bb:0b:af:66:04:f3:6e:42:a2:df:d0:ee:
+        39:ee:4a:40:70:7c:b4:61:1a:9b:5f:6a:00:1f:f0:ac:2e:1c:
+        23:7a:80:82:6f:41:7e:f4:d8:21:e2:1a:d7:4c:27:fc:a0:68:
+        20:a9:14:d1:05:98:d0:45:9a:19:b7:c3:7c:a8:c6:9d:86:37:
+        a0:3b:0d:77:2f:ae:1b:a2:54:2b:3b:48:94:e5:a6:5d:b3:74:
+        ba:c8:23:2f:e1:b3:91:5d:70:2c:1f:24:8a:ad:fa:17:15:f3:
+        7f:bf:01:a8:e8:8e:3f:3f:66:86:e5:b8:1b:51:9c:ec:3b:25:
+        34:58:98:93:fc:b2:b7:1d:8d:2d:ca:2b:b3:2a:ea:79:e8:89:
+        56:71:cf:bb:a8:aa:7a:a7:1d:c9:6e:25:e4:0f:de:07:93:0c:
+        ce:bc:58:ad:2d:4c:1a:7a:0f:04:3f:2c:49:07:88:20:69:55:
+        43:f9:11:a9:e8:5b:b9:e9:c8:92:65:85:2e:78:f3:80:f0:d2:
+        ab:da:5b:b9:bc:83:fc:66:f7:f0:da:54:6a:a3:21:e9:62:dd:
+        91:51:ac:ff
+-----BEGIN CERTIFICATE-----
+MIIEvTCCA6WgAwIBAgIBGjANBgkqhkiG9w0BAQsFADBMMRowGAYDVQQKExFhZHZh
+bmNlZGZpbHRlcmluZzEOMAwGA1UECxMFaG9zdHMxHjAcBgNVBAMTFUFkdmFuY2Vk
+IEZpbHRlcmluZyBDQTAeFw0xMzA5MTQxODQzNThaFw0yMzA5MTIxODQzNThaMFkx
+GjAYBgNVBAoTEWFkdmFuY2VkZmlsdGVyaW5nMQ4wDAYDVQQLEwVob3N0czErMCkG
+A1UEAxMiZnZkczA2Lmhvc3RzLmFkdmFuY2VkZmlsdGVyaW5nLm5ldDCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAMShSWHCLssZXOKkPNDKaPTww9qTTav8
+qybxSiN0O47o6oFJJp1n9YFFFIq3ip6PUKKarbhLBt5c94TzCivr68PVAsBJubbw
+yOZt4FkBkgf+qX7SSrbTDRhwFubtMDulP4ZSQSK87SfAkthKqF7Yhoe/yDoqZM5V
+993hMp3fIxMS7nkBl1bGgi7XjH2MjF7tMNgJ5ecHBnH5ifOAV4QVhnbdZ1NorqI5
+zwVqjx6/Q3Zv6ROJgPBP1ua0wCoBjreWyRxOIrDIU2cESD7mEEPEOtG60MJqQhbQ
+xGlNAlb4yI7r0iFV6Fn4Ow9Gzvy2rM6pr3iEP8BR+36C7tvOI9f/+0kCAwEAAaOC
+AZswggGXMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGi6B1rKwoMfFqt/LmmcuwD48xJ3
+MHwGA1UdIwR1MHOAFMZ8P9rprGsvo48mAxUL3GUIUZidoVCkTjBMMRowGAYDVQQK
+ExFhZHZhbmNlZGZpbHRlcmluZzEOMAwGA1UECxMFaG9zdHMxHjAcBgNVBAMTFUFk
+dmFuY2VkIEZpbHRlcmluZyBDQYIJAIwyiFl5ezzMMB0GA1UdJQQWMBQGCCsGAQUF
+BwMBBggrBgEFBQcDAjALBgNVHQ8EBAMCBaAwWgYDVR0fBFMwUTBPoE2gS4ZJaHR0
+cDovL2RlcGxveS5ob3N0cy5hZHZhbmNlZGZpbHRlcmluZy5uZXQvcHVibGljL2Nh
+LWFkdmFuY2VkZmlsdGVyaW5nLmNybDBlBggrBgEFBQcBAQRZMFcwVQYIKwYBBQUH
+MAKGSWh0dHA6Ly9kZXBsb3kuaG9zdHMuYWR2YW5jZWRmaWx0ZXJpbmcubmV0L3B1
+YmxpYy9jYS1hZHZhbmNlZGZpbHRlcmluZy5jcnQwDQYJKoZIhvcNAQELBQADggEB
+AJar47i9f/9ahKmE1wSS3mCuMJdVPr8RjOmbsMuDoaYFMLC6HDnDMyLbbLsLr2YE
+825Cot/Q7jnuSkBwfLRhGptfagAf8KwuHCN6gIJvQX702CHiGtdMJ/ygaCCpFNEF
+mNBFmhm3w3yoxp2GN6A7DXcvrhuiVCs7SJTlpl2zdLrIIy/hs5FdcCwfJIqt+hcV
+83+/Aajojj8/ZobluBtRnOw7JTRYmJP8srcdjS3KK7Mq6nnoiVZxz7uoqnqnHclu
+JeQP3geTDM68WK0tTBp6DwQ/LEkHiCBpVUP5EanoW7npyJJlhS5484Dw0qvaW7m8
+g/xm9/DaVGqjIeli3ZFRrP8=
+-----END CERTIFICATE-----

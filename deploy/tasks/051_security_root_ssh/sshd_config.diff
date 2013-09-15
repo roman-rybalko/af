@@ -1,0 +1,10 @@
+--- sshd_config.orig	2013-09-14 14:29:49.000000000 +0000
++++ sshd_config	2013-09-15 09:23:38.000000000 +0000
+@@ -69,6 +69,7 @@
+ 
+ # Change to no to disable PAM authentication
+ #ChallengeResponseAuthentication yes
++ChallengeResponseAuthentication no
+ 
+ # Kerberos options
+ #KerberosAuthentication no

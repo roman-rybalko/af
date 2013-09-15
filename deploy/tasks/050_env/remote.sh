@@ -1,7 +1,6 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-chmod o-rwx,g-w /root
 echo 'setenv PACKAGEROOT http://deploy/packages' >> /root/.cshrc
 echo 'export PACKAGEROOT=http://deploy/packages' >> /root/.profile
 
@@ -29,3 +28,6 @@ ln -sv /usr/local/advancedfiltering/rc.conf /etc/rc.conf.local
 
 patch /etc/mail/aliases aliases.diff
 newaliases
+
+cat /var/mail/* || true
+rm -vf /var/mail/* || true

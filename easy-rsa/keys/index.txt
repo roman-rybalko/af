@@ -21,3 +21,10 @@ V	230529160833Z		14	unknown	/O=advancedfiltering/OU=hosts/CN=test1.hosts.advance
 V	230613081517Z		15	unknown	/O=advancedfiltering/OU=hosts/CN=tests
 V	230628061437Z		16	unknown	/O=advancedfiltering/OU=hosts/CN=tests-bwlist
 V	230712161036Z		17	unknown	/O=advancedfiltering/OU=hosts/CN=tests-smtp
+V	230912154638Z		18	unknown	/O=advancedfiltering/OU=hosts/CN=fvds01.hosts.advancedfiltering.net
+V	230912182144Z		19	unknown	/O=advancedfiltering/OU=hosts/CN=fvds05.hosts.advancedfiltering.net
+V	230912184358Z		1A	unknown	/O=advancedfiltering/OU=hosts/CN=fvds06.hosts.advancedfiltering.net
+V	230912184358Z		1B	unknown	/O=advancedfiltering/OU=hosts/CN=fvds02.hosts.advancedfiltering.net
+V	230912184358Z		1C	unknown	/O=advancedfiltering/OU=hosts/CN=fvds07.hosts.advancedfiltering.net
+V	230912184358Z		1D	unknown	/O=advancedfiltering/OU=hosts/CN=fvds04.hosts.advancedfiltering.net
+V	230912184358Z		1E	unknown	/O=advancedfiltering/OU=hosts/CN=fvds03.hosts.advancedfiltering.net
