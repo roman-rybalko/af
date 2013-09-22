@@ -1,19 +1,16 @@
 #!/bin/sh -ex
 
+. ./common.sh
 cd ..
 
-rm -vf hosts_init/*.ok
-./deploy.sh tasks_init hosts_init
-for f in hosts_init/*.fail; do [ ! -e $f ]; done
+for p in hosts_batch/*.pw; do [ -e $p ]; done
+deploy_batch 009_resolv_search 010_kerberos 020_deploy
 
-rm -vf hosts/*.ok
-./deploy.sh tasks_init2 hosts
-for f in hosts/*.fail; do [ ! -e $f ]; done
+for p in hosts_batch/*.pw; do mv -v hosts_batch/$p hosts_batch/.$p; done
+deploy_batch 030_system_ssl  050_env  051_security_root_ssh  999_reboot
 
-sleep 120
-
-rm -vf hosts/*.ok
-./deploy.sh tasks_init3 hosts
-for f in hosts/*.fail; do [ ! -e $f ]; done
+deploy_batch 052_local_af_init
+#sleep 120
+#deploy_batch 060_geli_init  065_geli_attach
 
 echo OK

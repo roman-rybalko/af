@@ -3,7 +3,7 @@
 
 pkg_add -r exim
 
-adduser -f adduser.batch -M 0710 -w no -G "ssl-key ldap"
+adduser -f adduser.batch -M 0710 -w no -G "ssl-key"
 echo root > /usr/local/advancedfiltering/exim/.forward
 chown exim:exim /usr/local/advancedfiltering/exim/.forward
 

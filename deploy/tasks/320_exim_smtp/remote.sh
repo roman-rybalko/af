@@ -1,6 +1,8 @@
 #!/bin/sh -ex
 . ./remote.conf
 
+pw groupmod ldap -m exim
+
 cat configure > /usr/local/etc/exim/configure
 mkdir /usr/local/etc/exim/ssl
 chown exim /usr/local/etc/exim/ssl

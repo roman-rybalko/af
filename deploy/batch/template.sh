@@ -1,5 +1,8 @@
 #!/bin/sh -ex
+
 . ./common.sh
 cd ..
-deploy_batch 410_spamtrap_update
+
+deploy_batch 005_hostname  999_reboot
+
 echo OK
