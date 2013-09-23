@@ -1,0 +1,32 @@
+
+dn: afSHostName=fvds03.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: fvds03.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: mailproc
+objectclass: afSHost
+objectclass: top
+
+dn: afSHostName=fvds02.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
+ g
+afshostname: fvds02.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: spamtrap
+objectclass: afSHost
+objectclass: top
+
+dn: afSHostName=lena,ou=system,o=advancedfilterin
+ g
+afshostname: lena
+afshostrealm: r1
+afshostservicename: test
+objectclass: afSHost
+objectclass: top
+
+dn: afSHostName=asus,ou=system,o=advancedfilterin
+ g
+afshostname: asus
+afshostrealm: r1
+afshostservicename: test
+objectclass: afSHost
+objectclass: top

@@ -1,10 +1,6 @@
 #!/bin/sh -ex
-
+. ./common.sh
 cd ..
-
-rm -vf hosts_batch/*.ok
-rm -vf tasks_batch/*
-ln -sv ../tasks/360_mailproc_update tasks_batch/
-./deploy.sh tasks_batch hosts_batch
-for f in hosts_batch/*.fail; do [ ! -e $f ]; done
+DEPLOY_BATCH_REORDER=
+deploy_batch 360_mailproc_update
 echo OK
