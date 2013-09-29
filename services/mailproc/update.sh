@@ -4,16 +4,18 @@
 
 SRCDIR=`dirname $0`
 STHOST=`$SRCDIR/ldap.pl -U $LDAP -D "$LDAPDN" -W "$LDAPPW" -q hostname -s spamtrap -1`
-mkdir $STUPD || true
-cd $STUPD
-curl --location --fail --remote-time -z db_latest.tgz --cert /etc/ssl/`hostname`.crt --key /etc/ssl/`hostname`.key --capath /etc/ssl/ca https://$STHOST/spamtrap/db_latest.tgz -o db_latest.tgz
-curl --location --fail --remote-time -z sa_latest.tgz --cert /etc/ssl/`hostname`.crt --key /etc/ssl/`hostname`.key --capath /etc/ssl/ca https://$STHOST/spamtrap/sa_latest.tgz -o sa_latest.tgz
-[ ! -e $BASE/db_latest.tgz -o ! -e $BASE/sa_latest.tgz -o db_latest.tgz -nt $BASE/db_latest.tgz -o sa_latest.tgz -nt $BASE/sa_latest.tgz ] || exit 0
+mkdir -v $SAUPD || true
+cd $SAUPD
+curl --location --fail --remote-time -z cf_latest.tgz --cert /etc/ssl/`hostname`.crt --key /etc/ssl/`hostname`.key --capath /etc/ssl/ca https://$STHOST/spamtrap/cf_latest.tgz -o cf_latest.tgz
+curl --location --fail --remote-time -z st_latest.tgz --cert /etc/ssl/`hostname`.crt --key /etc/ssl/`hostname`.key --capath /etc/ssl/ca https://$STHOST/spamtrap/st_latest.tgz -o st_latest.tgz
+[ ! -e $BASE/cf_latest.tgz -o ! -e $BASE/st_latest.tgz -o cf_latest.tgz -nt $BASE/cf_latest.tgz -o st_latest.tgz -nt $BASE/st_latest.tgz ] || exit 0
 rm -Rvf $BASE.new
-mkdir $BASE.new
-tar -zxvf db_latest.tgz -C $BASE.new
-tar -zxvf sa_latest.tgz -C $BASE.new
-cp -av db_latest.tgz sa_latest.tgz $BASE.new/
-rm -Rvf $BASE.old
-mv $BASE $BASE.old
-mv $BASE.new $BASE
+mkdir -v $BASE.new
+tar -xvf cf_latest.tgz -C $BASE.new
+tar -xvf st_latest.tgz -C $BASE.new
+cp -av cf_latest.tgz st_latest.tgz $BASE.new/
+rm -Rvf $BASE.old /var/lib/spamassassin/compiled.old
+[ ! -e /var/lib/spamassassin/compiled ] || mv -v /var/lib/spamassassin/compiled /var/lib/spamassassin/compiled.old
+mv -v $BASE.new/compiled /var/lib/spamassassin
+mv -v $BASE $BASE.old
+mv -v $BASE.new $BASE

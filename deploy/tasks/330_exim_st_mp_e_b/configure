@@ -46,6 +46,11 @@ spamtrap_router:
   local_parts = spamtrap
   transport = spamtrap_transport
   errors_to = error@services.advancedfiltering.net
+hamtrap_router:
+  driver = accept
+  local_parts = hamtrap
+  transport = hamtrap_transport
+  errors_to = error@services.advancedfiltering.net
 mailproc_router:
   driver = accept
   local_parts = mailproc
@@ -66,6 +71,10 @@ begin transports
 spamtrap_transport:
   driver = appendfile
   directory = /usr/local/advancedfiltering/exim/spamtrap
+  mode = 0660
+hamtrap_transport:
+  driver = appendfile
+  directory = /usr/local/advancedfiltering/exim/hamtrap
   mode = 0660
 mailproc_transport:
   driver = appendfile

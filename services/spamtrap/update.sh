@@ -3,9 +3,11 @@
 . `dirname $0`/spamtrap.conf
 
 export HOME
-rm -Rf $UPDATE.new
-mkdir $UPDATE.new
-sa-update --updatedir $UPDATE.new --gpghomedir $HOME
-sa-compile --configpath=$CF --siteconfigpath=$CFSITE --updatedir=$UPDATE.new
-rm -Rf $UPDATE
-mv $UPDATE.new $UPDATE
+rm -Rfv $CF.new
+mkdir -v $CF.new
+sa-update --updatedir $CF.new --gpghomedir $HOME
+rm -Rfv /var/lib/spamassassin/compiled
+sa-compile --configpath=$CF.new --siteconfigpath=$CFSITE
+rm -Rfv $CF $BASE/compiled
+mv -v /var/lib/spamassassin/compiled $BASE
+mv -v $CF.new $CF

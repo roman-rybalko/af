@@ -1,6 +1,5 @@
 #!/bin/sh -ex
 
 . `dirname $0`/mailproc.conf
-export HOME
-sleep 86400
-exec `dirname $0`/work.pl #-1 -2 -3
+exec `dirname $0`/work.pl -c $SACF -s $SACFSITE -u $SAST -U $LDAP -D $LDAPDN -W $LDAPPW -m $MIME -x $CNT -l
+#-d all
