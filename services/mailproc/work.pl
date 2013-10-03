@@ -7,6 +7,8 @@ use Getopt::Std;
 use Mail::SpamAssassin;
 use Net::LDAP;
 use Fcntl qw(:flock);
+use Data::Dumper;
+use MIME::Base64;
 
 my %opts;
 sub parse_opts
@@ -87,7 +89,7 @@ sub reload_sa
 my ($rules_mtime, $site_rules_mtime, $bayes_mtime) = (-1,-1,-1);
 sub are_rules_updated
 {
-	my $sa_bayes = $opts{u}."/bayes_toks";
+	my $sa_bayes = $opts{u}."/bayes_seen";
 	if (
 		(stat($opts{c}))[9] != $rules_mtime
 		|| (stat($opts{s}))[9] != $site_rules_mtime
@@ -122,7 +124,7 @@ sub check_mime
 {
 	my $mime = shift;
 	my $sa_status = $sa->check($mime);
-	my $result = [$sa_status->is_spam, $sa_status->get_report];
+	my $result = {spam => $sa_status->is_spam, report => $sa_status->get_report};
 	$sa_status->finish;
 	return $result;
 }
@@ -131,34 +133,54 @@ sub get_mime_id
 {
 	my $mime = shift;
 	my $hdr = $mime->get_pristine_header("message-id");
-	return "af-unknown" unless $hdr;
-	$hdr =~ s/^\s*<//;
-	$hdr =~ s/>\s*$//;
+	return undef unless $hdr;
+	$hdr =~ s/^\s+//;
+	$hdr =~ s/\s+$//;
+	$hdr = encode_base64($hdr, '');
+	$hdr =~ tr~/+=~\.\-_~;
 	return $hdr;
 }
 
 sub get_mime_creds
 {
 	my $mime = shift;
-	# TODO
-	return [get_mime_id($mime)];
-}
-
-sub is_checked
-{
-	my $message_id = shift;
-	# TODO
-	return 0;
-	warn "DEBUG: already checked mid:$message_id";
+	my $sender = $mime->get_pristine_header("x-advancedfiltering-sender");
+	my $realms = $mime->get_pristine_header("x-advancedfiltering-realms");
+	my $mid = get_mime_id($mime);
+	unless ($sender && $realms && $mid)
+	{
+		$mid = "Message-Id:unknown" unless $mid;
+		warn "Message $mid has no credentials (Message-Id,X-AdvancedFiltering-Sender,X-AdvancedFiltering-Realms)";
+		return undef;
+	}
+	my @realms = split /\s+/, $realms;
+	return {sender => $sender, realm => $realms[0], mid => get_mime_id($mime)};
 }
 
 sub store_check_result
 {
 	my $mime_creds = shift;
 	my $mime_result = shift;
-	# TODO
-	use Data::Dumper;
-	warn "DEBUG: " . Dumper($mime_creds) . Dumper($mime_result);
+	my @attr = (
+		objectClass => 'afUMDBMessageIncoming',
+		afUMDBMessageId => $mime_creds->{mid},
+		afUMDBMessageSenderMailAddress => $mime_creds->{sender},
+		afUMDBMessageTimeCreated => time,
+	);
+	push @attr => afUMDBMessageSpamDescription => $mime_result->{report} if $mime_result->{spam};
+	my $base = "afUMDBMessageId=$mime_creds->{mid},afUServiceRealm=$mime_creds->{realm},afUServiceName=mdb,ou=user,o=advancedfiltering";
+	my $ldap_msg = $ldap->add($base, attr => [@attr]);
+	if ($ldap_msg->is_error)
+	{
+		my $last_error_text = $ldap_msg->error_text;
+		$ldap_msg = $ldap->search(
+			filter => '(objectClass=*)',
+			base => $base,
+			scope => 'base',
+			attrs => ['dn']);
+		die "LDAP(" . Dumper({base => $base, attr => {@attr}}) . ") Error: " . $ldap_msg->error_text . " ($last_error_text)" if $ldap_msg->is_error;
+		warn "DEBUG: message $mime_creds->{mid} already checked";
+	}
 }
 
 sub get_file_names
@@ -183,8 +205,7 @@ sub get_file_names
 ######################################################################
 
 parse_opts;
-# TODO
-#reconnect_ldap;
+reconnect_ldap;
 
 my $mime_cnt = $opts{x};
 while($mime_cnt > 0)
@@ -199,10 +220,16 @@ while($mime_cnt > 0)
 	{
 		my $L;
 		open $L, ">>", $file_name or next;
-		flock $L, LOCK_EX|LOCK_NB or next;
+		#flock $L, LOCK_EX|LOCK_NB or next;
+		unless (flock $L, LOCK_EX|LOCK_NB)
+		{
+			warn "[!!]DEBUG: file $file_name locked";
+			next;
+		}
 		reload_sa if are_rules_updated;
 		my $mime = parse_mime_file($file_name);
-		store_check_result(get_mime_creds($mime), check_mime($mime)) unless is_checked(get_mime_id($mime));
+		my $creds = get_mime_creds($mime);
+		store_check_result($creds, check_mime($mime)) if $creds;
 		finish_mime($mime);
 		unlink $file_name;
 		--$mime_cnt;

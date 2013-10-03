@@ -1,0 +1,12 @@
+
+dn: cn=mailproc,ou=system,o=advancedfiltering
+cn: mailproc
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+objectclass: top
+userpassword: {SSHA}f9X7qdmys4leGHyL8e/OGf3aTW9W6AFs
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=system,o=advancedfiltering" manage by * break
