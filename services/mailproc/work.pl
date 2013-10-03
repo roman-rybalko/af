@@ -13,7 +13,7 @@ use MIME::Base64;
 my %opts;
 sub parse_opts
 {
-	getopts('hc:s:u:U:D:W:C:K:A:m:lx:d:', \%opts);
+	getopts('hc:s:u:U:D:W:C:K:A:m:lx:d:v', \%opts);
 	if ($opts{h})
 	{
 		print "USAGE: $0 [options]\n",
@@ -31,11 +31,13 @@ sub parse_opts
 			"\t-m dir\tMIME directory\n",
 			"\t-l\tLocal tests only\n",
 			"\t-x cnt\tCheck cnt mimes then exit\n",
-			"\t-d opt\tDebugging options\n",
+			"\t-d opt\tDebugging options for SA\n",
+			"\t-v level\tLog verbosity level",
 			"";
 		exit 0;
 	}
 	die "-c -s -u -U -x -m options are required" unless $opts{c} && $opts{s} && $opts{u} && $opts{U} && $opts{x} && $opts{m};
+	$opts{v} = 0 unless $opts{v};
 }
 
 my $ldap;
@@ -96,7 +98,7 @@ sub are_rules_updated
 		|| (stat($sa_bayes))[9] != $bayes_mtime
 	)
 	{
-		warn "DEBUG: base updated";
+		warn "Base updated" if $opts{v} > 0;
 		$rules_mtime = (stat($opts{c}))[9];
 		$site_rules_mtime = (stat($opts{s}))[9];
 		$bayes_mtime = (stat($sa_bayes))[9];
@@ -137,7 +139,7 @@ sub get_mime_id
 	$hdr =~ s/^\s+//;
 	$hdr =~ s/\s+$//;
 	$hdr = encode_base64($hdr, '');
-	$hdr =~ tr~/+=~\.\-_~;
+	$hdr =~ tr~/\+=~\.\-_~;
 	return $hdr;
 }
 
@@ -150,7 +152,7 @@ sub get_mime_creds
 	unless ($sender && $realms && $mid)
 	{
 		$mid = "Message-Id:unknown" unless $mid;
-		warn "Message $mid has no credentials (Message-Id,X-AdvancedFiltering-Sender,X-AdvancedFiltering-Realms)";
+		warn "Message $mid has no credentials (Message-Id,X-AdvancedFiltering-Sender,X-AdvancedFiltering-Realms)" if $opts{v} > 0;
 		return undef;
 	}
 	my @realms = split /\s+/, $realms;
@@ -179,7 +181,7 @@ sub store_check_result
 			scope => 'base',
 			attrs => ['dn']);
 		die "LDAP(" . Dumper({base => $base, attr => {@attr}}) . ") Error: " . $ldap_msg->error_text . " ($last_error_text)" if $ldap_msg->is_error;
-		warn "DEBUG: message $mime_creds->{mid} already checked";
+		warn "Message $mime_creds->{mid} already checked" if $opts{v} > 1;
 	}
 }
 
@@ -223,7 +225,7 @@ while($mime_cnt > 0)
 		#flock $L, LOCK_EX|LOCK_NB or next;
 		unless (flock $L, LOCK_EX|LOCK_NB)
 		{
-			warn "[!!]DEBUG: file $file_name locked";
+			warn "File $file_name is locked" if $opts{v} > 1;
 			next;
 		}
 		reload_sa if are_rules_updated;
