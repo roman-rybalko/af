@@ -2,8 +2,8 @@
 . ./remote.conf
 
 adduser -f adduser.batch -M 0700 -w no -G wheel
-tar -zxvf k5login.tgz -C /home/roma/
-tar -zxvf mc-config.tgz -C /home/roma/
+tar -xvf k5login.tgz -C /home/roma/
+tar -xvf mc-config.tgz -C /home/roma/
 
 if [ -e /usr/local/bin/bash ]; then
     chsh -s /usr/local/bin/bash roma
