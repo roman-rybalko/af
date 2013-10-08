@@ -446,13 +446,15 @@ U_MDB_R_MO_LDAP_DN_L = ${sg {U_MDB_R_MO_VALUE_ALL} {^.+\\|:} {} }
 U_MDB_R_MO_LDAP_I = ${lookup ldap{LDAP_C/$item?afUMDBMessageSenderMailAddress?base?(objectClass=afUMDBMessageOutgoing)}}
 
 # Message Id/Incoming
-U_MI_D = $bheader_message-id:
+U_MI_D = $rheader_message-id:
 # Message Id Fix 1
-U_MI_F1 = ${sg{U_MI_D}{^.*\<}{}}
+U_MI_F1 = ${sg{U_MI_D}{^\\s+}{}}
 # Message Id Fix 2
-U_MI_F2 = ${sg{U_MI_F1}{\>.*\$}{}}
+U_MI_F2 = ${sg{U_MI_F1}{\\s+\$}{}}
+U_MI_F3 = ${str2b64:U_MI_F2}
+U_MI_F4 = ${tr{U_MI_F3}{/+=}{.-_}}
 # Message Id Final Fix
-U_MI_FF = U_MI_F2
+U_MI_FF = U_MI_F4
 
 # MDB Realm Message Incoming LDAP DNs
 U_MDB_R_MI_LDAP_DN_L = ${map {U_MDB_R_LDAP_DN_L} {afUMDBMessageId=${quote_ldap_dn:U_MI_FF},$item} }
