@@ -1,0 +1,3 @@
+MAILTO=root
+PATH=/bin:/usr/bin:/usr/local/bin
+* * * * * /usr/local/advancedfiltering/ldaprepl/bin/work-wd.sh
