@@ -5,7 +5,7 @@ pkg_add -r openldap-server
 
 pw user mod ldap -G ssl-key
 
-tar -zxvf openldap.tgz -C /usr/local/
+tar -xvf openldap.tgz -C /usr/local/
 
 sed -i .orig "s/template.hosts.advancedfiltering.net/`hostname`/" "/usr/local/etc/openldap/slapd.d/cn=config.ldif"
 rm "/usr/local/etc/openldap/slapd.d/cn=config.ldif.orig"

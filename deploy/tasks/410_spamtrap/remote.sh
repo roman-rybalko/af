@@ -7,7 +7,7 @@ adduser -f adduser.batch -M 0700 -w no -G "www exim spamd"
 echo root > /usr/local/advancedfiltering/spamtrap/.forward
 chown spamtrap:spamtrap /usr/local/advancedfiltering/spamtrap/.forward
 
-tar -zxvf spamtrap.tgz -C /usr/local/advancedfiltering/spamtrap/
+tar -xvf spamtrap.tgz -C /usr/local/advancedfiltering/spamtrap/
 
 SALSD=`perl -e "use Mail::SpamAssassin; print Mail::SpamAssassin->new->sed_path('__local_state_dir__');"`
 mkdir $SALSD || true
