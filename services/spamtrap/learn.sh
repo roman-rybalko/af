@@ -3,6 +3,6 @@
 . `dirname $0`/spamtrap.conf
 
 export HOME
-sa-learn --configpath=$CF --siteconfigpath=$CFSITE --clear
+rm -fv $HOME/.spamassassin/bayes_*
 sa-learn --configpath=$CF --siteconfigpath=$CFSITE --spam $SPAM --progress
 sa-learn --configpath=$CF --siteconfigpath=$CFSITE --ham $HAM --progress
