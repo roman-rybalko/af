@@ -2,69 +2,27 @@ o=advancedfiltering
 
 --
 
-ou=configuration,o=advancedfiltering
+ou=system,o=advancedfiltering
 
-host=xxx,ou=configuration,o=advancedfiltering
+host=xxx,ou=system,o=advancedfiltering
 service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log|smtpdb
 service:
 realm:
 realm:
 
-syssettings=xxx,host=xxx,ou=configuration,o=advancedfiltering
-syssettings=xxx,ou=configuration,o=advancedfiltering
+xxx-settings=xxx,ou=system,o=advancedfiltering
 
-domain=xxx,ou=configuration,o=advancedfiltering
+domain=xxx,ou=system,o=advancedfiltering
 client:
 
-client=xxx,ou=configuration,o=advancedfiltering
-realm:
-
-servicesettings=xxx,ou=configuration,o=advancedfiltering
-
-ip=xxx,servicesettings=xxx,ou=configuration,o=advancedfiltering
-ipv6=xxx,servicesettings=xxx,ou=configuration,o=advancedfiltering
-hostname=xxx,servicesettings=xxx,ou=configuration,o=advancedfiltering
-
---
-
-service=xxx,ou=services,o=advancedfiltering
-
-domain=xxx,service=xxx,ou=services,o=advancedfiltering
-client=xxx,service=xxx,ou=services,o=advancedfiltering
-id=xxx,service=xxx,ou=services,o=advancedfiltering
+client=xxx,ou=system,o=advancedfiltering
 realm:
 
 --
 
-service=console,ou=services,o=advancedfiltering
-client=xxx,service=console,ou=services,o=advancedfiltering
-realm:
-credentials:
-email:
-contacts:
+service=xxx+realm=yyy,ou=user,o=advancedfiltering
 
-service=smtp,ou=services,o=advancedfiltering
-domain=xxx,service=smtp,ou=services,o=advancedfiltering
-objectclass: domainSettings
-realm:
-settings:
-clientmx=xxx,domain=xxx,service=smtp,ou=services,o=advancedfiltering
-credentials:
+client=zzz,service=smtp+realm=yyy,ou=user,o=advancedfiltering
+domain=ttt,client=zzz,service=smtp+realm=yyy,ou=user,o=advancedfiltering
 
-service=smtpdb,ou=services,o=advancedfiltering
-mail=xxx,service=smtpdb,ou=services,o=advancedfiltering
-mid=xxx,service=smtpdb,ou=services,o=advancedfiltering
-tid=xxx,service=smtpdb,ou=services,o=advancedfiltering
-
-service=submission,ou=services,o=advancedfiltering
-domain=xxx,service=submission,ou=services,o=advancedfiltering
-realm:
-ip:
-credentials:
-
-service=vpn,ou=services,o=advancedfiltering
-id=xxx,service=vpn,ou=services,o=advancedfiltering
-realm:
-client:
-key:
-ip:
+mid=yyy,service=mdb+realm=yyy,ou=user,o=advancedfiltering
