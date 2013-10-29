@@ -1,4 +1,16 @@
-o=advancedfiltering
+ou=auth
+
+cn=admin,ou=auth
+cn=tests,ou=auth
+cn=syncrepl,ou=auth
+cn=ldaprepl,ou=auth
+cn=smtp,ou=auth
+cn=mailproc,ou=auth
+
+--
+
+cn=system,ou=accesslog
+cn=user,ou=accesslog
 
 --
 
