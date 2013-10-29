@@ -9,6 +9,8 @@ cn=mailproc,ou=auth
 
 --
 
+ou=accesslog
+
 cn=system,ou=accesslog
 cn=user,ou=accesslog
 
