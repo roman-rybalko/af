@@ -1,0 +1,69 @@
++ . /home/roma/work/advancedfiltering/tests/ldaprepl.conf
++ hostname
++ DST_HOST=asus
++ PATH=/home/roma/work/advancedfiltering/tests/ldaprepl/.tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
++ . /home/roma/work/advancedfiltering/tests/ldaprepl/.tools/common.sh
++ date +%s
++ CUR_TIME=1383159475
++ YSTD_TIME=1383073075
++ /home/roma/work/advancedfiltering/tests/ldaprepl/work.sh
++ dirname /home/roma/work/advancedfiltering/tests/ldaprepl/work.sh
++ . /home/roma/work/advancedfiltering/tests/ldaprepl/ldaprepl.conf
++ LDAP=ldapi://%2fvar%2frun%2fldapi
++ LDAPDN=cn=ldaprepl,ou=system,o=advancedfiltering
++ LDAPPW=ldaprepl
++ hostname
++ hostname
++ SYNCREPL=binddn=cn=ldaprepl,ou=system,o=advancedfiltering bindmethod=simple credentials=ldaprepl tls_cert=/etc/ssl/asus.crt tls_key=/etc/ssl/asus.key syncdata=accesslog logbase=ou=user,cn=accesslog type=refreshAndPersist retry="60 +" timeout=1
++ dirname /home/roma/work/advancedfiltering/tests/ldaprepl/work.sh
++ hostname
++ exec /home/roma/work/advancedfiltering/tests/ldaprepl/work.pl -U ldapi://%2fvar%2frun%2fldapi -D cn=ldaprepl,ou=system,o=advancedfiltering -W ldaprepl -n asus -s binddn=cn=ldaprepl,ou=system,o=advancedfiltering bindmethod=simple credentials=ldaprepl tls_cert=/etc/ssl/asus.crt tls_key=/etc/ssl/asus.key syncdata=accesslog logbase=ou=user,cn=accesslog type=refreshAndPersist retry="60 +" timeout=1 -v 2
+syncrepl: binddn=cn=ldaprepl,ou=system,o=advancedfiltering bindmethod=simple credentials=ldaprepl tls_cert=/etc/ssl/asus.crt tls_key=/etc/ssl/asus.key syncdata=accesslog logbase=ou=user,cn=accesslog type=refreshAndPersist retry="60 +" timeout=1 at /home/roma/work/advancedfiltering/tests/ldaprepl/work.pl line 35, <DATA> line 522.
+find_user_db_dn: olcDatabase={2}mdb,cn=config at /home/roma/work/advancedfiltering/tests/ldaprepl/work.pl line 83, <DATA> line 522.
+calc_update_repl_data[del]: id=102 host=test2 service=s1 realm=r1 at /home/roma/work/advancedfiltering/tests/ldaprepl/work.pl line 199, <DATA> line 522.
+calc_update_repl_data[add]: id=101 host=test1 service=s1 realm=r1 at /home/roma/work/advancedfiltering/tests/ldaprepl/work.pl line 200, <DATA> line 522.
+calc_update_repl_data[add]: id=103 host=test3 service=s1 realm=r1 at /home/roma/work/advancedfiltering/tests/ldaprepl/work.pl line 200, <DATA> line 522.
+update_repl_data: 
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+delete: olcSyncRepl
+olcSyncRepl: {0}rid=102 provider=ldap://test2 searchbase=afUServiceName=s1+afU
+ ServiceRealm=r1,ou=user,o=advancedfiltering binddn=cn=ldaprepl,ou=system,o=ad
+ vancedfiltering bindmethod=simple credentials=ldaprepl tls_cert=/etc/ssl/asus
+ .crt tls_key=/etc/ssl/asus.key syncdata=accesslog logbase=ou=user,cn=accesslo
+ g type=refreshAndPersist retry="60 +" timeout=1
+-
+add: olcSyncRepl
+olcSyncRepl: rid=101 provider=ldap://test1 searchbase=afUServiceName=s1+afUSer
+ viceRealm=r1,ou=user,o=advancedfiltering binddn=cn=ldaprepl,ou=system,o=advan
+ cedfiltering bindmethod=simple credentials=ldaprepl tls_cert=/etc/ssl/asus.cr
+ t tls_key=/etc/ssl/asus.key syncdata=accesslog logbase=ou=user,cn=accesslog t
+ ype=refreshAndPersist retry="60 +" timeout=1
+olcSyncRepl: rid=103 provider=ldap://test3 searchbase=afUServiceName=s1+afUSer
+ viceRealm=r1,ou=user,o=advancedfiltering binddn=cn=ldaprepl,ou=system,o=advan
+ cedfiltering bindmethod=simple credentials=ldaprepl tls_cert=/etc/ssl/asus.cr
+ t tls_key=/etc/ssl/asus.key syncdata=accesslog logbase=ou=user,cn=accesslog t
+ ype=refreshAndPersist retry="60 +" timeout=1
++ match_ldif olcDatabase={2}mdb,cn=config olcSyncRepl: match.ldif
++ local dn re ldif
++ dn=olcDatabase={2}mdb,cn=config
++ re=olcSyncRepl:
++ ldif=match.ldif
++ [ -n olcDatabase={2}mdb,cn=config ]
++ [ -n olcSyncRepl: ]
++ [ -n match.ldif ]
++ ldapget.sh olcDatabase={2}mdb,cn=config++ . /home/roma/work/advancedfiltering/tests/ldaprepl.conf
++ hostname
++ DST_HOST=asus
++ PATH=/home/roma/work/advancedfiltering/tests/ldaprepl/.tools:/home/roma/work/advancedfiltering/tests/ldaprepl/.tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
++ . /home/roma/work/advancedfiltering/tests/ldaprepl/.tools/common.sh
++ date +%s
++ CUR_TIME=1383159475
++ YSTD_TIME=1383073075
++ cd /home/roma/work/advancedfiltering/tests/ldaprepl/.tools
++ exec ldapsearch -x -D cn=tests,ou=system,o=advancedfiltering -w tests -v -b olcDatabase={2}mdb,cn=config -s base (objectClass=*)
+ldap_initialize( <DEFAULT> )
+filter: (objectClass=*)
+requesting: All userApplication attributes
++ diff -u match.ldif .match_tmp.ldif
++ rm .match_tmp.ldif

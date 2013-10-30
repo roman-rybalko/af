@@ -1,0 +1,7 @@
+
+dn: afSHostName=test2,ou=system,o=advancedfilterin
+ g
+changetype: modify
+replace: afSHostRealm
+afshostrealm: r1
+afshostrealm: r2

@@ -13,7 +13,7 @@ use MIME::Base64;
 my %opts;
 sub parse_opts
 {
-	getopts('hc:s:u:U:D:W:C:K:A:m:lx:d:v', \%opts);
+	getopts('hc:s:u:U:D:W:C:K:A:m:lx:d:v:', \%opts);
 	if ($opts{h})
 	{
 		print "USAGE: $0 [options]\n",
