@@ -4,7 +4,7 @@ changetype: modify
 add: olcSyncRepl
 olcSyncRepl: rid=001 provider=ldap://test01.hosts.advancedfiltering.net
  searchbase=afUServiceName=mdb+afUServiceRealm=r1,ou=user,o=advancedfiltering
- binddn=cn=syncrepl,ou=system,o=advancedfiltering bindmethod=simple credentials=syncrepl
+ binddn=cn=syncrepl,ou=auth bindmethod=simple credentials=syncrepl
  tls_cert=/etc/ssl/test02.hosts.advnacedfiltering.net.crt tls_key=/etc/ssl/test02.hosts.advancedfiltering.net.key
  tls_cacertdir=/etc/ssl/ca tls_reqcert=demand tls_crlcheck=all
  syncdata=accesslog logbase=ou=user,cn=accesslog

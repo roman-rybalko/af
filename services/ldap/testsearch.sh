@@ -5,6 +5,6 @@ host=$1
 
 ldapsearch -h $host.hosts.advancedfiltering.net \
  -ZZ \
- -x -D cn=admin,ou=system,o=advancedfiltering -w admin \
+ -x -D cn=admin,ou=auth -w admin \
  -LLL \
  -b ou=system,o=advancedfiltering -s base
