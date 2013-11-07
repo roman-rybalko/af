@@ -1,3 +1,3 @@
 #!/bin/sh -ex
 . ./remote.conf
-ldapmodify -x -D cn=admin,ou=system,o=advancedfiltering -w admin -f olcRootAdd.ldif
+ldapmodify -x -D cn=admin,ou=auth -w admin -f olcRootAdd.ldif

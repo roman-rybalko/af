@@ -31,16 +31,63 @@ olcAccess: to * by * none
 olcLimits: * size=unlimited time=unlimited
 olcRootDN: cn=deploy,cn=config
 
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcDbDirectory: /usr/local/advancedfiltering/openldap/ou=auth
+olcSuffix: ou=auth
+olcLastMod: TRUE
+olcDbCheckpoint: 1 1
+olcDbNoSync: FALSE
+olcDbIndex: objectClass eq
+olcDbIndex: entryCSN,entryUUID eq
+olcDbMaxSize: 33554432
+olcAccess: to * by * none
+olcLimits: * size=unlimited time=unlimited
+olcRootDN: cn=deploy,cn=config
+
+dn: olcDatabase=mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: mdb
+olcDbDirectory: /usr/local/advancedfiltering/openldap/ou=accesslog
+olcSuffix: ou=accesslog
+olcLastMod: TRUE
+olcDbCheckpoint: 102400 1
+olcDbNoSync: TRUE
+olcDbIndex: entryCSN eq
+olcDbIndex: reqStart,reqEnd eq
+olcDbMaxSize: 1073741824
+olcAccess: to * by * none
+olcLimits: * size=unlimited time=unlimited
+olcRootDN: cn=deploy,cn=config
+
 dn: olcOverlay=syncprov,olcDatabase={1}mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: syncprov
-olcSpCheckpoint: 1024 1
-olcSpSessionlog: 1024
 
 dn: olcOverlay=syncprov,olcDatabase={2}mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: syncprov
 olcSpCheckpoint: 1024 1
-olcSpSessionlog: 1024
+olcSpNoPresent: TRUE
+
+dn: olcOverlay=accesslog,olcDatabase={2}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcAccessLogConfig
+olcOverlay: accesslog
+olcAccessLogDB: cn=user,ou=accesslog
+olcAccessLogOps: writes
+olcAccessLogPurge: 7+00:00 1+00:00
+olcAccessLogSuccess: TRUE
+
+dn: olcOverlay=syncprov,olcDatabase={4}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+olcSpCheckpoint: 1024 1
+olcSpNoPresent: TRUE
+olcSpReloadHint: TRUE

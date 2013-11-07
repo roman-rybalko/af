@@ -1,15 +1,15 @@
 
 dn: olcDatabase={0}config,cn=config
 changetype: modify
-delete: olcLimits
+add: olcLimits
 olcLimits: dn="cn=tests,ou=auth" size=100
 
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
-delete: olcLimits
+add: olcLimits
 olcLimits: dn="cn=tests,ou=auth" size=100
 
 dn: olcDatabase={2}mdb,cn=config
 changetype: modify
-delete: olcLimits
+add: olcLimits
 olcLimits: dn="cn=tests,ou=auth" size=100

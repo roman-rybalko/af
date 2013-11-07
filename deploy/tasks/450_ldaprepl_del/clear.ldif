@@ -1,0 +1,13 @@
+
+dn: cn=ldaprepl,ou=auth
+changetype: delete
+
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+delete: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=ldaprepl,ou=auth" write by * break
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+delete: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=ldaprepl,ou=auth" read by * break

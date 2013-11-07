@@ -1,5 +1,5 @@
 
-dn: cn=tests,ou=system,o=advancedfiltering
+dn: cn=tests,ou=auth
 cn: tests
 objectclass: organizationalRole
 objectclass: simpleSecurityObject

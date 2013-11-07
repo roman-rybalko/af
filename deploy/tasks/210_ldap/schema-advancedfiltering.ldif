@@ -92,9 +92,8 @@ olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.2 NAME 'afSService' DESC 'System (ou
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.2.1 NAME 'afSSMTPService' DESC 'System (ou=system) SMTP Service' SUP afSService STRUCTURAL MUST ( afSSMTPTrustedPort $ afSSMTPSpamTrapProbabilityNumerator $ afSSMTPSpamTrapProbabilityDenominator
  $ afSSMTPMaxMessageSize $ afSSMTPTrustedMessageSize $ afSSMTPMailBoxTimeout ) MAY ( afSSMTPDNSBLDomainName ) )
 # user ("U" prefix)
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.1 NAME 'afUService' DESC 'User (ou=user) Service' SUP top STRUCTURAL MUST ( afUServiceName ) MAY ( afDescription ) )
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.2 NAME 'afUSRealm' DESC 'User (ou=user) Service Realm' SUP top STRUCTURAL MUST ( afUServiceRealm ) MAY ( afDescription ) )
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.3 NAME 'afUSRClient' DESC 'User (ou=user) Service Realm Client' SUP top STRUCTURAL MUST ( afUClientName $ afUClientAdminMailAddress $ afUClientTechMailAddress ) MAY ( afDescription ) )
+olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.1 NAME 'afUService' DESC 'User (ou=user) Service' SUP top STRUCTURAL MUST ( afUServiceName $ afUServiceRealm ) MAY ( afDescription ) )
+olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.3 NAME 'afUClient' DESC 'User (ou=user) Client' SUP top STRUCTURAL MUST ( afUClientName $ afUClientAdminMailAddress $ afUClientTechMailAddress ) MAY ( afDescription ) )
 # user/smtp
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.1 NAME 'afUSMTPDomain' DESC 'User (ou=user) SMTP service Domain' SUP top STRUCTURAL MUST ( afUSMTPDomainName $ afUSMTPDomainAdminMailAddress $ afUSMTPDomainTechMailAddress ) MAY ( afUSMTPDomainAliasName $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.2 NAME 'afUSMTPDMailBox' DESC 'User (ou=user) SMTP Domain Mail Box' SUP top STRUCTURAL MUST ( afUSMTPDMBLocalPart $ afUSMTPDMBTimeCreated ) MAY ( afUSMTPDMBIsAbsent $ afDescription ) )

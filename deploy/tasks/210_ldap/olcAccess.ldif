@@ -4,22 +4,36 @@ changetype: modify
 replace: olcAccess
 olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
 olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
-olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=system,o=advancedfiltering" manage by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=auth" manage by * break
 
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 replace: olcAccess
 olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
 olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
-olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=system,o=advancedfiltering" read by * break
-olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=system,o=advancedfiltering" manage by * break
-olcAccess: to attrs=userPassword by anonymous auth by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=auth" read by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=auth" manage by * break
 
 dn: olcDatabase={2}mdb,cn=config
 changetype: modify
 replace: olcAccess
 olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
 olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
-olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=system,o=advancedfiltering" read by * break
-olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=system,o=advancedfiltering" manage by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=auth" read by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=auth" manage by * break
+
+dn: olcDatabase={3}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
+olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
+olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=auth" manage by * break
 olcAccess: to attrs=userPassword by anonymous auth by * break
+
+dn: olcDatabase={4}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to dn.subtree="" by transport_ssf=70 manage by * break
+olcAccess: to dn.subtree="" by tls_ssf=50 break by * none
+olcAccess: to dn.subtree="" by dn.exact="cn=syncrepl,ou=auth" read by * break
+olcAccess: to dn.subtree="" by dn.exact="cn=admin,ou=auth" manage by * break

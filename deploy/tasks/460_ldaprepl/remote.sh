@@ -9,3 +9,5 @@ tar -xvf ldaprepl.tgz -C /usr/local/advancedfiltering/ldaprepl/
 chown -Rv ldaprepl:ldaprepl /usr/local/advancedfiltering/ldaprepl
 
 crontab -u ldaprepl cron.batch
+
+./db-mod.sh
