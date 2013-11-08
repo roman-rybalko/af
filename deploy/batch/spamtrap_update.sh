@@ -1,5 +1,3 @@
 #!/bin/sh -ex
-. ./common.sh
-cd ..
+. ./framework.sh
 deploy_batch 410_spamtrap_update
-echo OK

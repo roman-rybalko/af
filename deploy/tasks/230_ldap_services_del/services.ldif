@@ -1,6 +1,0 @@
-
-dn: cn=smtp,ou=auth
-changetype: delete
-
-dn: cn=mailproc,ou=auth
-changetype: delete

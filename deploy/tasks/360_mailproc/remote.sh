@@ -15,3 +15,5 @@ chown -Rv mailproc:www /usr/local/advancedfiltering/http/mailproc
 chmod 0750 /usr/local/advancedfiltering/http/mailproc
 
 crontab -u mailproc cron.batch
+
+./db-mod.sh

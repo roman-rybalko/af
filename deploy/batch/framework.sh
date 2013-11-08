@@ -1,5 +1,10 @@
 #!/bin/sh -ex
 
+cd ..
+[ -d hosts_batch ]
+[ -d tasks ]
+[ -d tasks_batch ]
+
 deploy_batch(){
 	rm -vf hosts_batch/*.ok tasks_batch/*
 	for task in $@; do
@@ -27,4 +32,5 @@ deploy_batch(){
 	fi
 	./deploy.sh tasks_batch hosts_batch
 	for f in hosts_batch/*.fail; do [ ! -e $f ]; done
+	echo "OK: $*"
 }

@@ -1,0 +1,23 @@
+
+dn: cn=mailproc,ou=auth
+changetype: delete
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+delete: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=auth" read by * break
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+delete: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=auth" manage by * break
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+delete: olcLimits
+olcLimits: dn="cn=mailproc,ou=auth" size=unlimited
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+delete: olcLimits
+olcLimits: dn="cn=mailproc,ou=auth" size=unlimited

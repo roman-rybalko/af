@@ -1,0 +1,27 @@
+
+dn: cn=mailproc,ou=auth
+cn: mailproc
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+objectclass: top
+userpassword: {SSHA}89+Bw1dvELlCrbmtiE85mRBGAka1B4pc
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=auth" read by * break
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to dn.subtree="" by dn.exact="cn=mailproc,ou=auth" manage by * break
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcLimits
+olcLimits: dn="cn=mailproc,ou=auth" size=unlimited
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcLimits
+olcLimits: dn="cn=mailproc,ou=auth" size=unlimited
