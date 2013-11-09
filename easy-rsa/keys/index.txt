@@ -28,3 +28,4 @@ V	230912184358Z		1B	unknown	/O=advancedfiltering/OU=hosts/CN=fvds02.hosts.advanc
 V	230912184358Z		1C	unknown	/O=advancedfiltering/OU=hosts/CN=fvds07.hosts.advancedfiltering.net
 V	230912184358Z		1D	unknown	/O=advancedfiltering/OU=hosts/CN=fvds04.hosts.advancedfiltering.net
 V	230912184358Z		1E	unknown	/O=advancedfiltering/OU=hosts/CN=fvds03.hosts.advancedfiltering.net
+V	231001183050Z		1F	unknown	/O=advancedfiltering/OU=hosts/CN=ru.hosts.advancedfiltering.net
