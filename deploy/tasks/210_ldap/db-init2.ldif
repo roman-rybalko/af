@@ -11,13 +11,9 @@ dn: ou=auth
 objectClass: organizationalUnit
 ou: auth
 
-dn: ou=accesslog
+dn: ou=user,cn=accesslog
 objectClass: organizationalUnit
-ou: accesslog
-
-dn: cn=user,ou=accesslog
-objectclass: organizationalRole
-cn: user
+ou: user
 
 dn: cn=admin,ou=auth
 cn: admin

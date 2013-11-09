@@ -1,4 +1,4 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-./db-mod.ldif
+./db-mod.sh -c || true
