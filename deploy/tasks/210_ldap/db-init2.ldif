@@ -15,16 +15,18 @@ dn: ou=accesslog
 objectClass: organizationalUnit
 ou: accesslog
 
+dn: cn=user,ou=accesslog
+objectclass: organizationalRole
+cn: user
+
 dn: cn=admin,ou=auth
 cn: admin
 objectclass: organizationalRole
 objectclass: simpleSecurityObject
-objectclass: top
 userpassword: {SSHA}UOL4oiswbEDN1kqo3yJV5SGH8BwxcK17
 
 dn: cn=syncrepl,ou=auth
 cn: syncrepl
 objectclass: organizationalRole
 objectclass: simpleSecurityObject
-objectclass: top
 userpassword: {SSHA}Vz042UudN/ghVStR8sR9lI3IuIw3eQ/c
