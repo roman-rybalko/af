@@ -1,34 +1,22 @@
 
-dn: afUServiceName=mdb,ou=user,o=advancedfiltering
-afuservicename: mdb
+dn: afUServiceRealm=r1+afUServiceName=mdb,ou=user,o=advancedfiltering
+afuservicerealm: r1
 objectclass: afUService
 objectclass: top
 
-dn: afUServiceRealm=r1,afUServiceName=mdb,ou=user,o=advancedfiltering
+dn: afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afuservicerealm: r1
-objectclass: afUSRealm
-objectclass: top
-
-dn: afUServiceName=smtp,ou=user,o=advancedfiltering
-afuservicename: smtp
 objectclass: afUService
 objectclass: top
 
-dn: afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
-afuservicerealm: r1
-objectclass: afUSRealm
-objectclass: top
-
-dn: afUClientName=cli1,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=adva
- ncedfiltering
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afuclientname: cli1
-objectclass: afUSRClient
+objectclass: afUClient
 objectclass: top
 afUClientAdminMailAddress: admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin@tests.advancedfiltering.net
 
-dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1,afUServ
- iceName=smtp,ou=user,o=advancedfiltering
+dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdomainname: test.com
 objectclass: afUSMTPDomain
 objectclass: top

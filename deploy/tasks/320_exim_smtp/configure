@@ -246,7 +246,7 @@ mail_acl:
   accept
 
 # User SMTP Realm DN
-U_SMTP_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm},U_SMTP_LDAP_DN
+U_SMTP_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+U_SMTP_LDAP_DN
 # User SMTP Realm Client DN
 U_SMTP_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_u_client},U_SMTP_R_LDAP_DN
 # User SMTP Realm Client Domain DN
@@ -587,7 +587,7 @@ mailproc_router:
   headers_add = R_SH_A
 
 # Router Client LDAP DN
-R_C_LDAP_DN = afUClientName=${quote_ldap_dn:R_CLIENT},afUServiceRealm=${quote_ldap_dn:R_C_REALM},U_SMTP_LDAP_DN
+R_C_LDAP_DN = afUClientName=${quote_ldap_dn:R_CLIENT},afUServiceRealm=${quote_ldap_dn:R_C_REALM}+U_SMTP_LDAP_DN
 # Router Client Domain LDAP DN
 R_CD_LDAP_DN = afUSMTPDomainName=${quote_ldap_dn:$domain},R_C_LDAP_DN
 # Router Client Domain Mail Box LDAP DN

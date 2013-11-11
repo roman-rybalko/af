@@ -1,6 +1,5 @@
 
-dn: afSMTPBWListHostAddress=1.2.3.4,
- afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+dn: afSMTPBWListHostAddress=1.2.3.4,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afsmtpbwlisthostaddress: 1.2.3.4
 objectclass: afSMTPHostAddressBWListEntry
 objectclass: top

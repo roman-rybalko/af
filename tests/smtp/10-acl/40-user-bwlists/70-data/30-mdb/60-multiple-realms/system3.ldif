@@ -5,8 +5,7 @@ afsclientrealm: r3
 objectclass: afSClient
 objectclass: top
 
-dn: afSSMTPDomainName=test3.com,afSServiceName=smtp,ou=system,o=advancedfilte
- ring
+dn: afSSMTPDomainName=test3.com,afSServiceName=smtp,ou=system,o=advancedfiltering
 afssmtpdomainclientname: cli3
 afssmtpdomainname: test3.com
 objectclass: afSSMTPDomain

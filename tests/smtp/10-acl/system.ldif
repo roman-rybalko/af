@@ -5,8 +5,7 @@ afsclientrealm: r1
 objectclass: afSClient
 objectclass: top
 
-dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
- g
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: dst.hosts.advancedfiltering.net
 afshostrealm: r1
 afshostservicename: smtp
@@ -26,8 +25,7 @@ afSSMTPMailBoxTimeout: 14400
 objectclass: afSSMTPService
 objectclass: top
 
-dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfilte
- ring
+dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfiltering
 afssmtpdomainclientname: cli1
 afssmtpdomainname: test.com
 objectclass: afSSMTPDomain

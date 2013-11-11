@@ -1,6 +1,5 @@
 
-dn: afSSMTPDomainName=test-alias.com,afSServiceName=smtp,ou=system,o=advance
- dfiltering
+dn: afSSMTPDomainName=test-alias.com,afSServiceName=smtp,ou=system,o=advancedfiltering
 afssmtpdomainclientname: cli1
 afssmtpdomainname: test-alias.com
 objectclass: afSSMTPDomain

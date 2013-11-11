@@ -1,7 +1,6 @@
 
-dn: afUMDBMessageId=test-outgoing-message-2,afUServiceRealm=r1,afUServiceName=mdb,ou=user,o=advancedf
- iltering
-afumdbmessageid: test-outgoing-message-2
+dn: afUMDBMessageId=PHRlc3Qtb3V0Z29pbmctbWVzc2FnZS0yPg__,afUServiceRealm=r1+afUServiceName=mdb,ou=user,o=advancedfiltering
+afUMDBMessageId: PHRlc3Qtb3V0Z29pbmctbWVzc2FnZS0yPg__
 afumdbmessagesendermailaddress: mbox2@test.com
 afumdbmessagetimecreated: 1234567890
 objectclass: afUMDBMessageOutgoing

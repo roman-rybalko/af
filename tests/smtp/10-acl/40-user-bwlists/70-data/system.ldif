@@ -1,6 +1,5 @@
 
-dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
- g
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: src.hosts.advancedfiltering.net
 afshostrealm: r1
 afshostservicename: mailproc

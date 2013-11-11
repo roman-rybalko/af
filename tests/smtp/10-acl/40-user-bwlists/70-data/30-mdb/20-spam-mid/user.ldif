@@ -1,7 +1,6 @@
 
-dn: afUMDBMessageId=test-spam-message-1,afUServiceRealm=r1,afUServiceName=mdb,ou=
- user,o=advancedfiltering
-afumdbmessageid: test-spam-message-1
+dn: afUMDBMessageId=PHRlc3Qtc3BhbS1tZXNzYWdlLTE-,afUServiceRealm=r1+afUServiceName=mdb,ou=user,o=advancedfiltering
+afUMDBMessageId: PHRlc3Qtc3BhbS1tZXNzYWdlLTE-
 afumdbmessagesendermailaddress: test@tests.advancedfiltering.net
 afumdbmessagespamdescription: Test spam message
 afumdbmessagetimecreated: 1234567890

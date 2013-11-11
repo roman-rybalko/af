@@ -1,6 +1,5 @@
 
-dn: afUSMTPDMBLocalPart=expired,afUSMTPDomainName=test.com,afUClientName=cli1
- ,afUServiceRealm=r1,afUServiceName=smtp,ou=user,o=advancedfiltering
+dn: afUSMTPDMBLocalPart=expired,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdmblocalpart: expired
 afusmtpdmbtimecreated: 0987654321
 objectclass: afUSMTPDMailBox

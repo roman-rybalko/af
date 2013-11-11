@@ -1,6 +1,5 @@
 
-dn: afSMTPBWListHostName=src.hosts.advancedfiltering.net,
- afSServiceName=smtp,ou=system,o=advancedfiltering
+dn: afSMTPBWListHostName=src.hosts.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
 afsmtpbwlisthostname: src.hosts.advancedfiltering.net
 objectclass: afSMTPHostNameBWListEntry
 objectclass: top

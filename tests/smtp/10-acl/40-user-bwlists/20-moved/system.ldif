@@ -5,8 +5,7 @@ afsclientrealm: r2
 objectclass: afSClient
 objectclass: top
 
-dn: afSSMTPDomainName=test-r2.com,afSServiceName=smtp,ou=system,o=advancedfi
- ltering
+dn: afSSMTPDomainName=test-r2.com,afSServiceName=smtp,ou=system,o=advancedfiltering
 afssmtpdomainclientname: cli2
 afssmtpdomainname: test-r2.com
 objectclass: afSSMTPDomain

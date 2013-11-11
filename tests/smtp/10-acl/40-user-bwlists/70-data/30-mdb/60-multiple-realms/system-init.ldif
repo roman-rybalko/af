@@ -1,6 +1,5 @@
 
-dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
- g
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 changetype: modify
 add: afshostrealm
 afshostrealm: r2
