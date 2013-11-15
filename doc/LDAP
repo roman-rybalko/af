@@ -9,18 +9,20 @@ cn=mailproc,ou=auth
 
 --
 
-ou=accesslog
+cn=accesslog
 
-cn=system,ou=accesslog
-cn=user,ou=accesslog
+ou=system,cn=accesslog
+ou==user,cn=accesslog
 
 --
 
 ou=system,o=advancedfiltering
 
 host=xxx,ou=system,o=advancedfiltering
-service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log|smtpdb
+service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log|smtpdb|submissiondb
 service:
+SyncService:
+SyncService:
 realm:
 realm:
 
@@ -39,4 +41,5 @@ service=xxx+realm=yyy,ou=user,o=advancedfiltering
 client=zzz,service=smtp+realm=yyy,ou=user,o=advancedfiltering
 domain=ttt,client=zzz,service=smtp+realm=yyy,ou=user,o=advancedfiltering
 
-mid=yyy,service=mdb+realm=yyy,ou=user,o=advancedfiltering
+mid=yyy,service=smtpdb+realm=yyy,ou=user,o=advancedfiltering
+mid=yyy,service=submissiondb+realm=yyy,ou=user,o=advancedfiltering
