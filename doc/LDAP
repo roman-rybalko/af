@@ -21,8 +21,8 @@ ou=system,o=advancedfiltering
 host=xxx,ou=system,o=advancedfiltering
 service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log|smtpdb|submissiondb
 service:
-SyncService:
-SyncService:
+dbsyncserive:
+dbsyncserive:
 realm:
 realm:
 

@@ -115,12 +115,12 @@ sub get_need_repl_data
 		base => "afSHostName=$opts{n},ou=system,o=advancedfiltering",
 		scope => 'base',
 		filter => '(objectClass=*)',
-		attrs => ['afSHostRealm','afSHostServiceName'],
+		attrs => ['afSHostRealm','afSHDBSyncServiceName'],
 	);
 	die 'get_need_repl_data: ' . $ldap_msg->error_text if $ldap_msg->is_error;
 	my $realms = ($ldap_msg->entries)[0]->get_value('afSHostRealm', asref => 1);
 	die "get_need_repl_data: no realms found for $opts{n}" unless $realms;
-	my $services = ($ldap_msg->entries)[0]->get_value('afSHostServiceName', asref => 1);
+	my $services = ($ldap_msg->entries)[0]->get_value('afSHDBSyncServiceName', asref => 1);
 	die "get_need_repl_data: no services found for $opts{n}" unless $services;
 	my $result = [];
 	for my $realm (@$realms)
@@ -130,7 +130,7 @@ sub get_need_repl_data
 			$ldap_msg = $ldap->search(
 				base => 'ou=system,o=advancedfiltering',
 				scope => 'sub',
-				filter => "(&(objectClass=afSHost)(afSHostRealm=$realm)(afSHostServiceName=$service))",
+				filter => "(&(objectClass=afSHost)(afSHostRealm=$realm)(afSHDBSyncServiceName=$service))",
 				attrs => ['afSHostName'],
 			);
 			die "get_need_repl_data[realm=$realm,service=$service]: " . $ldap_msg->error_text if $ldap_msg->is_error;
