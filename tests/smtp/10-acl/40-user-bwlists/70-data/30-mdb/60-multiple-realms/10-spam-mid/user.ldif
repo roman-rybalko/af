@@ -1,8 +1,8 @@
 
-dn: afUMDBMessageId=PHRlc3Qtc3BhbS1tZXNzYWdlLTE-,afUServiceRealm=r2+afUServiceName=mdb,ou=user,o=advancedfiltering
-afUMDBMessageId: PHRlc3Qtc3BhbS1tZXNzYWdlLTE-
-afumdbmessagesendermailaddress: test@tests.advancedfiltering.net
-afumdbmessagespamdescription: Test spam message
-afumdbmessagetimecreated: 1234567890
-objectclass: afUMDBMessageIncoming
+dn: afUSMTPMessageId=dGVzdC1zcGFtLW1lc3NhZ2UtMQ__,afUServiceRealm=r2+afUServiceName=smtpdb,ou=user,o=advancedfiltering
+afUSMTPMessageId: dGVzdC1zcGFtLW1lc3NhZ2UtMQ__
+afUSMTPmessagesendermailaddress: test@tests.advancedfiltering.net
+afUSMTPmessagespamdescription: Test spam message
+afUSMTPmessagetimecreated: 1234567890
+objectclass: afUSMTPMessageIncoming
 objectclass: top

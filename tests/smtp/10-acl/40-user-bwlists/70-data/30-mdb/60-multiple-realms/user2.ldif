@@ -1,5 +1,10 @@
 
-dn: afUServiceRealm=r2+afUServiceName=mdb,ou=user,o=advancedfiltering
+dn: afUServiceRealm=r2+afUServiceName=smtpdb,ou=user,o=advancedfiltering
+afuservicerealm: r2
+objectclass: afUService
+objectclass: top
+
+dn: afUServiceRealm=r2+afUServiceName=sdb,ou=user,o=advancedfiltering
 afuservicerealm: r2
 objectclass: afUService
 objectclass: top

@@ -1,7 +1,7 @@
 
-dn: afUMDBMessageId=PHRlc3QtbWVzc2FnZS0xPg__,afUServiceRealm=r1+afUServiceName=mdb,ou=user,o=advancedfiltering
-afUMDBMessageId: PHRlc3QtbWVzc2FnZS0xPg__
-afumdbmessagesendermailaddress: test@tests.advancedfiltering.net
-afumdbmessagetimecreated: 1234567890
-objectclass: afUMDBMessageIncoming
+dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLTE_,afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
+afUSMTPMessageId: dGVzdC1tZXNzYWdlLTE_
+afUSMTPmessagesendermailaddress: test@tests.advancedfiltering.net
+afUSMTPmessagetimecreated: 1234567890
+objectclass: afUSMTPMessageIncoming
 objectclass: top

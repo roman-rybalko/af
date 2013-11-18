@@ -19,7 +19,7 @@ ou==user,cn=accesslog
 ou=system,o=advancedfiltering
 
 host=xxx,ou=system,o=advancedfiltering
-service: smtp|submission|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log|smtpdb|submissiondb
+service: smtp|smtpdb|submission|sdb|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log
 service:
 dbsyncserive:
 dbsyncserive:
