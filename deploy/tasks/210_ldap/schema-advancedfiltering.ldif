@@ -84,7 +84,7 @@ olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.3.1.1.2 NAME 'afSMTPHostNameBWListEntr
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.3.1.1.3 NAME 'afSMTPCertificateBWListEntry' DESC 'System (ou=system) SMTP service Certificate Black List Entry' SUP top STRUCTURAL MUST ( afSMTPBWListCertificateSubject ) MAY ( afSMTPBWListIsBlack $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.3.1.1.4 NAME 'afSMTPSenderMailAddressBWListEntry' DESC 'System (ou=system) SMTP service Sender Mail Address Black List Entry' SUP top STRUCTURAL MUST ( afSMTPBWListSenderMailAddress ) MAY ( afSMTPBWListIsBlack $ afDescription ) )
 # system ("S" prefix)
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.1.1 NAME 'afSHost' DESC 'System (ou=system) Host' SUP top STRUCTURAL MUST ( afSHostName $ afSHostServiceName $ afSHostRealm ) MAY ( afSHDBSyncServiceName $ afDescription ) )
+olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.1.1 NAME 'afSHost' DESC 'System (ou=system) Host' SUP top STRUCTURAL MUST ( afSHostName $ afSHostRealm ) MAY ( afSHostServiceName $ afSHDBSyncServiceName $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.1.2 NAME 'afSSMTPDomain' DESC 'System (ou=system) SMTP Domain' SUP top STRUCTURAL MUST ( afSSMTPDomainName $ afSSMTPDomainClientName ) MAY ( afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.1.1.3 NAME 'afSClient' DESC 'System (ou=system) Client' SUP top STRUCTURAL MUST ( afSClientName $ afSClientRealm ) MAY ( afDescription ) )
 # system/service
