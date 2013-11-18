@@ -17,8 +17,8 @@ if (open $F, "<", $file)
 	die "No Message-Id header" unless $hdr;
 	$hdr =~ s/^\s+//;
 	$hdr =~ s/\s+$//;
-	$hdr =~ s/^.*?<//;
-	$hdr =~ s/>.*?$//;
+	$hdr =~ s/^[^<]*<//;
+	$hdr =~ s/>[^>]*$//;
 	$mid = $hdr;
 }
 else

@@ -424,16 +424,17 @@ U_MR_D = $bheader_in-reply-to: $bheader_references:
 U_MR_F1 = ${sg{U_MR_D}{^\\s+}{}}
 # Message References Fix 2
 U_MR_F2 = ${sg{U_MR_F1}{\\s+\$}{}}
-U_MR_F3 = ${sg{U_MR_F2}{^.*?\<}{}}
-U_MR_F4 = ${sg{U_MR_F3}{\>.*?\$}{}}
-U_MR_F5 = ${sg{U_MR_F4}{\>.*?\<}{\<}}
+U_MR_F3 = ${sg{U_MR_F2}{^[^\<]*\<}{}}
+U_MR_F4 = ${sg{U_MR_F3}{\>[^\>]*\$}{}}
+U_MR_F5 = ${sg{U_MR_F4}{\>[^\<\>]*\<}{\<}}
 U_MR_F6 = ${map {<\< U_MR_F5} {${str2b64:$item}}}
-U_MR_F7 = ${sg{U_MR_F6}{\<}{:}}
+U_MR_F7 = ${tr{U_MR_F6}{/+=}{.-_}}
+U_MR_F8 = ${sg{U_MR_F7}{\<}{:}}
 # Message References Final Fix
-U_MR_FF = U_MR_F7
+U_MR_FF = U_MR_F8
 
 # User Submission DataBase LDAP DN
-U_SDB_LDAP_DN = afUServiceName=smtpdb,ou=user,o=advancedfiltering
+U_SDB_LDAP_DN = afUServiceName=sdb,ou=user,o=advancedfiltering
 # User Submission DataBase Realm LDAP DN List
 U_SDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:$item}+U_SDB_LDAP_DN} }
 
@@ -450,15 +451,15 @@ U_MI_D = $rheader_message-id:
 U_MI_F1 = ${sg{U_MI_D}{^\\s+}{}}
 # Message Id Fix 2
 U_MI_F2 = ${sg{U_MI_F1}{\\s+\$}{}}
-U_MI_F3 = ${sg{U_MI_F2}{^.*?\<}{}}
-U_MI_F4 = ${sg{U_MI_F3}{\>.*?\$}{}}
+U_MI_F3 = ${sg{U_MI_F2}{^[^\<]*\<}{}}
+U_MI_F4 = ${sg{U_MI_F3}{\>[^\>]*\$}{}}
 U_MI_F5 = ${str2b64:U_MI_F4}
 U_MI_F6 = ${tr{U_MI_F5}{/+=}{.-_}}
 # Message Id Final Fix
 U_MI_FF = U_MI_F6
 
 # User SMTP DataBase LDAP DN
-U_SMTPDB_LDAP_DN = afUServiceName=sdb,ou=user,o=advancedfiltering
+U_SMTPDB_LDAP_DN = afUServiceName=smtpdb,ou=user,o=advancedfiltering
 # User SMTP DataBase Realm LDAP DN List
 U_SMTPDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:$item}+U_SMTPDB_LDAP_DN} }
 
