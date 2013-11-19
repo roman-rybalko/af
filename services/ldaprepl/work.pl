@@ -35,8 +35,6 @@ sub parse_opts
 	warn "syncrepl: $opts{s}" if $opts{v} > 1;
 }
 
-my $syncrepl_data = "";
-
 my $ldap;
 sub reconnect_ldap
 {
