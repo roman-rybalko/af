@@ -443,7 +443,7 @@ U_SDB_R_MO_VALUE_ORIG = ${sg {$value} {\\|.*\$} {} }
 U_SDB_R_MO_VALUE_MID = ${sg {:U_SDB_R_MO_VALUE_ORIG} {:} {:afUSMTPMessageId=${quote_ldap_dn:$item},} }
 U_SDB_R_MO_VALUE_ALL = ${reduce {U_MR_FF} {U_SDB_R_LDAP_DN_L|} {${value}U_SDB_R_MO_VALUE_MID} }
 U_SDB_R_MO_LDAP_DN_L = ${sg {U_SDB_R_MO_VALUE_ALL} {^.+\\|:} {} }
-U_SDB_R_MO_LDAP_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base?(objectClass=afUSMTPMessageOutgoing)}}
+U_SDB_R_MO_LDAP_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base}}
 
 # Message Id/Incoming
 U_MI_D = $rheader_message-id:
@@ -466,7 +466,7 @@ U_SMTPDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:
 # SMTPDB Realm Message Incoming LDAP DNs
 U_SMTPDB_R_MI_LDAP_DN_L = ${map {U_SMTPDB_R_LDAP_DN_L} {afUSMTPMessageId=${quote_ldap_dn:U_MI_FF},$item} }
 # SMTPDB Realm Message Incoming ... Item
-U_SMTPDB_R_MI_spam_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSpamDescription?base?(objectClass=afUSMTPMessageIncoming)} }
+U_SMTPDB_R_MI_spam_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSpamDescription?base} }
 # ... Data
 U_SMTPDB_R_MI_spam_D = ${reduce {U_SMTPDB_R_MI_LDAP_DN_L} {} {$value U_SMTPDB_R_MI_spam_I} }
 U_SMTPDB_R_MI_sender_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base} }
