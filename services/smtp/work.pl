@@ -84,17 +84,83 @@ sub save_state
 
 sub get_mx_sessings
 {
-	# TODO
+	my $mailbox = shift;
+	my $domain = shift;
+	my $client = shift;
+	my $realm = shift;
+	my $mx_settings = [];
+
+	my @attrs = ('afUSMTPMXHostName',
+		'afUSMTPMXTCPPort',
+		'afUSMTPMXAuthUser',
+		'afUSMTPMXAuthPassword',
+		'afUSMTPMXIsTLSRequired',
+		'afUSMTPMXAuthTLSCertificate',
+		'afUSMTPMXAuthTLSKey',
+		'afUSMTPMXAuthTLSCA');
+	foreach my $base("ou=settings,afUSMTPDMBLocalPart=$mailbox,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering",
+		"ou=settings,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering",
+		"ou=settings,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering")
+	{
+		my $ldap_msg = $ldap->search(
+			base => $base,
+			scope => 'sub',
+			filter => "(objectClass=afUSMTPMailExchanger)",
+			attrs => [@attrs],
+		);
+		foreach my $ldap_entry ($ldap_msg->entries)
+		{
+			push @$mx_settings => {map {$_ => $ldap_entry->get_value($_)} (@attrs)};
+		}
+		last if @$mx_settings;
+	}
+	return $mx_settings;
 }
 
 sub check_mailbox
 {
+	my $mx_settings = shift;
+	my $existing = 0;
 	# TODO
 }
 
 sub update_mailbox
 {
-	# TODO
+	my $mailbox = shift;
+	my $domain = shift;
+	my $client = shift;
+	my $realm = shift;
+	my $existing = shift;
+	my $base = "afUSMTPDMBLocalPart=$mailbox,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering";
+	my $ldap_msg = $ldap->search(
+		base => $base,
+		scope => 'base',
+		filter => "(objectClass=*)",
+		attrs => ['afUSMTPDMBTimeUpdated', 'afUSMTPDMBIsAbsent'],
+	);
+	unless ($ldap_msg->is_error)
+	{
+		my $ldap_entry = ($ldap_msg->entries)[0];
+		$ldap_entry->replace('afUSMTPDMBTimeUpdated' => time);
+		$ldap_entry->delete('afUSMTPDMBIsAbsent') if $existing && $ldap_entry->exists('afUSMTPDMBIsAbsent');
+		$ldap_entry->add('afUSMTPDMBIsAbsent' => 'TRUE') if !$existing && !$ldap_entry->exists('afUSMTPDMBIsAbsent');
+		$ldap_msg = $ldap_entry->update($ldap);
+		die 'update_mailbox[update:$base]: ' . $ldap_msg->error_text if $ldap_msg->is_error;
+	}
+	else
+	{
+		my %attrs = ('afUSMTPDMBTimeUpdated' => time);
+		$attrs{'afUSMTPDMBIsAbsent'} = 'TRUE' unless $existing;
+		$ldap_msg = $ldap->add(
+			$base,
+			attr => [
+				'objectClass' => 'afUSMTPDMailBox',
+				'afUSMTPDMBLocalPart' => $mailbox,
+				%attrs
+			]
+		);
+		die 'update_mailbox[add:$base]: ' . $ldap_msg->error_text if $ldap_msg->is_error;
+	}
 }
 
 sub process_mbox
@@ -104,8 +170,8 @@ sub process_mbox
 	my $client = shift;
 	my $realm = shift;
 	my $mx_settings = get_mx_settings($mailbox, $domain, $client, $realm);
-	my $check_data = check_mailbox($mx_settings);
-	update_mailbox($mailbox, $domain, $client, $realm, $check_data);
+	my $existing = check_mailbox($mx_settings);
+	update_mailbox($mailbox, $domain, $client, $realm, $existing);
 }
 
 sub process_log

@@ -2,6 +2,6 @@
 dn: afUSMTPDMBLocalPart=absent,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdmbisabsent: TRUE
 afusmtpdmblocalpart: absent
-afusmtpdmbtimecreated: 1234567890
+afUSMTPDMBTimeUpdated: 1234567890
 objectclass: afUSMTPDMailBox
 objectclass: top

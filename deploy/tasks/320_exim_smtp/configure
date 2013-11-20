@@ -325,7 +325,7 @@ rcpt_acl:
   # ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
   defer
     # User Mail Box Data
-    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeCreated>=$acl_c_s_mbct_d)}}
+    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=$acl_c_s_mbct_d)}}
     ! condition = ${if bool_lax{$acl_m_u_mb_d}}
     message = Your data is verifying, try again later
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
