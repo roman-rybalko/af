@@ -6,13 +6,12 @@ use warnings;
 use Getopt::Std;
 use Net::LDAP;
 use Net::SMTP;
-use threads;
-use threads::shared;
+use Storable qw(lock_store lock_retrieve);
 
 my %opts;
 sub parse_opts
 {
-	getopts('hU:D:W:C:K:A:l:v:', \%opts);
+	getopts('hU:D:W:C:K:A:l:b:s:v:', \%opts);
 	if ($opts{h})
 	{
 		print "USAGE: $0 [options]\n",
@@ -26,8 +25,8 @@ sub parse_opts
 			"\t-A ca\t\tLDAP STARTTLS CA path\n",
 			"\t-l logfile\tLog file\n",
 			"\t-b logfile\tBackup Log file\n",
-			"\t-s stngsfile\tSettings file\n",
-			"\t-t thrcnt\nThreads count\n",
+			"\t-s statefile\tState file\n",
+			"\t-t thrcnt\tThreads count\n",
 			"\t-v level\tLog verbosity level\n",
 			"";
 		exit 0;
@@ -36,7 +35,7 @@ sub parse_opts
 	$opts{v} = 0 unless $opts{v};
 }
 
-my $ldap :shared;
+my $ldap;
 sub reconnect_ldap
 {
 	$ldap = Net::LDAP->new($opts{U}) or die "LDAP connection error";
@@ -67,29 +66,35 @@ sub reconnect_ldap
 	}
 }
 
-sub load_settings
+sub load_state
 {
-	
+	my $state;
+	eval {
+		$state = lock_retrieve($opts{s});
+	};
+	$state = {} unless $state;
+	return $state;
 }
 
-sub save_settings
+sub save_state
 {
-	
+	my $state = shift;
+	lock_store $state, $opts{s};
 }
 
 sub get_mx_sessings
 {
-	
+	# TODO
 }
 
 sub check_mailbox
 {
-	
+	# TODO
 }
 
 sub update_mailbox
 {
-	
+	# TODO
 }
 
 sub process_mbox
@@ -103,76 +108,26 @@ sub process_mbox
 	update_mailbox($mailbox, $domain, $client, $realm, $check_data);
 }
 
-my @process_queue :shared;
-sub process_queue_push
-{
-	my $data = shift;
-	lock(@process_queue);
-	push @process_queue => $data;
-	cond_signal(@process_queue);
-}
-sub process_queue_pop
-{
-	lock(@process_queue);
-	return shift @process_queue if @process_queue;
-	return shift @process_queue if cond_timedwait(@process_queue, time()+1);
-	return undef;
-}
-
-my $exit_flag :shared = 0;
-sub thread_run
-{
-	while(!$exit_flag)
-	{
-		while (my $data = process_queue_pop)
-		{
-			process_mbox(@$data);
-		}
-	}
-}
-my @threads;
-sub threads_start
-{
-	for (my $i = 0; $i < $opts{t}; ++$i)
-	{
-		$threads[$i] = threads->create('thread_run');
-	}
-}
-sub threads_stop
-{
-	$exit_flag = 1;
-	$_->join foreach @threads;
-}
-
 sub process_log
 {
-	my $settings = shift;
+	my $state = shift;
 	my $F;
 	my $fname = $opts{l};
-	if ($settings->{ofs}->{$opts{l}})
+	if ($state->{ofs}->{$opts{l}})
 	{
-		if (-s $opts{l} < $settings->{ofs}->{$opts{l}})
+		if (-s $opts{l} < $state->{ofs}->{$opts{l}})
 		{
 			warn "Log rotation $fname -> $opts{b}" if $opts{v};
 			$fname = $opts{b};
 		}
 	}
 	open $F, "<", $fname or die "Unable to open log file $fname for reading";
-	if ($settings->{ofs}->{$opts{l}})
-	{
-		seek $F, $settings->{ofs}->{$opts{l}}, 0;
-	}
+	seek $F, $state->{ofs}->{$opts{l}}, 0 if $state->{ofs}->{$opts{l}};
 	while (<$F>)
 	{
-		process_queue_push([$1, $2, $3, $4]) if /AdvancedFiltering:NewMailBox:<([^>]+)>Domain:<([^>]+)>Client:<([^>]+)>Realm:<([^>]+)>/;
-	}
-	if ($fname eq $opts{l})
-	{
-		$settings->{ofs}->{$opts{l}} = tell $F;
-	}
-	else
-	{
-		$settings->{ofs}->{$opts{l}} = 0;
+		process_mbox($1, $2, $3, $4) if /AdvancedFiltering:NewMailBox:<([^>]+)>Domain:<([^>]+)>Client:<([^>]+)>Realm:<([^>]+)>/;
+		$state->{ofs}->{$opts{l}} = $fname eq $opts{l} ? tell $F : 0;
+		save_state($state);
 	}
 }
 
@@ -181,10 +136,6 @@ sub process_log
 parse_opts;
 reconnect_ldap;
 
-threads_start;
-
-my $settings = load_settings;
-process_log($settings);
-save_settings($settings);
-
-threads_stop;
+my $state = load_state;
+process_log($state);
+save_state($state);
