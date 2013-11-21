@@ -82,7 +82,7 @@ sub save_state
 	lock_store $state, $opts{s};
 }
 
-sub get_mx_sessings
+sub get_mx_settings
 {
 	my $mailbox = shift;
 	my $domain = shift;

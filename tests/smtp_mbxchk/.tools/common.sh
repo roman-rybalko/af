@@ -31,7 +31,7 @@ match_ldif()
 	[ -n "$dn" ]
 	[ -n "$re" ]
 	[ -n "$ldif" ]
-	ldapget.sh "$dn" | ldif_nl.pl | grep -i "$re" > .match_tmp.ldif
+	ldapget.sh "$dn" | ldif_nl.pl | grep -iE "$re" > .match_tmp.ldif
 	diff -u "$ldif" .match_tmp.ldif
 	rm .match_tmp.ldif
 }
