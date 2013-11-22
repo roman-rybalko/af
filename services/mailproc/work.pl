@@ -138,6 +138,8 @@ sub get_mime_id
 	return undef unless $hdr;
 	$hdr =~ s/^\s+//;
 	$hdr =~ s/\s+$//;
+	$hdr =~ s/^[^<]*<//;
+	$hdr =~ s/>[^>]*$//;
 	$hdr = encode_base64($hdr, '');
 	$hdr =~ tr~/\+=~\.\-_~;
 	return $hdr;
