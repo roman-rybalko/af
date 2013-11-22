@@ -181,24 +181,18 @@ sub process_tasks
 			$data = fd_retrieve($F);
 		};
 		unless ($data
-			&& exists $data->{mailbox}
-			&& exists $data->{domain}
-			&& exists $data->{client}
-			&& exists $data->{realm})
+			&& defined $data->{mailbox}
+			&& defined $data->{domain}
+			&& defined $data->{client}
+			&& defined $data->{realm})
 		{
 			warn "Task file $fpath is broken (", Dumper($data), ")";
 			unlink $fpath;
 			next;
 		}
-		
-	}
-	
-	my $F;
-	my $fname = $opts{l};
-	open $F, "<", $fname or die "Unable to open log file $fname for reading";
-	while (<$F>)
-	{
-		process_mbox($1, $2, $3, $4) if /AdvancedFiltering:NewMailBox:<([^>]+)>Domain:<([^>]+)>Client:<([^>]+)>Realm:<([^>]+)>/;
+		process_mbox($data->{mailbox}, $data->{domain}, $data->{client}, $data->{realm});
+		unlink $fpath;
+		warn "$fpath (", Dumper($data), ") processed successfully" if $opts{v} > 1;
 	}
 }
 
