@@ -51,7 +51,7 @@ sub create_taskfile
 	my $client = shift;
 	my $realm = shift;
 	
-	my $fname = "$opts{t}/$realm-$client-$domain-$mailbox";
+	my $fpath = "$opts{t}/$realm-$client-$domain-$mailbox";
 	
 	my $data = {
 		mailbox => $mailbox,
@@ -60,29 +60,29 @@ sub create_taskfile
 		realm => $realm,
 	};
 	
-	lock_store $data, $fname;
+	lock_store $data, $fpath;
 }
 
 sub process_log
 {
 	my $state = shift;
 	my $F;
-	my $fname = $opts{l};
+	my $fpath = $opts{l};
 	if ($state->{ofs}->{$opts{l}})
 	{
 		if (-s $opts{l} < $state->{ofs}->{$opts{l}})
 		{
-			warn "Log rotation $fname -> $opts{b}" if $opts{v};
-			$fname = $opts{b};
+			warn "Log rotation $fpath -> $opts{b}" if $opts{v};
+			$fpath = $opts{b};
 		}
 	}
-	open $F, "<", $fname or die "Unable to open log file $fname for reading";
+	open $F, "<", $fpath or die "Unable to open log file $fpath for reading";
 	seek $F, $state->{ofs}->{$opts{l}}, SEEK_SET if $state->{ofs}->{$opts{l}};
 	while (<$F>)
 	{
 		create_taskfile($1, $2, $3, $4) if /AdvancedFiltering:NewMailBox:<([^>]+)>Domain:<([^>]+)>Client:<([^>]+)>Realm:<([^>]+)>/;
 	}
-	$state->{ofs}->{$opts{l}} = $fname eq $opts{l} ? tell $F : 0;
+	$state->{ofs}->{$opts{l}} = $fpath eq $opts{l} ? tell $F : 0;
 }
 
 ######################################################################

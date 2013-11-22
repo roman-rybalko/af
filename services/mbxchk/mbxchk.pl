@@ -6,12 +6,14 @@ use warnings;
 use Getopt::Std;
 use Net::LDAP;
 use Net::SMTP;
-use Storable qw(lock_store lock_retrieve);
+use Fcntl qw(:flock);
+use Storable qw(fd_retrieve);
+use Data::Dumper;
 
 my %opts;
 sub parse_opts
 {
-	getopts('hU:D:W:C:K:A:l:b:s:v:', \%opts);
+	getopts('hU:D:W:C:K:A:t:v:', \%opts);
 	if ($opts{h})
 	{
 		print "USAGE: $0 [options]\n",
@@ -23,15 +25,12 @@ sub parse_opts
 			"\t-C cert\t\tLDAP STARTTLS certificate file\n",
 			"\t-K key\t\tLDAP STARTTLS key file\n",
 			"\t-A ca\t\tLDAP STARTTLS CA path\n",
-			"\t-l logfile\tLog file\n",
-			"\t-b logfile\tBackup Log file\n",
-			"\t-s statefile\tState file\n",
-			"\t-t thrcnt\tThreads count\n",
+			"\t-t taskdir\tTask files directory\n",
 			"\t-v level\tLog verbosity level\n",
 			"";
 		exit 0;
 	}
-	die "-U -l -b -s options are required" unless $opts{U} && $opts{l} && $opts{b} && $opts{s};
+	die "-U -t options are required" unless $opts{U} && $opts{t};
 	$opts{v} = 0 unless $opts{v};
 }
 
@@ -64,22 +63,6 @@ sub reconnect_ldap
 		my $ldap_msg = $ldap->bind($opts{D}, password => $opts{W});
 		die "bind: " . $ldap_msg->error_text if $ldap_msg->is_error;
 	}
-}
-
-sub load_state
-{
-	my $state;
-	eval {
-		$state = lock_retrieve($opts{s});
-	};
-	$state = {} unless $state;
-	return $state;
-}
-
-sub save_state
-{
-	my $state = shift;
-	lock_store $state, $opts{s};
 }
 
 sub get_mx_settings
@@ -174,26 +157,48 @@ sub process_mbox
 	update_mailbox($mailbox, $domain, $client, $realm, $existing);
 }
 
-sub process_log
+sub process_tasks
 {
-	my $state = shift;
+	my $D;
+	opendir $D, $opts{t};
+	while (my $fname = readdir $D)
+	{
+		next if $fname =~ /^\./;
+		my $fpath = "$opts{t}/$fname";
+		my $F;
+		unless (open $F, "<", $fpath)
+		{
+			warn "Unable to open file $fpath for reading" if $opts{v} > 1;
+			next;
+		}
+		unless (flock $F, LOCK_EX|LOCK_NB)
+		{
+			warn "Unable to lock file $fpath exclusively" if $opts{v} > 1;
+			next;
+		}
+		my $data;
+		eval {
+			$data = fd_retrieve($F);
+		};
+		unless ($data
+			&& exists $data->{mailbox}
+			&& exists $data->{domain}
+			&& exists $data->{client}
+			&& exists $data->{realm})
+		{
+			warn "Task file $fpath is broken (", Dumper($data), ")";
+			unlink $fpath;
+			next;
+		}
+		
+	}
+	
 	my $F;
 	my $fname = $opts{l};
-	if ($state->{ofs}->{$opts{l}})
-	{
-		if (-s $opts{l} < $state->{ofs}->{$opts{l}})
-		{
-			warn "Log rotation $fname -> $opts{b}" if $opts{v};
-			$fname = $opts{b};
-		}
-	}
 	open $F, "<", $fname or die "Unable to open log file $fname for reading";
-	seek $F, $state->{ofs}->{$opts{l}}, 0 if $state->{ofs}->{$opts{l}};
 	while (<$F>)
 	{
 		process_mbox($1, $2, $3, $4) if /AdvancedFiltering:NewMailBox:<([^>]+)>Domain:<([^>]+)>Client:<([^>]+)>Realm:<([^>]+)>/;
-		$state->{ofs}->{$opts{l}} = $fname eq $opts{l} ? tell $F : 0;
-		save_state($state);
 	}
 }
 
@@ -202,6 +207,4 @@ sub process_log
 parse_opts;
 reconnect_ldap;
 
-my $state = load_state;
-process_log($state);
-save_state($state);
+process_tasks;
