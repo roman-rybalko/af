@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-. "$TESTDIR"/smtp.conf
+. "$TESTDIR"/mbxchk.conf
 RC="$TESTDIR"/.tools/ldaprc
 >"$RC"
 [ -n "$LDAP" ]; echo "URI $LDAP" >> "$RC"

@@ -1,1 +1,0 @@
-../../services/smtp/work.pl

@@ -1,0 +1,12 @@
++ . /srv/www/roma/htdocs/advancedfiltering/tests/mbxchk.conf
++ hostname
++ DST_HOST=roma
++ PATH=/srv/www/roma/htdocs/advancedfiltering/tests/mbxchk/.tools:/home/roma/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/bin:/opt/my/bin:/opt/my/sbin
++ . /srv/www/roma/htdocs/advancedfiltering/tests/mbxchk/.tools/common.sh
++ date +%s
++ CUR_TIME=1385291634
++ YSTD_TIME=1385205234
++ rm -vf state
+удалён «state»
++ rm -vf .tasks/r1-cli1-test.com-mbox
+удалён «.tasks/r1-cli1-test.com-mbox»

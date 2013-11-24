@@ -1,0 +1,17 @@
++ . /srv/www/roma/htdocs/advancedfiltering/tests/mbxchk/mbxchk.conf
++ LDAP=ldapi://%2fvar%2frun%2fopenldap%2fldapi
++ LDAPDN=cn=mbxchk,ou=auth
++ LDAPPW=mbxchk
++ LOG=mainlog
++ LOGBK=mainlog.1
++ STATE=state
++ TASKD=.tasks
++ RC=/srv/www/roma/htdocs/advancedfiltering/tests/mbxchk/.tools/ldaprc
++ 
++ [ -n ldapi://%2fvar%2frun%2fopenldap%2fldapi ]
++ echo URI ldapi://%2fvar%2frun%2fopenldap%2fldapi
++ [ -z  ]
++ [ -z  ]
++ [ -z  ]
++ [ -z  ]
++ [ -z  ]

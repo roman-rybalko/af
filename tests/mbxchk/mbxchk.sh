@@ -1,0 +1,1 @@
+../../services/mbxchk/mbxchk.sh
