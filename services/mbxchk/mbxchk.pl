@@ -36,8 +36,9 @@ sub parse_opts
 			"";
 		exit 0;
 	}
-	die "-U -t -T -f options are required" unless $opts{U} && $opts{t} && $opts{T} && $opts{f};
+	die "-U -t -T options are required" unless $opts{U} && $opts{t} && $opts{T};
 	$opts{v} = 0 unless $opts{v};
+	$opts{f} = "" unless $opts{f};
 }
 
 my $ldap;
@@ -140,7 +141,7 @@ sub check_smtp
 		$smtp->auth($mx1_settings->{afUSMTPMXAuthUser}, $mx1_settings->{afUSMTPMXAuthPassword}) or die "AUTH failed";
 	}
 	$smtp->mail($opts{f}) or die "MAIL failed";
-	my $existing = $smtp->recipient("$mbox_settings->{mailbox}\@$mbox_settings->{domain}");
+	my $existing = $smtp->to("$mbox_settings->{mailbox}\@$mbox_settings->{domain}");
 	$smtp->quit();
 	return $existing;
 }
