@@ -1,0 +1,13 @@
+MAILTO=root
+PATH=/bin:/usr/bin:/usr/local/bin
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxlog-wd.sh
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 0
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 1
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 2
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 3
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 4
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 5
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 6
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 7
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 8
+* * * * * /usr/local/advancedfiltering/mbxchk/bin/mbxchk-wd.sh 9

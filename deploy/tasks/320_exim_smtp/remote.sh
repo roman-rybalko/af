@@ -12,7 +12,5 @@ cp dkim-smtp.key /usr/local/etc/exim/
 chown exim /usr/local/etc/exim/dkim-smtp.key
 chmod og-rwx /usr/local/etc/exim/dkim-smtp.key
 
-./db-mod.sh
-
 service exim stop || true
 service exim start

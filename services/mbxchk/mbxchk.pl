@@ -9,11 +9,14 @@ use Net::SMTP;
 use Fcntl qw(:flock);
 use Storable qw(fd_retrieve);
 use Data::Dumper;
+use File::Basename qw(dirname);
+use lib (dirname($0));
+use AdvancedFiltering::SMTP;
 
 my %opts;
 sub parse_opts
 {
-	getopts('hU:D:W:C:K:A:t:v:', \%opts);
+	getopts('hU:D:W:C:K:A:t:T:f:S:v:', \%opts);
 	if ($opts{h})
 	{
 		print "USAGE: $0 [options]\n",
@@ -26,11 +29,14 @@ sub parse_opts
 			"\t-K key\t\tLDAP STARTTLS key file\n",
 			"\t-A ca\t\tLDAP STARTTLS CA path\n",
 			"\t-t taskdir\tTask files directory\n",
+			"\t-T timeout\tSMTP timeout in seconds\n",
+			"\t-f sender\tSMTP Sender\n",
+			"\t-S dir\tSSL directory (.../exim/ssl)\n",
 			"\t-v level\tLog verbosity level\n",
 			"";
 		exit 0;
 	}
-	die "-U -t options are required" unless $opts{U} && $opts{t};
+	die "-U -t -T -f options are required" unless $opts{U} && $opts{t} && $opts{T} && $opts{f};
 	$opts{v} = 0 unless $opts{v};
 }
 
@@ -67,23 +73,20 @@ sub reconnect_ldap
 
 sub get_mx_settings
 {
-	my $mailbox = shift;
-	my $domain = shift;
-	my $client = shift;
-	my $realm = shift;
+	my $mbox_settings = shift;
 	my $mx_settings = [];
 
 	my @attrs = ('afUSMTPMXHostName',
 		'afUSMTPMXTCPPort',
 		'afUSMTPMXAuthUser',
 		'afUSMTPMXAuthPassword',
-		'afUSMTPMXIsTLSRequired',
+		'afUSMTPMXTLSRequired',
 		'afUSMTPMXAuthTLSCertificate',
 		'afUSMTPMXAuthTLSKey',
 		'afUSMTPMXAuthTLSCA');
-	foreach my $base("ou=settings,afUSMTPDMBLocalPart=$mailbox,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering",
-		"ou=settings,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering",
-		"ou=settings,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering")
+	foreach my $base("ou=settings,afUSMTPDMBLocalPart=$mbox_settings->{mailbox},afUSMTPDomainName=$mbox_settings->{domain},afUClientName=$mbox_settings->{client},afUServiceRealm=$mbox_settings->{realm}+afUServiceName=smtp,ou=user,o=advancedfiltering",
+		"ou=settings,afUSMTPDomainName=$mbox_settings->{domain},afUClientName=$mbox_settings->{client},afUServiceRealm=$mbox_settings->{realm}+afUServiceName=smtp,ou=user,o=advancedfiltering",
+		"ou=settings,afUClientName=$mbox_settings->{client},afUServiceRealm=$mbox_settings->{realm}+afUServiceName=smtp,ou=user,o=advancedfiltering")
 	{
 		my $ldap_msg = $ldap->search(
 			base => $base,
@@ -100,21 +103,69 @@ sub get_mx_settings
 	return $mx_settings;
 }
 
+sub check_smtp
+{
+	my $mbox_settings = shift;
+	my $mx1_settings = shift;
+	my $smtp = Net::SMTP->new(
+		$mx1_settings->{afUSMTPMXHostName},
+		Port => $mx1_settings->{afUSMTPMXTCPPort},
+		Timeout => $opts{T},
+	) or die "Can't connect to SMTP server";
+	die "STARTTLS is not supported but required"
+		if $mx1_settings->{afUSMTPMXTLSRequired}
+		&& !$smtp->supports('STARTTLS');
+	die "AUTH CRAM-MD5 & STARTTLS is not supported but AUTH is required"
+		if $mx1_settings->{afUSMTPMXAuthUser}
+		&& (!$smtp->supports('AUTH') || $smtp->supports('AUTH') !~ /CRAM\-MD5/)
+		&& !$smtp->supports('STARTTLS');
+	if (
+		$mx1_settings->{afUSMTPMXTLSRequired}
+		|| ($mx1_settings->{afUSMTPMXAuthUser} && (!$smtp->supports('AUTH') || $smtp->supports('AUTH') !~ /CRAM\-MD5/))
+		)
+	{
+		my %args;
+		$args{SSL_cert_file} = "$opts{S}/$mx1_settings->{afUSMTPMXAuthTLSCertificate}.crt" if $mx1_settings->{afUSMTPMXAuthTLSCertificate};
+		$args{SSL_key_file} = "$opts{S}/$mx1_settings->{afUSMTPMXAuthTLSKey}.key" if $mx1_settings->{afUSMTPMXAuthTLSKey};
+		if ($mx1_settings->{afUSMTPMXAuthTLSCA})
+		{
+			$args{SSL_ca_path} = "$opts{S}/$mx1_settings->{afUSMTPMXAuthTLSCA}";
+			$args{SSL_check_crl} = 1;
+			$args{SSL_verify_mode} = 0x01;
+		}
+		$smtp->starttls(%args) or die "STARTTLS failed";
+	}
+	if ($mx1_settings->{afUSMTPMXAuthUser})
+	{
+		$smtp->auth($mx1_settings->{afUSMTPMXAuthUser}, $mx1_settings->{afUSMTPMXAuthPassword}) or die "AUTH failed";
+	}
+	$smtp->mail($opts{f}) or die "MAIL failed";
+	my $existing = $smtp->recipient("$mbox_settings->{mailbox}\@$mbox_settings->{domain}");
+	$smtp->quit();
+	return $existing;
+}
+
 sub check_mailbox
 {
+	my $mbox_settings = shift;
 	my $mx_settings = shift;
-	my $existing = 0;
-	# TODO
+	my $existing = undef;
+	foreach my $mx1_settings (@$mx_settings)
+	{
+		eval {
+			$existing = check_smtp($mbox_settings, $mx1_settings);
+		};
+		warn "$mx1_settings->{afUSMTPMXHostName}:$mx1_settings->{afUSMTPMXTCPPort}: $@" if $@ && $opts{v};
+		last if defined $existing;
+	}
+	return $existing;
 }
 
 sub update_mailbox
 {
-	my $mailbox = shift;
-	my $domain = shift;
-	my $client = shift;
-	my $realm = shift;
+	my $mbox_settings = shift;
 	my $existing = shift;
-	my $base = "afUSMTPDMBLocalPart=$mailbox,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceRealm=$realm+afUServiceName=smtp,ou=user,o=advancedfiltering";
+	my $base = "afUSMTPDMBLocalPart=$mbox_settings->{mailbox},afUSMTPDomainName=$mbox_settings->{domain},afUClientName=$mbox_settings->{client},afUServiceRealm=$mbox_settings->{realm}+afUServiceName=smtp,ou=user,o=advancedfiltering";
 	my $ldap_msg = $ldap->search(
 		base => $base,
 		scope => 'base',
@@ -138,7 +189,7 @@ sub update_mailbox
 			$base,
 			attr => [
 				'objectClass' => 'afUSMTPDMailBox',
-				'afUSMTPDMBLocalPart' => $mailbox,
+				'afUSMTPDMBLocalPart' => $mbox_settings->{mailbox},
 				%attrs
 			]
 		);
@@ -148,13 +199,10 @@ sub update_mailbox
 
 sub process_mbox
 {
-	my $mailbox = shift;
-	my $domain = shift;
-	my $client = shift;
-	my $realm = shift;
-	my $mx_settings = get_mx_settings($mailbox, $domain, $client, $realm);
-	my $existing = check_mailbox($mx_settings);
-	update_mailbox($mailbox, $domain, $client, $realm, $existing);
+	my $mbox_settings = shift;
+	my $mx_settings = get_mx_settings($mbox_settings);
+	my $existing = check_mailbox($mbox_settings, $mx_settings);
+	update_mailbox($mbox_settings, $existing) if defined $existing;
 }
 
 sub process_tasks
@@ -176,23 +224,23 @@ sub process_tasks
 			warn "Unable to lock file $fpath exclusively" if $opts{v} > 1;
 			next;
 		}
-		my $data;
+		my $mbox_settings;
 		eval {
-			$data = fd_retrieve($F);
+			$mbox_settings = fd_retrieve($F);
 		};
-		unless ($data
-			&& defined $data->{mailbox}
-			&& defined $data->{domain}
-			&& defined $data->{client}
-			&& defined $data->{realm})
+		unless ($mbox_settings
+			&& defined $mbox_settings->{mailbox}
+			&& defined $mbox_settings->{domain}
+			&& defined $mbox_settings->{client}
+			&& defined $mbox_settings->{realm})
 		{
-			warn "Task file $fpath is broken (", Dumper($data), ")";
+			warn "Task file $fpath is broken (", Dumper($mbox_settings), ")";
 			unlink $fpath;
 			next;
 		}
-		process_mbox($data->{mailbox}, $data->{domain}, $data->{client}, $data->{realm});
+		process_mbox($mbox_settings);
 		unlink $fpath;
-		warn "$fpath (", Dumper($data), ") processed successfully" if $opts{v} > 1;
+		warn "$fpath (", Dumper($mbox_settings), ") processed successfully" if $opts{v} > 1;
 	}
 }
 
