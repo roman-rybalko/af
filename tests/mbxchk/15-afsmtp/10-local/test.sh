@@ -8,7 +8,7 @@ export AFSMTP_FROM=test-from@hosts.advancedfiltering.net
 export AFSMTP_TO=test-to@hosts.advancedfiltering.net
 export AFSMTP_CERT=tests-smtp.crt
 export AFSMTP_KEY=tests-smtp.key
-export AFSMTP_CAPATH=tests-ca
+export AFSMTP_CAPATH=.tests-ca
 "$TESTDIR"/test-afsmtp.pl
 wait_file server.env
 grep CN=tests-smtp server.env

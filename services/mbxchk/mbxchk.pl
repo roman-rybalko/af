@@ -128,6 +128,7 @@ sub check_smtp
 		&& !defined($smtp->supports('STARTTLS'));
 	if (
 		$mx1_settings->{afUSMTPMXTLSRequired}
+		|| defined($smtp->supports('STARTTLS'))
 		|| ($mx1_settings->{afUSMTPMXAuthUser} && (!defined($smtp->supports('AUTH')) || $smtp->supports('AUTH') !~ /CRAM\-MD5/))
 		)
 	{
@@ -139,6 +140,10 @@ sub check_smtp
 			$args{SSL_ca_path} = "$opts{S}/$mx1_settings->{afUSMTPMXAuthTLSCA}";
 			$args{SSL_check_crl} = 1;
 			$args{SSL_verify_mode} = 0x01;
+		}
+		else
+		{
+			$args{SSL_verify_mode} = 0x00;
 		}
 		warn "STARTTLS args: ", Dumper(\%args) if $opts{v} > 1;
 		$smtp->starttls(%args) or die "STARTTLS failed (", IO::Socket::SSL::errstr, ")";
@@ -211,6 +216,7 @@ sub process_mbox
 	my $mx_settings = get_mx_settings($mbox_settings);
 	my $existing = check_mailbox($mbox_settings, $mx_settings);
 	update_mailbox($mbox_settings, $existing) if defined $existing;
+	return defined $existing;
 }
 
 sub process_tasks
@@ -246,9 +252,15 @@ sub process_tasks
 			unlink $fpath;
 			next;
 		}
-		process_mbox($mbox_settings);
-		unlink $fpath;
-		warn "$fpath (", Dumper($mbox_settings), ") processed successfully" if $opts{v} > 1;
+		if (process_mbox($mbox_settings))
+		{
+			unlink $fpath;
+			warn "$fpath (", Dumper($mbox_settings), ") processed successfully" if $opts{v} > 1;
+		}
+		else
+		{
+			warn "$fpath (", Dumper($mbox_settings), ") skipped" if $opts{v};
+		}
 	}
 }
 

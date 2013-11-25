@@ -3,7 +3,7 @@
 . "$TESTCONF"
 
 add_ldif user.ldif
-./init-data.pl # perl storable is not cross-platform-portable
+"$TESTDIR"/init-data.pl # perl storable is not cross-platform-portable
 
 start_server mx -s 1 -e server.env -p 25251 -r absent@test.com
 rm -f server.env
