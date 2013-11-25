@@ -166,13 +166,13 @@ sub store_check_result
 	my $mime_creds = shift;
 	my $mime_result = shift;
 	my @attr = (
-		objectClass => 'afUMDBMessageIncoming',
-		afUMDBMessageId => $mime_creds->{mid},
-		afUMDBMessageSenderMailAddress => $mime_creds->{sender},
-		afUMDBMessageTimeCreated => time,
+		objectClass => 'afUSMTPMessageIncoming',
+		afUSMTPMessageId => $mime_creds->{mid},
+		afUSMTPMessageSenderMailAddress => $mime_creds->{sender},
+		afUSMTPMessageTimeCreated => time,
 	);
-	push @attr => afUMDBMessageSpamDescription => $mime_result->{report} if $mime_result->{spam};
-	my $base = "afUMDBMessageId=$mime_creds->{mid},afUServiceRealm=$mime_creds->{realm},afUServiceName=mdb,ou=user,o=advancedfiltering";
+	push @attr => afUSMTPMessageSpamDescription => $mime_result->{report} if $mime_result->{spam};
+	my $base = "afUSMTPMessageId=$mime_creds->{mid},afUServiceRealm=$mime_creds->{realm}+afUServiceName=smtpdb,ou=user,o=advancedfiltering";
 	my $ldap_msg = $ldap->add($base, attr => [@attr]);
 	if ($ldap_msg->is_error)
 	{
