@@ -9,8 +9,8 @@ use Net::SMTP;
 use Fcntl qw(:flock);
 use Storable qw(fd_retrieve);
 use Data::Dumper;
-use File::Basename qw(dirname);
-use lib (dirname($0));
+use FindBin;
+use lib ($FindBin::Bin);
 use AdvancedFiltering::SMTP;
 
 my %opts;

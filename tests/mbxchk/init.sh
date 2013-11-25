@@ -1,5 +1,7 @@
 #!/bin/sh -ex
 
+. "$TESTCONF"
+
 . "$TESTDIR"/mbxchk.conf
 RC="$TESTDIR"/.tools/ldaprc
 >"$RC"
@@ -9,3 +11,9 @@ RC="$TESTDIR"/.tools/ldaprc
 [ -z "$LDAPCADIR" ] || echo "TLS_CACERTDIR $LDAPCADIR" >> "$RC"
 [ -z "$LDAPCADIR" ] || echo "TLS_REQCERT demand" >> "$RC"
 [ -z "$LDAPCADIR" ] || echo "TLS_CRLCHECK all" >> "$RC"
+
+ldapmodify -V -n </dev/null
+which ldapdelete
+smtp_server -h
+host localhost
+usleep 1

@@ -35,3 +35,44 @@ match_ldif()
 	diff -u "$ldif" .match_tmp.ldif
 	rm .match_tmp.ldif
 }
+
+wait_file()
+{
+	local c f
+	f=$1
+	c=50
+	while [ $c -gt 0 ]; do
+		[ ! -e $f ] || break
+		c=$(($c-1))
+		usleep 100000
+	done
+	[ -e $f ]
+}
+
+start_server()
+{
+	local id
+	id=$1
+	shift
+	if [ -e smtp_server_$id.pid ]; then
+		if kill -0 `cat smtp_server_$id.pid`; then
+			false
+		fi
+		rm -f smtp_server_$id.pid
+	fi
+	if echo $id | grep notls >/dev/null; then
+		smtp_server -P smtp_server_$id.pid $* &
+	else
+		smtp_server -c "$TESTDIR"/.tools/tests.crt -k "$TESTDIR"/.tools/tests.key -C "$TESTDIR"/.tools/ca.crt -P smtp_server_$id.pid $* &
+	fi
+	wait_file smtp_server_$id.pid
+}
+
+stop_server()
+{
+	local id
+	id=$1
+	[ -e smtp_server_$id.pid ] || return 0
+	kill `cat smtp_server_$id.pid` || true
+	rm -f smtp_server_$id.pid
+}
