@@ -117,6 +117,7 @@ sub check_smtp
 		$mx1_settings->{afUSMTPMXHostName},
 		Port => $mx1_settings->{afUSMTPMXTCPPort},
 		Timeout => $opts{T},
+		Hello => `hostname`,
 	) or die "Can't connect to SMTP server";
 	warn "MX settings: ", Dumper($mx1_settings) if $opts{v} > 1;
 	die "STARTTLS is not supported but required"
@@ -126,11 +127,7 @@ sub check_smtp
 		if $mx1_settings->{afUSMTPMXAuthUser}
 		&& (!defined($smtp->supports('AUTH')) || $smtp->supports('AUTH') !~ /CRAM\-MD5/)
 		&& !defined($smtp->supports('STARTTLS'));
-	if (
-		$mx1_settings->{afUSMTPMXTLSRequired}
-		|| defined($smtp->supports('STARTTLS'))
-		|| ($mx1_settings->{afUSMTPMXAuthUser} && (!defined($smtp->supports('AUTH')) || $smtp->supports('AUTH') !~ /CRAM\-MD5/))
-		)
+	if (defined $smtp->supports('STARTTLS'))
 	{
 		my %args;
 		$args{SSL_cert_file} = "$opts{S}/$mx1_settings->{afUSMTPMXAuthTLSCertificate}.crt" if $mx1_settings->{afUSMTPMXAuthTLSCertificate};
@@ -147,7 +144,11 @@ sub check_smtp
 		}
 		warn "STARTTLS args: ", Dumper(\%args) if $opts{v} > 1;
 		$smtp->starttls(%args) or die "STARTTLS failed (", IO::Socket::SSL::errstr, ")";
+		$smtp->hello(`hostname`) or die "EHLO/HELO failed";
 	}
+	die "AUTH is not supported but required"
+		if $mx1_settings->{afUSMTPMXAuthUser}
+		&& !defined($smtp->supports('AUTH'));
 	if ($mx1_settings->{afUSMTPMXAuthUser})
 	{
 		$smtp->auth($mx1_settings->{afUSMTPMXAuthUser}, $mx1_settings->{afUSMTPMXAuthPassword}) or die "AUTH failed";
