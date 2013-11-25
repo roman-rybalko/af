@@ -89,7 +89,7 @@ sub reload_sa
 }
 
 my ($rules_mtime, $site_rules_mtime, $bayes_mtime) = (-1,-1,-1);
-sub are_rules_updated
+sub rules_updated
 {
 	my $sa_bayes = $opts{u}."/bayes_seen";
 	if (
@@ -230,7 +230,7 @@ while($mime_cnt > 0)
 			warn "File $file_name is locked" if $opts{v} > 1;
 			next;
 		}
-		reload_sa if are_rules_updated;
+		reload_sa if rules_updated;
 		my $mime = parse_mime_file($file_name);
 		my $creds = get_mime_creds($mime);
 		store_check_result($creds, check_mime($mime)) if $creds;
