@@ -5,13 +5,13 @@ use warnings;
 
 use Getopt::Std;
 use Net::LDAP;
-use Net::SMTP;
 use Fcntl qw(:flock);
 use Storable qw(fd_retrieve);
 use Data::Dumper;
 use FindBin;
 use lib ($FindBin::Bin);
 use AdvancedFiltering::SMTP;
+use IO::Socket::SSL;
 
 my %opts;
 sub parse_opts
@@ -97,7 +97,12 @@ sub get_mx_settings
 		);
 		foreach my $ldap_entry ($ldap_msg->entries)
 		{
-			push @$mx_settings => {map {$_ => $ldap_entry->get_value($_)} (@attrs)};
+			my $mx1_settings = {};
+			foreach my $attr (@attrs)
+			{
+				$mx1_settings->{$attr} = $ldap_entry->get_value($attr) if $ldap_entry->get_value($attr);
+			}
+			push @$mx_settings => $mx1_settings;
 		}
 		last if @$mx_settings;
 	}
@@ -108,21 +113,22 @@ sub check_smtp
 {
 	my $mbox_settings = shift;
 	my $mx1_settings = shift;
-	my $smtp = Net::SMTP->new(
+	my $smtp = AdvancedFiltering::SMTP->new(
 		$mx1_settings->{afUSMTPMXHostName},
 		Port => $mx1_settings->{afUSMTPMXTCPPort},
 		Timeout => $opts{T},
 	) or die "Can't connect to SMTP server";
+	warn "MX settings: ", Dumper($mx1_settings) if $opts{v} > 1;
 	die "STARTTLS is not supported but required"
 		if $mx1_settings->{afUSMTPMXTLSRequired}
-		&& !$smtp->supports('STARTTLS');
+		&& !defined($smtp->supports('STARTTLS'));
 	die "AUTH CRAM-MD5 & STARTTLS is not supported but AUTH is required"
 		if $mx1_settings->{afUSMTPMXAuthUser}
-		&& (!$smtp->supports('AUTH') || $smtp->supports('AUTH') !~ /CRAM\-MD5/)
-		&& !$smtp->supports('STARTTLS');
+		&& (!defined($smtp->supports('AUTH')) || $smtp->supports('AUTH') !~ /CRAM\-MD5/)
+		&& !defined($smtp->supports('STARTTLS'));
 	if (
 		$mx1_settings->{afUSMTPMXTLSRequired}
-		|| ($mx1_settings->{afUSMTPMXAuthUser} && (!$smtp->supports('AUTH') || $smtp->supports('AUTH') !~ /CRAM\-MD5/))
+		|| ($mx1_settings->{afUSMTPMXAuthUser} && (!defined($smtp->supports('AUTH')) || $smtp->supports('AUTH') !~ /CRAM\-MD5/))
 		)
 	{
 		my %args;
@@ -134,7 +140,8 @@ sub check_smtp
 			$args{SSL_check_crl} = 1;
 			$args{SSL_verify_mode} = 0x01;
 		}
-		$smtp->starttls(%args) or die "STARTTLS failed";
+		warn "STARTTLS args: ", Dumper(\%args) if $opts{v} > 1;
+		$smtp->starttls(%args) or die "STARTTLS failed (", IO::Socket::SSL::errstr, ")";
 	}
 	if ($mx1_settings->{afUSMTPMXAuthUser})
 	{

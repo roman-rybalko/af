@@ -5,6 +5,8 @@ use warnings;
 use FindBin;
 use lib ($FindBin::Bin);
 use AdvancedFiltering::SMTP;
+use IO::Socket::SSL;
+use Data::Dumper;
 
 my $smtp = AdvancedFiltering::SMTP->new($ENV{AFSMTP_HOST}, Port => $ENV{AFSMTP_PORT}, Timeout => 5, Hello => `hostname`, Debug => 1) or die "Connect failed";
 my %starttls_args;
@@ -19,7 +21,8 @@ if ($ENV{AFSMTP_CAPATH})
 	$starttls_args{SSL_check_crl} = 1;
 	$starttls_args{SSL_verify_mode} = 0x01;
 }
-$smtp->starttls(%starttls_args) or die "STARTTLS failed";
+warn "STARTTLS args: ", Dumper(\%starttls_args);
+$smtp->starttls(%starttls_args) or die "STARTTLS failed (", IO::Socket::SSL::errstr, ")";
 $smtp->hello(`hostname`) or die "HELO/EHLO failed";
 $smtp->auth($ENV{AFSMTP_USER}, $ENV{AFSMTP_PASS}) or die "AUTH failed";
 $smtp->mail($ENV{AFSMTP_FROM}) or die "MAIL failed";

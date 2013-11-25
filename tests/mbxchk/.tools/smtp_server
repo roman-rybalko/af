@@ -92,6 +92,7 @@ sub session
 			}
 			else
 			{
+				push @env => "SSL error:" , IO::Socket::SSL::errstr;
 				print $s "450 FAIL\r\n";
 			}
 		}
