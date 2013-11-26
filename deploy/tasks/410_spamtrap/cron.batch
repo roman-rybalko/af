@@ -1,4 +1,4 @@
 MAILTO=root
 PATH=/bin:/usr/bin:/usr/local/bin
-33 3 * * * /usr/local/advancedfiltering/spamtrap/bin/cron.sh
-* * * * * /usr/local/advancedfiltering/spamtrap/bin/work-wd.sh
+33 3 * * * /usr/local/advancedfiltering/spamtrap/bin/cf-wd.sh
+* * * * * /usr/local/advancedfiltering/spamtrap/bin/st-wd.sh
