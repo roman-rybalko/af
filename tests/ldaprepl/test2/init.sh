@@ -3,4 +3,4 @@
 . "$TESTCONF"
 
 add_ldif system.ldif
-"$TESTDIR"/work.sh
+"$TESTDIR"/ldaprepl.sh
