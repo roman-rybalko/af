@@ -1,0 +1,47 @@
+Delivered-To: openldap@romanr.name
+Received: by 10.64.69.37 with SMTP id b5csp5172ieu;
+        Thu, 30 May 2013 07:34:48 -0700 (PDT)
+Received: from boole.openldap.org (mailman@localhost [IPv6:::1])
+	by boole.openldap.org (8.14.4/8.14.4) with ESMTP id r4UE9wZp010876;
+	Thu, 30 May 2013 14:27:06 GMT
+	(envelope-from openldap-technical-bounces@openldap.org)
+Message-ID: <51A75DEA.6050003@novasparks.com>
+Date: Thu, 30 May 2013 16:10:50 +0200
+From: Jacques Foucry <jacques.foucry@novasparks.com>
+User-Agent: Mozilla/5.0 (X11; Linux i686 on x86_64;
+ rv:17.0) Gecko/20130509 Thunderbird/17.0.6
+MIME-Version: 1.0
+To: "openldap-technical@openldap.org" <openldap-technical@openldap.org>
+Subject: About ldapwhoami
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Mailman-Version: 2.1.14
+
+Hello folks,
+
+I think I misunderstood something, but I can't make ldapwhoami working.
+
+Mu openldap server work perfectly I and all my users can connect using 
+it. But whe I try to use ldapwhoami I get an error:
+
+ldapwhoami -x -D uid=jfoucry,ou=people,dc=example,dc=com -W
+Enter LDAP Password:
+ldap_bind: Invalid credentials (49)
+
+I am sure to use my LDAP password.
+
+
+I try with -d1 to have debug, and I reach to right server.
+
+What's going wrong?
+
+Thanks in advance for your help,
+regards,
+Jacques
+-- 
+Jacques Foucry
+*NOVΛSPARKS *
+IT Manager
+Tel : +33 (0)1 42 68 12 61
+jacques.foucry@novasparks.com
+

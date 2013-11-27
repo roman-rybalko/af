@@ -1,0 +1,1 @@
+../../../services/spamtrap/learn.sh

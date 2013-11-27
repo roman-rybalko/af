@@ -1,0 +1,5 @@
+clear_report_template
+report Content analysis details: _SCORE_ points
+report " pts rule name              description"
+report  ---- ---------------------- --------------------------------------------------
+report _SUMMARY_

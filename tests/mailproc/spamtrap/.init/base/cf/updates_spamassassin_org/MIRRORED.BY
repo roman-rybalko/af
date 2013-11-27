@@ -1,0 +1,7 @@
+# test mirror: zone, cached via Coral
+#http://buildbot.spamassassin.org.nyud.net:8090/updatestage/
+#Removed on 2012-09-26 per bug 6838
+#http://daryl.dostech.ca/sa-update/asf/ weight=5
+http://sa-update.dnswl.org/ weight=1
+http://www.sa-update.pccc.com/ weight=5
+http://sa-update.secnap.net/ weight=5
