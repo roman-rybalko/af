@@ -19,4 +19,5 @@
 * plugins: Thunderbird, Outlook, Evolution, TheBat, etc.
 == release 1.0
 * smtp, submission, web: anti-abuse, FBL/ARF
+* smtp/submission/web: etrn
 == release 1.1
