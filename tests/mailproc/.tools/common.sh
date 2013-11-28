@@ -35,3 +35,22 @@ match_ldif()
 	diff -u "$ldif" .match_tmp.ldif
 	rm .match_tmp.ldif
 }
+
+wait_mime_done()
+{
+	mimedir="$1"
+	cnt=50
+	while [ $cnt -gt 0 ]
+	do
+		exists=
+		for f in $mimedir/*.mime
+		do
+			[ -e $f ] || break
+			exists=1
+		done
+		[ -n "$exists" ] || break
+		cnt=$(($cnt-1))
+		usleep 100000
+	done
+	[ $cnt -gt 0 ]
+}
