@@ -1,6 +1,6 @@
 #!/bin/sh
 
-L=/tmp/mailproc.lock
+L=/tmp/mailproc$1.lock
 if [ -e $L ] && kill -0 `cat $L`; then
 	exit 0
 fi
