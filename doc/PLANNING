@@ -2,7 +2,7 @@
 + spamtrap
 + mailproc
 + mbxchk
-== release 0.5
++= release 0.5
 * submission
 * hamtrap: smtp, submission
 == release 0.6
