@@ -1,4 +1,4 @@
 #!/bin/sh -ex
 . "$TESTCONF"
 
-"$TESTDIR"/mbxchk.sh
+"$TESTDIR"/mbxchk.sh -v 3
