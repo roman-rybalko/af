@@ -1,0 +1,22 @@
++ smtp
++ spamtrap
++ mailproc
++ mbxchk
+== release 0.5
+* submission
+* hamtrap: smtp, submission
+== release 0.6
+* web
+* log
+== release 0.7
+* web: billing
+== release 0.8 (public)
+* vpn
+* webmail
+* web: user imap auth
+== release 0.9
+* X-AF-Rating header: smtp
+* plugins: Thunderbird, Outlook, Evolution, TheBat, etc.
+== release 1.0
+* smtp, submission, web: anti-abuse, FBL/ARF
+== release 1.1
