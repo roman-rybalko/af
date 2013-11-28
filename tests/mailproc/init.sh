@@ -14,5 +14,5 @@ RC="$TESTDIR"/.tools/ldaprc
 
 ldapmodify -V -n </dev/null
 which ldapdelete
-host localhost
 which sa-learn
+usleep 1

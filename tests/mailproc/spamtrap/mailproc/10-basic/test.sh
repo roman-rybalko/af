@@ -1,8 +1,6 @@
 #!/bin/sh -ex
 . "$TESTCONF"
 
-kill -0 `cat mailproc.pid`
-
 wait_mime_done()
 {
 	cnt=50
@@ -24,6 +22,11 @@ wait_mime_done()
 ./mailproc.sh -l -v 3 &
 # -d all
 pid=$!
+
+./mailproc.sh -l -v 3 &
+# -d all
+pid=$!
+
 
 cp -v ../.init/*/*.mime .mime
 mime_add_hdr.sh sender@tests.advancedfintering.net recipient@tests.advancedfiltering.net r1 .mime/*.mime

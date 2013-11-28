@@ -1,0 +1,5 @@
+
+dn: afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
+afuservicerealm: r1
+objectclass: afUService
+objectclass: top
