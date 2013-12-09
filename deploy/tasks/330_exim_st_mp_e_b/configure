@@ -66,6 +66,11 @@ bounce_router:
   local_parts = bounce
   transport = bounce_transport
   errors_to = error@services.advancedfiltering.net
+doublebounce_router:
+  driver = accept
+  local_parts = doublebounce
+  transport = bounce_transport
+  errors_to = error@services.advancedfiltering.net
 
 begin transports
 spamtrap_transport:
@@ -87,6 +92,10 @@ error_transport:
 bounce_transport:
   driver = appendfile
   directory = /usr/local/advancedfiltering/exim/bounce
+  mode = 0660
+doublebounce_transport:
+  driver = appendfile
+  directory = /usr/local/advancedfiltering/exim/doublebounce
   mode = 0660
 
 begin retry
