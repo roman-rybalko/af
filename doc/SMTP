@@ -1,5 +1,8 @@
 TODO: ETRN внешняя утилита
 TODO: rating
+TODO: VRFY для submission
+TODO: forward to mailproc даже для trusted size - для логирования message-id
+TODO: hamtrap
 
 * локальные порты 25 137 138 139 445
 
