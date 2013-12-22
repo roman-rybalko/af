@@ -485,13 +485,13 @@ data_acl:
   # * flag_sys_wl => ok, stop, mailproc
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
-    #set acl_m_mp_f = true
-    #set acl_m_mp_unseen_f = true
+    set acl_m_mp_f = true
+    set acl_m_mp_unseen_f = true
   # * flag_user_wl == recipients_count => ok, stop, mailproc
   accept
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
-    #set acl_m_mp_f = true
-    #set acl_m_mp_unseen_f = true
+    set acl_m_mp_f = true
+    set acl_m_mp_unseen_f = true
   
   # * проверка Message-Id в afMessageIncoming
   # ** нет MessageId => 5xx SPAM: No Message-ID header, stop
@@ -531,15 +531,15 @@ data_acl:
     logwrite = DEBUG: senders: ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value U_SDB_R_MO_LDAP_I} }
     logwrite = DEBUG: recipients: $recipients
     condition = ${if forany {U_SDB_R_MO_LDAP_DN_L} { inlist {U_SDB_R_MO_LDAP_I} {<, $recipients} } }
-    #set acl_m_ht_f = true
+    set acl_m_ht_f = true
   
   # * message_size >= sys_trustedmessagesize
   # ** ok => ok, stop, mailproc
   accept
     condition = ${if >{$message_size}{$acl_c_s_tms_d}}
     message = OK id=$message_exim_id (system policy, trusted message size)
-    #set acl_m_mp_f = true
-    #set acl_m_mp_unseen_f = true
+    set acl_m_mp_f = true
+    set acl_m_mp_unseen_f = true
   
   # * 4xx Your data is verifying, try again later, mailproc
   accept
