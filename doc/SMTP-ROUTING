@@ -3,14 +3,17 @@
 -> - redirect_router
 => - errors_to
 () - defaults
+[] - condition
+{} - unseen
 
-* service => ? error
-* mailproc (-> service) => error
-* spam -> backup => error
-* spamtrap (-> service) => error
-* backup -> mx => error
-* mx => bounce
-* submission (user senders only) => error
+* service [@services] {false} => error
+* mailproc [flag_mailproc] {flag_mailproc_unseen} (-> service) => error
+* hamtrap [flag_hamtrap] {true} (-> service) => error
+* spamtrap [spamtrap_msg] {true} (-> service) => error
+* spam [spamtrap_msg] {false} -> backup => error
+* backup {true} -> mx => error
+* mx {false} => bounce
+* submission {false} => error
 
 Для spam проверять afUSMTPDMBIsAbsent,
 т.к. отправка производится с адреса afUSMTPDMailBox,

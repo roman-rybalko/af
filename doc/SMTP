@@ -86,9 +86,9 @@ http://www.jwz.org/doc/threading.html
 
 data_end
 * flag_spamtrap => 5xx $flag_spamtrap, stop
-* flag_sys_wl => ok, stop
-* flag_user_wl == recipients_count => ok, stop
-#* sys_trustedport => ok, stop
+* flag_sys_wl => ok, stop, mailproc
+* flag_user_wl == recipients_count => ok, stop, mailproc
+#* sys_trustedport => ok, stop, mailproc
 На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx SPAM: No Message-ID header, stop
@@ -96,7 +96,8 @@ data_end
 ** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => ok, stop
+** ok => ok, stop, hamtrap
 * message_size >= sys_trustedmessagesize
-** ok => ok, stop
-* 4xx Your data is verifying, try again in later, forward to mailproc
+** ok => ok, stop, mailproc
+* 4xx Your data is verifying, try again later, mailproc
+

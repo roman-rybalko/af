@@ -52,7 +52,7 @@ begin acl
 # accept - match, deny - not match
 dnsbl_acl:
   deny
-    condition = $acl_c_s_tp_f
+    condition = ${if bool_lax{$acl_c_s_tp_f}}
     logwrite = DEBUG: dnsbl: trusted port
   accept
     dnslists = <, ${lookup ldap{LDAP_C/$acl_c_dbsbl_ldap_dn?afSSMTPDNSBLDomainName?base}}
@@ -146,12 +146,12 @@ s_bwl_acl:
     set acl_c_bwl_r = ""
     ! acl = $acl_c_s_bwl_acl
   deny
-    ! condition = $acl_c_s_st_f
+    ! condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${if eq{$acl_c_bwl_r}{black}}
     message = S_BL_M
     logwrite = DEBUG: s_bwl: black
   accept
-    condition = $acl_c_s_st_f
+    condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${if eq{$acl_c_bwl_r}{black}}
     set acl_c_s_st_m = S_BL_M
     logwrite = DEBUG: s_bwl: black (spamtrap)
@@ -330,11 +330,11 @@ rcpt_acl:
     message = Your data is verifying, try again later
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
   deny
-    ! condition = $acl_c_s_st_f
+    ! condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     message = U_MBA_M
   accept
-    condition = $acl_c_s_st_f
+    condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     set acl_c_s_st_m = U_MBA_M
     message = U_MBA_M
@@ -372,11 +372,11 @@ rcpt_acl:
 
   # * flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
   deny
-    ! condition = $acl_c_s_st_f
+    ! condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${if bool_lax{$acl_m_spf_m}}
     message = U_SPF_M
   accept
-    condition = $acl_c_s_st_f
+    condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${if bool_lax{$acl_m_spf_m}}
     set acl_c_s_st_m = U_SPF_M
     message = U_SPF_M
@@ -408,11 +408,11 @@ rcpt_acl:
   
   # * flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
   deny
-    ! condition = $acl_c_s_st_f
+    ! condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${if bool_lax{$acl_c_dnsbl_m}}
     message = U_DNSBL_M
   accept
-    condition = $acl_c_s_st_f
+    condition = ${if bool_lax{$acl_c_s_st_f}}
     condition = ${if bool_lax{$acl_c_dnsbl_m}}
     set acl_c_s_st_m = U_DNSBL_M
   
@@ -478,13 +478,20 @@ U_SMTPDB_R_MI_bad_sender_D = ${filter {U_SMTPDB_R_MI_sender_L} { and{ { bool_lax
 data_acl:
   warn
     set acl_m_u_recipients = $recipients
+  # * flag_spamtrap => 5xx $flag_spamtrap, stop
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
     control = fakereject/$acl_c_s_st_m
+  # * flag_sys_wl => ok, stop, mailproc
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
+    #set acl_m_mp_f = true
+    #set acl_m_mp_unseen_f = true
+  # * flag_user_wl == recipients_count => ok, stop, mailproc
   accept
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
+    #set acl_m_mp_f = true
+    #set acl_m_mp_unseen_f = true
   
   # * проверка Message-Id в afMessageIncoming
   # ** нет MessageId => 5xx SPAM: No Message-ID header, stop
@@ -516,7 +523,7 @@ data_acl:
     condition = ${if bool_lax{U_SMTPDB_R_MI_sender_D}}
   
   # * проверка In-Reply-To, References в afMessageOutgoing
-  # ** ok => ok, stop
+  # ** ok => ok, stop, hamtrap
   accept
     condition = ${if bool_lax{U_MR_D}}
     logwrite = DEBUG: realms: ${reduce {$acl_m_u_realms} {} {$value $item} }
@@ -524,14 +531,17 @@ data_acl:
     logwrite = DEBUG: senders: ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value U_SDB_R_MO_LDAP_I} }
     logwrite = DEBUG: recipients: $recipients
     condition = ${if forany {U_SDB_R_MO_LDAP_DN_L} { inlist {U_SDB_R_MO_LDAP_I} {<, $recipients} } }
+    #set acl_m_ht_f = true
   
   # * message_size >= sys_trustedmessagesize
-  # ** ok => ok, stop
+  # ** ok => ok, stop, mailproc
   accept
     condition = ${if >{$message_size}{$acl_c_s_tms_d}}
     message = OK id=$message_exim_id (system policy, trusted message size)
+    #set acl_m_mp_f = true
+    #set acl_m_mp_unseen_f = true
   
-  # * 4xx Your data is verifying, try again later, forward to mailproc
+  # * 4xx Your data is verifying, try again later, mailproc
   accept
     control = fakedefer/Your data is verifying, try again later
     set acl_m_mp_f = true
@@ -585,13 +595,36 @@ R_SH_A = X-AdvancedFiltering-Sender: $sender_address\nX-AdvancedFiltering-Recipi
 
 # * mailproc
 mailproc_router:
-  condition = $acl_m_mp_f
+  condition = ${if bool_lax{$acl_m_mp_f}}
   driver = redirect
   data = mailproc@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   headers_remove = R_SH_D
   headers_add = R_SH_A
+  unseen = ${if bool_lax{$acl_m_mp_unseen_f}{true}{false}}
+
+# * hamtrap
+hamtrap_router:
+  condition = ${if bool_lax{$acl_m_ht_f}}
+  driver = redirect
+  data = hamtrap@services.advancedfiltering.net
+  address_data = realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_SH_D
+  headers_add = R_SH_A
+  unseen = true
+
+# * spamtrap
+spamtrap_router:
+  condition = ${if bool_lax{$acl_c_s_st_m}}
+  driver = redirect
+  data = spamtrap@services.advancedfiltering.net
+  address_data = realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_SH_D
+  headers_add = R_SH_A
+  unseen = true
 
 # Router Client LDAP DN
 R_C_LDAP_DN = afUClientName=${quote_ldap_dn:R_CLIENT},afUServiceRealm=${quote_ldap_dn:R_C_REALM}+U_SMTP_LDAP_DN
@@ -679,21 +712,11 @@ spam_client_router:
   redirect_router = backup_router
 
 spam_last_router:
-  condition = ${if bool_lax{$acl_m_u_mi_s_m}}
+  condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
   condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
-
-# * spamtrap
-spamtrap_router:
-  condition = ${if bool_lax{$acl_c_s_st_m}}
-  driver = redirect
-  data = spamtrap@services.advancedfiltering.net
-  address_data = realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SH_D
-  headers_add = R_SH_A
 
 # * backup
 
@@ -804,7 +827,7 @@ mx_defer_router:
 # the realm should be in the address_data, if not - the leaked bounce (errors_to verification failed)
 
 submission_router:
-  condition = R_AD_R_F
+  condition = ${if bool_lax{R_AD_R_F}}
   driver = manualroute
   route_data = ${tr {${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_AD_R_LDAP_Q)(afSHostServiceName=submission))} }} {\n} {:} }
   hosts_randomize = true
@@ -814,7 +837,7 @@ submission_router:
   errors_to = error@services.advancedfiltering.net
 
 submission_defer_router:
-  condition = R_AD_R_F
+  condition = ${if bool_lax{R_AD_R_F}}
   driver = redirect
   allow_defer = true
   data = :defer:
