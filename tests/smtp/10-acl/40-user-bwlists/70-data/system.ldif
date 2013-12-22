@@ -4,6 +4,7 @@ afshostname: src.hosts.advancedfiltering.net
 afshostrealm: r1
 afshostservicename: mailproc
 afshostservicename: spamtrap
+afshostservicename: hamtrap
 afshostservicename: error
 afshostservicename: bounce
 afshostservicename: submission

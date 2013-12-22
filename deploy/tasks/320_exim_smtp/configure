@@ -482,12 +482,12 @@ data_acl:
   accept
     condition = ${if bool_lax{$acl_c_s_st_m}}
     control = fakereject/$acl_c_s_st_m
-  # * flag_sys_wl => ok, stop, mailproc
+  # * flag_sys_wl => ok, stop, mailproc (для логирования message-id)
   accept
     condition = ${if bool_lax{$acl_c_s_wl_m}}
     set acl_m_mp_f = true
     set acl_m_mp_unseen_f = true
-  # * flag_user_wl == recipients_count => ok, stop, mailproc
+  # * flag_user_wl == recipients_count => ok, stop, mailproc (для логирования message-id)
   accept
     condition = ${if ={$acl_m_u_wl_c}{$recipients_count}}
     set acl_m_mp_f = true
@@ -534,7 +534,7 @@ data_acl:
     set acl_m_ht_f = true
   
   # * message_size >= sys_trustedmessagesize
-  # ** ok => ok, stop, mailproc
+  # ** ok => ok, stop, mailproc (для логирования message-id)
   accept
     condition = ${if >{$message_size}{$acl_c_s_tms_d}}
     message = OK id=$message_exim_id (system policy, trusted message size)

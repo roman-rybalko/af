@@ -31,3 +31,15 @@ afssmtpdomainclientname: cli1
 afssmtpdomainname: test.com
 objectclass: afSSMTPDomain
 objectclass: top
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afshostname: src.hosts.advancedfiltering.net
+afshostrealm: r1
+afshostservicename: mailproc
+afshostservicename: spamtrap
+afshostservicename: hamtrap
+afshostservicename: error
+afshostservicename: bounce
+afshostservicename: submission
+objectclass: afSHost
+objectclass: top

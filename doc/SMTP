@@ -1,8 +1,6 @@
 TODO: ETRN внешняя утилита
 TODO: rating
 TODO: VRFY для submission
-TODO: forward to mailproc даже для trusted size - для логирования message-id
-TODO: hamtrap
 
 * локальные порты 25 137 138 139 445
 
@@ -86,9 +84,9 @@ http://www.jwz.org/doc/threading.html
 
 data_end
 * flag_spamtrap => 5xx $flag_spamtrap, stop
-* flag_sys_wl => ok, stop, mailproc
+* flag_sys_wl => ok, stop, mailproc (для логирования message-id)
 * flag_user_wl == recipients_count => ok, stop, mailproc
-#* sys_trustedport => ok, stop, mailproc
+#* sys_trustedport => ok, stop, mailproc (для логирования message-id)
 На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx SPAM: No Message-ID header, stop
@@ -98,6 +96,6 @@ data_end
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop, hamtrap
 * message_size >= sys_trustedmessagesize
-** ok => ok, stop, mailproc
+** ok => ok, stop, mailproc (для логирования message-id)
 * 4xx Your data is verifying, try again later, mailproc
 

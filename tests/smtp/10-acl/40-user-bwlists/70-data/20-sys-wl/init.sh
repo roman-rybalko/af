@@ -4,6 +4,7 @@
 
 add_ldif system.ldif
 
-start_server mx -s 1 -e server.env -p 2525
-start_server error
-rm -f server.env
+start_server mx -s 1 -e mx.env -p 2525
+start_server mailproc -s 1 -e mailproc.env
+rm -f mx.env
+rm -f mailproc.env
