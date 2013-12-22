@@ -850,7 +850,7 @@ T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
 # Transport Auth-required Hosts
 T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
 # Transport TLS-required Hosts
-T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXIsTLSRequired=TRUE)} }
+T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXTLSRequired=TRUE)} }
 # Transport TLS Certificate
 T_TLSC = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base} }
 # Transport TLS Key
