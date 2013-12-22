@@ -3,7 +3,7 @@ dn: afUSMTPMXHostName=src2.hosts.advancedfiltering.net,ou=settings,afUSMTPDMBLoc
 afusmtpmxauthpassword: password
 afusmtpmxauthuser: user
 afusmtpmxhostname: src2.hosts.advancedfiltering.net
-afusmtpmxistlsrequired: TRUE
+afUSMTPMXTLSRequired: TRUE
 afusmtpmxtcpport: 25252
 objectclass: afUSMTPMailExchanger
 objectclass: top
