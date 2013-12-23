@@ -2,6 +2,7 @@ TODO: ETRN внешняя утилита
 TODO: rating
 TODO: VRFY для submission
 TODO: заменить mailproc для логирования message-id на локальный скрипт
+TODO: опция для пропуска/блокировки спама на mx клиента
 
 * локальные порты 25 137 138 139 445
 
@@ -68,14 +69,13 @@ rcpt
 * проверка белых списков (ip, hostname, certificate) для [addr to, domain to, client to]
 ** ok => flag_user_wl+=1, ok, stop
 Проверить черный список для addr from имеет смысл даже без проверки SPF. Но делать отдельную проверку для черного списка
-не эфективно. Белый список для addr from не имеет смысла до проверки SPF. Черный список для addr from не имеет смысла если
-SPF обнаружил нарушение.
-* flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
+не эфективно. Белый список для addr from не имеет смысла до проверки SPF.
+* flag_spf => sys_spamtrap || spam_passthrough ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
 * проверка черных списков (addr from) для [addr to, domain to, client to]
 ** ok => 5xx Access denied (local user policy), stop
 * проверка белых списков (addr from) для [addr to, domain to, client to]
 ** ok => flag_user_wl+=1, ok, stop
-* flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
+* flag_dnsbl => sys_spamtrap || spam_passthrough ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
 flag_user_wl
 
 data
@@ -85,9 +85,9 @@ http://www.jwz.org/doc/threading.html
 
 data_end
 * flag_spamtrap => 5xx $flag_spamtrap, stop
-* flag_sys_wl => ok, stop, mailproc (для логирования message-id)
-* flag_user_wl == recipients_count => ok, stop, mailproc (для логирования message-id)
-#* sys_trustedport => ok, stop, mailproc (для логирования message-id)
+* flag_sys_wl => ok, stop, log message-id
+* flag_user_wl == recipients_count => ok, stop, log message-id
+#* sys_trustedport => ok, stop, log message-id
 На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx SPAM: No Message-ID header, stop
@@ -95,8 +95,7 @@ data_end
 ** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => ok, stop, hamtrap, mailproc (для логирования message-id)
+** ok => ok, stop, hamtrap, log message-id
 * message_size >= sys_trustedmessagesize
-** ok => ok, stop, mailproc (для логирования message-id)
+** ok => ok, stop, log message-id
 * 4xx Your data is verifying, try again later, mailproc
-

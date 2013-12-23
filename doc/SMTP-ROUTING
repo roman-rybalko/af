@@ -7,10 +7,10 @@
 {} - unseen
 
 * service [@services] {false} => error
-* mailproc [flag_mailproc] {flag_mailproc_unseen} (-> service) => error
+* mailproc [flag_mailproc] {false} (-> service) => error
 * hamtrap [flag_hamtrap] {true} (-> service) => error
 * spamtrap [spamtrap_msg] {true} (-> service) => error
-* spam [spamtrap_msg] {false} -> backup => error
+* spam [spamtrap_msg] {!client_spam_block} -> backup => error
 * backup {true} -> mx => error
 * mx {false} => bounce
 * submission {false} => error
@@ -31,3 +31,5 @@
 Для вывода из работы достаточно изменить конфигурацию - сделать единственный роутер для отправки на соседний smtp.
 Дублированием отправки в spam и backup можно принебречь (до тех пор, когда, по каким либо причинам, выводы из работы
 станут регулярными - тогда реализовать заголовок).
+
+Спам имеет смысл пропускать на клиента если он использует наши заголовки для фильтрации.

@@ -195,7 +195,7 @@ connect_acl:
     set acl_c_s_bwl_acl = sh_bwl_acl
     acl = s_bwl_acl
   warn
-  	! condition = ${if bool_lax{$acl_c_s_wl_m}}
+    ! condition = ${if bool_lax{$acl_c_s_wl_m}}
     set acl_c_dnsbl_ldap_dn = S_SMTP_LDAP_DN
     acl = dnsbl_acl
   accept
