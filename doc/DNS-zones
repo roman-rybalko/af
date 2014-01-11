@@ -1,0 +1,30 @@
+Для использования серых сетей требуется свой DNS-сервер.
+(требуются PTR-записи для серых адресов, для Kerberos)
+Slave-DNS-сервер будет размещен в каждом сегменте сети каждого хостинга.
+Master-DNS-сервер будет размещен совместно с мастером LDAP ou=system.
+Будет 3 основных зоны: advancedfiltering.net, 10.in-addr.arpa, 168.192.in-addr.arpa (172.16 не используется).
+
+www.advancedfiltering.net
+kb.advancedfiltering.net
+
+xxx.hosts.advancedfiltering.net
+
+clients.advancedfiltering.net
+
+xxx.clients.advancedfiltering.net
+
+mx1.xxx.clients.advancedfiltering.net
+mx2.xxx.clients.advancedfiltering.net
+srvmx1.xxx.clients.advancedfiltering.net
+srvmx2.xxx.clients.advancedfiltering.net
+submission1.xxx.clients.advancedfiltering.net
+submission2.xxx.clients.advancedfiltering.net
+webmail.xxx.clients.advancedfiltering.net
+vpn1.xxx.clients.advancedfiltering.net
+vpn2.xxx.clients.advancedfiltering.net
+
+configuration.ldap.services.advancedfiltering.net
+
+hosts.advancedfiltering.net (mx xxx)
+clientrealms.advancedfiltering.net (mx .)
+services.advancedfiltering.net (mx .)
