@@ -6,14 +6,14 @@
 [] - condition
 {} - unseen
 
-* service [@services] {false} => error
-* mailproc [flag_mailproc] {false} (-> service) => error
-* hamtrap [flag_hamtrap] {true} (-> service) => error
-* spamtrap [spamtrap_msg] {true} (-> service) => error
+* service [@services] {stop} => error
+* mailproc [flag_mailproc] {stop} (-> service) => error
+* hamtrap [flag_hamtrap] {continue} (-> service) => error
+* spamtrap [spamtrap_msg] {continue} (-> service) => error
 * spam [spamtrap_msg] {!client_spam_block} -> backup => error
-* backup {true} -> mx => error
-* mx {false} => bounce
-* submission {false} => error
+* backup {continue} -> mx => error
+* mx {stop} => bounce
+* submission {stop} => error
 
 Для spam проверять afUSMTPDMBIsAbsent,
 т.к. отправка производится с адреса afUSMTPDMailBox,
