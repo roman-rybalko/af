@@ -1,0 +1,13 @@
+Исходящий роутинг
+
+-> - redirect_router
+=> - errors_to
+() - defaults
+[] - condition
+{} - unseen
+
+* service [@services] {stop} => error
+* backup {continue} -> hamtrap => error
+* hamtrap [!flag_samsender] {continue} (-> service) => error
+* spamsender [flag_samsender] {stop} (-> service) => error
+* интернет

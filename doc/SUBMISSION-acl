@@ -1,0 +1,53 @@
+* локальные порты 25 587
+
+* получение системной настройки размера сообщения для отключения проверки спама
+sys_trustedmessagesize
+
+* наш hostname
+** наш realm и service=smtp
+** проверен hostname (ptr <-> ip)
+sys_trustedhost
+
+* идентифицировать клиента
+** sys_trustedhost
+** TLS SNI
+** IP
+
+* установить сертификат
+** sys_trustedhost => наш сертификат
+** client
+
+mail
+* идентифицировать клиента по домену
+* !sys_trustedhost => проверить настройки аутентификации
+** IP
+** TLS SNI
+** SMTP AUTH
+* проверить адрес отправителя
+** fail => 4xx Your data is verifying, try again later, log, stop
+** ok, absent => 5xx Sender mail box does not exist, stop
+** ok
+
+rcpt
+* проверить существование домена получателя
+
+data_end
+* проверить адрес отправителя
+** нет домена => 5xx The domain is not in service, stop
+** не наш realm => 4xx Moved, try another host, stop
+** fail => 4xx Your data is verifying, try again later, log, stop
+** ok, absent => 5xx Sender mail box does not exist, stop
+** ok
+* получить пользовательскую настройку "проверить SPAM"
+** usr_checkspam
+* проверить message-id
+** empty => usr_checkspam ? 5xx Message-ID is missing, stop : 2xx Message-ID is missing, flag_spamsender, stop
+** sender в БД и spam и usr_checkspam => 5xx spamdescr, stop
+** sender в БД => 2xx duplicate prev-queue-id, discard, stop
+** sender в БД но другой => 5xx actual_sender prev-queue-id
+** ok
+* msgsize >= sys_trustedmessagesize => log (trusted size), ok, stop
+* проверить spamd
+** log
+** spam => usr_checkspam ? 5xx spamdescr, stop : 2xx spamdescr, flag_spamsender, stop
+** ok
