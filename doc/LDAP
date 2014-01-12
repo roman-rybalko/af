@@ -45,9 +45,19 @@ mbox=ttt,domain=zzz,client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfilterin
 mid=xxx,service=smtpdb+realm=yyy,ou=user,o=advancedfiltering
 mid=xxx,service=submissiondb+realm=yyy,ou=user,o=advancedfiltering
 
+-
+
 ip=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
-smtplogin=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+client:
+
 tlssni=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+client:
+
 client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+smtppwd:
+
 domain=zzz,client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+smtppwd:
+
 mbox=ttt,domain=zzz,client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+smtppwd:
