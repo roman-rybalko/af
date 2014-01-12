@@ -38,8 +38,16 @@ realm:
 
 service=xxx+realm=yyy,ou=user,o=advancedfiltering
 
-client=zzz,service=smtp+realm=yyy,ou=user,o=advancedfiltering
-domain=ttt,client=zzz,service=smtp+realm=yyy,ou=user,o=advancedfiltering
+client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfiltering
+domain=zzz,client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfiltering
+mbox=ttt,domain=zzz,client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfiltering
 
-mid=yyy,service=smtpdb+realm=yyy,ou=user,o=advancedfiltering
-mid=yyy,service=submissiondb+realm=yyy,ou=user,o=advancedfiltering
+mid=xxx,service=smtpdb+realm=yyy,ou=user,o=advancedfiltering
+mid=xxx,service=submissiondb+realm=yyy,ou=user,o=advancedfiltering
+
+ip=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+smtplogin=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+tlssni=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+domain=zzz,client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
+mbox=ttt,domain=zzz,client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
