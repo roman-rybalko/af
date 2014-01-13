@@ -55,3 +55,5 @@ SMTP AUTH login и TLS SNI содержат clientName.
 SMTP AUTH password и TLS ключи/сертификаты находятся в service=submission+realm=xxx,ou=user.
 
 В SDB хранить sender и queue-id.
+
+Скрывать IP-адреса отправителей - клиентская настройка.

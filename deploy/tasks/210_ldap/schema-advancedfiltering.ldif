@@ -47,6 +47,10 @@ olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.3 NAME 'afSSMTPMailBoxTimeout' 
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.7 NAME 'afSSMTPDNSBLDomainName' DESC 'System (ou=system) SMTP DNSBL Domain Name' SUP afDomainName )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.8 NAME 'afSSMTPMaxMessageSize' DESC 'System (ou=system) SMTP Maximum Message Size' SUP afInteger SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.3.9 NAME 'afSSMTPTrustedMessageSize' DESC 'System (ou=system) SMTP Trusted Message Size (checks disabled)' SUP afInteger SINGLE-VALUE )
+# system/submission
+olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.4.1 NAME 'afSSubmissionMailBoxTimeout' DESC 'System (ou=system) Submission MailBox record Timeout (re-validation trigger)' SUP afInteger SINGLE-VALUE )
+olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.4.2 NAME 'afSSubmissionMaxMessageSize' DESC 'System (ou=system) Submission Maximum Message Size' SUP afInteger SINGLE-VALUE )
+olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.1.4.3 NAME 'afSSubmissionTrustedMessageSize' DESC 'System (ou=system) Submission Trusted Message Size (checks disabled)' SUP afInteger SINGLE-VALUE )
 # user
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.1.1 NAME 'afUServiceName' DESC 'User (ou=user) Service Name' SUP afServiceName SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.1.2 NAME 'afUServiceRealm' DESC 'User (ou=user) Service Realm' SUP afRealm SINGLE-VALUE )
