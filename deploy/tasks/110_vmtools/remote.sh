@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_add -r compat6x-amd64
+pkg install -y compat6x-amd64
 
 cd /tmp
 fetch -o - http://deploy/deploy/vmware-freebsd-tools.tar.gz | tar -xvf -

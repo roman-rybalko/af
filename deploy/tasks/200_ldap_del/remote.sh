@@ -3,7 +3,8 @@
 
 service slapd stop || true
 
-pkg_delete `pkg_info -E 'openldap-server-*'` || true
+pkg delete -y openldap-server || true
+pkg autoremove -y
 
 grep -v "^slapd" /usr/local/advancedfiltering/rc.conf > /usr/local/advancedfiltering/rc.conf.new || true
 mv -f /usr/local/advancedfiltering/rc.conf.new /usr/local/advancedfiltering/rc.conf

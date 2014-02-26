@@ -3,7 +3,8 @@
 
 service nginx stop || true
 
-pkg_delete `pkg_info -E 'nginx-*'` || true
+pkg delete -y nginx || true
+pkg autoremove -y
 
 grep -v "^nginx" /usr/local/advancedfiltering/rc.conf > /usr/local/advancedfiltering/rc.conf.new || true
 mv -f /usr/local/advancedfiltering/rc.conf.new /usr/local/advancedfiltering/rc.conf

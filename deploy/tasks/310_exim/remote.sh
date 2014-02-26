@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_add -r exim
+pkg install -y exim
 
 adduser -f adduser.batch -M 0710 -w no -G "ssl-key"
 echo root > /usr/local/advancedfiltering/exim/.forward

@@ -1,8 +1,8 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_add -r p5-Mail-SpamAssassin
-pkg_add -r p5-perl-ldap
+pkg install -y p5-Mail-SpamAssassin
+pkg install -y p5-perl-ldap
 
 adduser -f adduser.batch -M 0700 -w no -G "www ssl-key ldap"
 echo root > /usr/local/advancedfiltering/mailproc/.forward

@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_add -r nginx
+pkg install -y nginx
 
 mkdir /usr/local/advancedfiltering/nginx
 chown www /usr/local/advancedfiltering/nginx

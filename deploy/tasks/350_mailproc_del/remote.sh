@@ -1,7 +1,8 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_delete -r `pkg_info -E 'p5-perl-ldap-*'` || true
+pkg delete -y p5-perl-ldap || true
+pkg autoremove -y
 
 rm -Rvf /usr/local/advancedfiltering/mailproc /usr/local/advancedfiltering/http/mailproc
 

@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_add -r p5-Mail-SpamAssassin
+pkg install -y p5-Mail-SpamAssassin
 
 adduser -f adduser.batch -M 0700 -w no -G "www exim spamd"
 echo root > /usr/local/advancedfiltering/spamtrap/.forward

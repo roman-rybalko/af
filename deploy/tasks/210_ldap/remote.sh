@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pkg_add -r openldap-server
+pkg install -y openldap-server
 
 pw user mod ldap -G ssl-key
 
