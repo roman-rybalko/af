@@ -8,5 +8,3 @@ for p in hosts_batch/*.pw; do rm -vf $p; done
 deploy_batch 030_system_ssl  050_env  051_security_root_ssh  999_reboot
 
 deploy_batch 052_local_af_init
-#sleep 120
-#deploy_batch 060_geli_init  065_geli_attach

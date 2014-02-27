@@ -1,9 +1,6 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-echo 'setenv PACKAGEROOT http://deploy/packages' >> /root/.cshrc
-echo 'export PACKAGEROOT=http://deploy/packages' >> /root/.profile
-
 pkg install -y bash-completion
 
 if [ -e /usr/local/bin/bash ]; then
