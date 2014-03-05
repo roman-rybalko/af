@@ -44,16 +44,10 @@ data_end
 ** fail => 4xx Your data is verifying, try again later, log, stop
 ** ok, absent => 5xx Sender mail box does not exist, stop
 ** ok
-* получить пользовательскую настройку "проверить SPAM"
-** usr_checkspam
 * проверить message-id
-** empty => usr_checkspam ? 5xx Message-ID is missing, stop : 2xx Message-ID is missing, flag_spamsender, stop
-** sender в БД и spam и usr_checkspam => 5xx spamdescr, stop
+(message-id всегда добавляется для этого соединеия)
 ** sender в БД => 2xx duplicate prev-queue-id, discard, stop
 ** sender в БД но другой => 5xx actual_sender prev-queue-id
 ** ok
+* usr_hidereceived => убрать заголовки Received
 * msgsize >= sys_trustedmessagesize => log (trusted size), ok, stop
-* проверить spamd
-** log
-** spam => usr_checkspam ? 5xx spamdescr, stop : 2xx spamdescr, flag_spamsender, stop
-** ok
