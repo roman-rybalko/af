@@ -14,25 +14,26 @@ sys_mailboxtimeout
 ** проверен hostname (ptr <-> ip)
 sys_trustedhost
 
-* идентифицировать клиента
-** sys_trustedhost
-** TLS SNI
-** IP
-
 * установить сертификат
 ** sys_trustedhost => наш сертификат
-** client
+** client (IP)
+
+* идентифицировать клиента
+** sys_trustedhost
+** SMTP AUTH
+** TLS SNI
+** IP
 
 mail
-* идентифицировать клиента по домену
-* !sys_trustedhost => проверить настройки аутентификации
-** IP
-** TLS SNI
-** SMTP AUTH
-* проверить адрес отправителя
+* проверить доступ клиента к домену
+* проверить существование адреса отправителя
 ** fail => 4xx Your data is verifying, try again later, log, stop
-** ok, absent => 5xx Sender mail box does not exist, stop
+** absent => 5xx Sender mail box does not exist, stop
 ** ok
+* !sys_trustedhost => проверить настройки аутентификации для пользователя, домена и клиента
+** SMTP AUTH
+** TLS SNI
+** IP
 
 rcpt
 * проверить существование домена получателя
