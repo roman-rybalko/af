@@ -26,7 +26,10 @@ dbsyncserive:
 realm:
 realm:
 
-xxx-settings=xxx,ou=system,o=advancedfiltering
+service=xxx,ou=system,o=advancedfiltering
+settings:
+settings:
+settings:
 
 domain=xxx,ou=system,o=advancedfiltering
 client:
