@@ -1,0 +1,33 @@
+Дерево LDAP разрабатывается с критериями:
+1. Избегать поиска - обращение только по DN
+2. Частичная репликация
+
+Концепция:
+
+obj=1,o=af
+obj: 1
+srv: 1
+srv: 2
+oth: 1
+param: 1
+
+# optional
+srv=1,obj=1,o=af
+srv: 1
+param: 1
+param: 2
+
+# optional
+srv=2,obj=1,o=af
+srv: 2
+param: 1
+param: 2
+
+# optional
+param=2,srv=2,obj=1,o=af
+param: 2
+opt: 1
+
+# optional
+oth=1,obj=1,o=af
+oth: 1
