@@ -1,3 +1,4 @@
+
 # system, advancedfiltering
 dn: ou=system,o=advancedfiltering
 objectClass: organizationalUnit
@@ -9,19 +10,28 @@ afSClientName: cli1
 afSClientRealm: r1
 objectClass: afSClient
 
-# dst.hosts.advancedfiltering.net, system, advancedfiltering
-dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-afSHostName: dst.hosts.advancedfiltering.net
+# host1.hosts.advancedfiltering.net, system, advancedfiltering
+dn: afSHostName=host1.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostName: host1.hosts.advancedfiltering.net
 afSHostRealm: r1
 afSHostServiceName: smtp
+afSHostServiceName: ldap
 afSHDBSyncServiceName: smtpdb
 afSHDBSyncServiceName: sdb
 objectClass: afSHost
+
+# smtp, host1.hosts.advancedfiltering.net, system, advancedfiltering
+dn: afSHostServiceName=smtp,afSHostName=host1.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostServiceName: smtp
+afSHServiceHostAddress: 10.1.1.2
+afSHServiceTCPPort: 2525
+objectClass: afSHostService
 
 # smtp, system, advancedfiltering
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering
 afSServiceName: smtp
 afSSMTPDNSBLDomainName: bl.spamcop.net
+afSSMTPDNSBLDomainName: bl.spamhaus.org
 afSSMTPMaxMessageSize: 30000000
 afSSMTPSpamTrapProbabilityDenominator: 100
 afSSMTPSpamTrapProbabilityNumerator: 0
@@ -36,17 +46,7 @@ afSSMTPDomainClientName: cli1
 afSSMTPDomainName: test.com
 objectClass: afSSMTPDomain
 
-# src.hosts.advancedfiltering.net, system, advancedfiltering
-dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-afSHostName: src.hosts.advancedfiltering.net
-afSHostRealm: r1
-afSHostServiceName: mailproc
-afSHostServiceName: spamtrap
-afSHostServiceName: hamtrap
-afSHostServiceName: error
-afSHostServiceName: bounce
-afSHostServiceName: submission
-objectClass: afSHost
+##################################################################################
 
 # user, advancedfiltering
 dn: ou=user,o=advancedfiltering
@@ -74,40 +74,31 @@ afUServiceName: smtp
 # cli1, smtp + r1, user, advancedfiltering
 dn: afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
 afUClientName: cli1
-objectClass: afUClient
 afUClientAdminMailAddress: admin-client-admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin-client-tech@tests.advancedfiltering.net
+objectClass: afUClient
+objectClass: afUSMTPSettings
 
 # test.com, cli1, smtp + r1, user, advancedfiltering
 dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
 afUSMTPDomainName: test.com
-objectClass: afUSMTPDomain
 afUSMTPDomainAdminMailAddress: admin-domain-admin@tests.advancedfiltering.net
 afUSMTPDomainTechMailAddress: admin-domain-tech@tests.advancedfiltering.net
+objectClass: afUSMTPDomain
+objectClass: afUSMTPSettings
 
 # mbox, test.com, cli1, smtp + r1, user, advancedfiltering
 dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
 afUSMTPDMBLocalPart: mbox
 afUSMTPDMBTimeUpdated: 1234567890
+afUSMTPMXHostName: host1.org.com
+afUSMTPBackupTarget: backup@org.com
+afUSMTPSpamTarget: spam@org.com
 objectClass: afUSMTPDMailBox
+objectClass: afUSMTPSettings
 
-# settings, cli1, smtp + r1, user, advancedfiltering
-dn: ou=settings,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
-objectClass: organizationalUnit
-ou: settings
-
-# settings, test.com, cli1, smtp + r1, user, advancedfiltering
-dn: ou=settings,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
-objectClass: organizationalUnit
-ou: settings
-
-# settings, mbox, test.com, cli1, smtp + r1, user, advancedfiltering
-dn: ou=settings,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
-objectClass: organizationalUnit
-ou: settings
-
-# src.hosts.advancedfiltering.net, settings, cli1, smtp + r1, user, advancedfiltering
-dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
-afUSMTPMXHostName: src.hosts.advancedfiltering.net
+# host1.org.com, mbox, test.com, cli1, smtp + r1, user, advancedfiltering
+dn: afUMTPSMXHostName=host1.org.com,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXHostName: host1.org.com
 afUSMTPMXTCPPort: 2525
 objectClass: afUSMTPMailExchanger
