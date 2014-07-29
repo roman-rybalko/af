@@ -1,66 +1,113 @@
-ou=auth
+# system, advancedfiltering
+dn: ou=system,o=advancedfiltering
+objectClass: organizationalUnit
+ou: system
 
-cn=admin,ou=auth
-cn=tests,ou=auth
-cn=syncrepl,ou=auth
-cn=ldaprepl,ou=auth
-cn=smtp,ou=auth
-cn=mailproc,ou=auth
+# cli1, system, advancedfiltering
+dn: afSClientName=cli1,ou=system,o=advancedfiltering
+afSClientName: cli1
+afSClientRealm: r1
+objectClass: afSClient
 
---
+# dst.hosts.advancedfiltering.net, system, advancedfiltering
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostName: dst.hosts.advancedfiltering.net
+afSHostRealm: r1
+afSHostServiceName: smtp
+afSHDBSyncServiceName: smtpdb
+afSHDBSyncServiceName: sdb
+objectClass: afSHost
 
-cn=accesslog
+# smtp, system, advancedfiltering
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+afSServiceName: smtp
+afSSMTPDNSBLDomainName: bl.spamcop.net
+afSSMTPMaxMessageSize: 30000000
+afSSMTPSpamTrapProbabilityDenominator: 100
+afSSMTPSpamTrapProbabilityNumerator: 0
+afSSMTPTrustedMessageSize: 2000000
+afSSMTPTrustedPort: 445
+afSSMTPMailBoxTimeout: 14400
+objectClass: afSSMTPService
 
-ou=system,cn=accesslog
-ou==user,cn=accesslog
+# test.com, smtp, system, advancedfiltering
+dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfiltering
+afSSMTPDomainClientName: cli1
+afSSMTPDomainName: test.com
+objectClass: afSSMTPDomain
 
---
+# src.hosts.advancedfiltering.net, system, advancedfiltering
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostName: src.hosts.advancedfiltering.net
+afSHostRealm: r1
+afSHostServiceName: mailproc
+afSHostServiceName: spamtrap
+afSHostServiceName: hamtrap
+afSHostServiceName: error
+afSHostServiceName: bounce
+afSHostServiceName: submission
+objectClass: afSHost
 
-ou=system,o=advancedfiltering
+# user, advancedfiltering
+dn: ou=user,o=advancedfiltering
+objectClass: organizationalUnit
+ou: user
 
-host=xxx,ou=system,o=advancedfiltering
-service: smtp|smtpdb|submission|sdb|mailproc|vpn|console|webmail|kerberos|kerberosmaster|ldap|imap|storage|log
-service:
-dbsyncserive:
-dbsyncserive:
-realm:
-realm:
+# smtpdb + r1, user, advancedfiltering
+dn: afUServiceName=smtpdb+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUServiceRealm: r1
+objectClass: afUService
+afUServiceName: smtpdb
 
-service=xxx,ou=system,o=advancedfiltering
-settings:
-settings:
-settings:
+# sdb + r1, user, advancedfiltering
+dn: afUServiceName=sdb+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUServiceRealm: r1
+objectClass: afUService
+afUServiceName: sdb
 
-domain=xxx,ou=system,o=advancedfiltering
-client:
+# smtp + r1, user, advancedfiltering
+dn: afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUServiceRealm: r1
+objectClass: afUService
+afUServiceName: smtp
 
-client=xxx,ou=system,o=advancedfiltering
-realm:
+# cli1, smtp + r1, user, advancedfiltering
+dn: afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUClientName: cli1
+objectClass: afUClient
+afUClientAdminMailAddress: admin-client-admin@tests.advancedfiltering.net
+afUClientTechMailAddress: admin-client-tech@tests.advancedfiltering.net
 
---
+# test.com, cli1, smtp + r1, user, advancedfiltering
+dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPDomainName: test.com
+objectClass: afUSMTPDomain
+afUSMTPDomainAdminMailAddress: admin-domain-admin@tests.advancedfiltering.net
+afUSMTPDomainTechMailAddress: admin-domain-tech@tests.advancedfiltering.net
 
-service=xxx+realm=yyy,ou=user,o=advancedfiltering
+# mbox, test.com, cli1, smtp + r1, user, advancedfiltering
+dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPDMBLocalPart: mbox
+afUSMTPDMBTimeUpdated: 1234567890
+objectClass: afUSMTPDMailBox
 
-client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfiltering
-domain=zzz,client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfiltering
-mbox=ttt,domain=zzz,client=xxx,service=smtp+realm=yyy,ou=user,o=advancedfiltering
+# settings, cli1, smtp + r1, user, advancedfiltering
+dn: ou=settings,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+objectClass: organizationalUnit
+ou: settings
 
-mid=xxx,service=smtpdb+realm=yyy,ou=user,o=advancedfiltering
-mid=xxx,service=submissiondb+realm=yyy,ou=user,o=advancedfiltering
+# settings, test.com, cli1, smtp + r1, user, advancedfiltering
+dn: ou=settings,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+objectClass: organizationalUnit
+ou: settings
 
--
+# settings, mbox, test.com, cli1, smtp + r1, user, advancedfiltering
+dn: ou=settings,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+objectClass: organizationalUnit
+ou: settings
 
-ip=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
-client:
-
-tlssni=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
-client:
-
-client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
-smtppwd:
-
-domain=zzz,client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
-smtppwd:
-
-mbox=ttt,domain=zzz,client=xxx,service=submission+realm=yyy,ou=user,o=advancedfiltering
-smtppwd:
+# src.hosts.advancedfiltering.net, settings, cli1, smtp + r1, user, advancedfiltering
+dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXHostName: src.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 2525
+objectClass: afUSMTPMailExchanger
