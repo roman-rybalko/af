@@ -1,0 +1,2 @@
+* доработать ldaprepl - IP и порты для сервиса ldap
+* доработать smtp/exim - переделать ou=settings, отключить лишнюю пересылку в mailproc
