@@ -56,7 +56,7 @@ rcpt
 ** нет домена => 5xx The domain is not in service, stop
 ** чужой realm => 4xx Moved, try another host, stop
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-** fail => 4xx Your data is verifying, try again in 5 minutes, log, stop
+** fail => 4xx Your data is verifying, try again later, log, stop
 ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
 * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
 ** ok => 5xx Access denied (local user policy), stop
@@ -64,12 +64,12 @@ rcpt
 ** ok => flag_user_wl+=1, ok, stop
 Проверить черный список для addr from имеет смысл даже без проверки SPF. Но делать отдельную проверку для черного списка
 не эфективно. Белый список для addr from не имеет смысла до проверки SPF.
-* flag_spf => sys_spamtrap || spam_passthrough ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
+* flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
 * проверка черных списков (addr from) для [addr to, domain to, client to]
 ** ok => 5xx Access denied (local user policy), stop
 * проверка белых списков (addr from) для [addr to, domain to, client to]
 ** ok => flag_user_wl+=1, ok, stop
-* flag_dnsbl => sys_spamtrap || spam_passthrough ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
+* flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
 flag_user_wl
 
 data

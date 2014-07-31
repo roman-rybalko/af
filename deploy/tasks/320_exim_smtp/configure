@@ -321,7 +321,7 @@ rcpt_acl:
     acl = domain_rcpt_acl
 
   # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-  # ** fail => 4xx Your data is verifying, try again in 5 minutes, log, stop
+  # ** fail => 4xx Your data is verifying, try again later, log, stop
   # ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
   defer
     # User Mail Box Data
