@@ -29,6 +29,12 @@ afSHServiceHostAddress: 10.1.1.2
 afSHServiceTCPPort: 2525
 objectClass: afSHostService
 
+dn: afSHostServiceName=ldap,afSHostName=host1.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostServiceName: ldap
+afSHServiceHostAddress: 10.1.1.2
+afSHServiceTCPPort: 10389
+objectClass: afSHostService
+
 #===============================================================================
 
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering

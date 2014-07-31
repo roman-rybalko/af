@@ -4,3 +4,7 @@ dn: afSHostName=test1,ou=system,o=advancedfilterin
 changetype: modify
 replace: afSHostRealm
 afshostrealm: roff
+
+dn: afSHostServiceName=ldap,afSHostName=test2,ou=system,o=advancedfiltering
+changetype: modify
+delete: afSHServiceTCPPort

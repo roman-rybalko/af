@@ -132,13 +132,29 @@ sub get_need_repl_data
 				attrs => ['afSHostName'],
 			);
 			die "get_need_repl_data[realm=$realm,service=$service]: " . $ldap_msg->error_text if $ldap_msg->is_error;
-			foreach my $ldap_entry ($ldap_msg->entries)
+			my @entries = $ldap_msg->entries;
+			foreach my $ldap_entry (@entries)
 			{
 				my $entry = {};
 				$entry->{host} = $ldap_entry->get_value('afSHostName');
 				$entry->{service} = $service;
 				$entry->{realm} = $realm;
 				next if $entry->{host} eq $opts{n};
+				
+				$ldap_msg = $ldap->search(
+					base => "afSHostServiceName=ldap,afSHostName=$entry->{host},ou=system,o=advancedfiltering",
+					scope => 'base',
+					filter => '(objectClass=*)',
+					attrs => ['afSHServiceHostAddress','afSHServiceTCPPort'],
+				);
+				if (!$ldap_msg->is_error)
+				{
+					my $addr = ($ldap_msg->entries)[0]->get_value('afSHServiceHostAddress');
+					my $port = ($ldap_msg->entries)[0]->get_value('afSHServiceTCPPort');
+					$entry->{host} = $addr if $addr;
+					$entry->{host} = "$entry->{host}:$port" if $port;
+				}
+				
 				push @$result => $entry;
 			}
 		}

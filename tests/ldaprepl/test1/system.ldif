@@ -30,3 +30,14 @@ afshostrealm: roff
 afSHDBSyncServiceName: s1
 objectclass: afSHost
 objectclass: top
+
+dn: afSHostServiceName=ldap,afSHostName=test2,ou=system,o=advancedfiltering
+afSHostServiceName: ldap
+afSHServiceHostAddress: 10.0.0.0
+afSHServiceTCPPort: 10389
+objectClass: afSHostService
+
+dn: afSHostServiceName=ldap,afSHostName=test3,ou=system,o=advancedfiltering
+afSHostServiceName: ldap
+afSHServiceTCPPort: 20389
+objectClass: afSHostService
