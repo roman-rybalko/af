@@ -15,40 +15,31 @@ sys_mailboxtimeout
 sys_trustedmessagesize
 
 connect
-* проверка системных черных списков (ip, hostname)
-** ok => sys_spamtrap ? ok, flag_spamtrap+="Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
-* проверка системных белых списков (ip, hostname)
-** ok => flag_sys_wl, ok, stop
-* sys_trustedport ? ok : проверка dnsbl
+* ! sys_trustedport => проверка dnsbl
 ** fail => flag_dnsbl
 * ok
-flag_spamtrap
-flag_sys_wl
 flag_dnsbl
 
 helo
-* flag_sys_wl => ok, stop
-* flag_spamtrap => ok, stop
-* проверка сертификата
-** fail => flag_cert
-* проверка системных черных списков (certificate)
-** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
-* ! flag_cert => проверка системных белых списков (certificate)
-** ok => flag_sys_wl, ok, stop
-flag_spamtrap
-flag_sys_wl
+* ok
 
 mail
-* flag_sys_wl => ok, stop
-* flag_spamtrap => ok, stop
 * проверка spf
 ** fail => flag_spf
-* проверка системных черных списков (addr from)
-** ok => sys_spamtrap ? ok, flag_spamtrap+="5xx Access denied (local system policy)", stop : 5xx Access denied (local system policy), stop
-* ! flag_spf => проверка системных белых списков (addr from)
-** ok => flag_sys_wl, ok, stop
-flag_spamtrap
-flag_sys_wl
+* проверка системных списков фильтрации => ok/fail, descr
+
+
+
+
+
+TODO ...
+
+
+
+
+
+
+* ok
 flag_spf
 
 rcpt
@@ -57,20 +48,20 @@ rcpt
 ** чужой realm => 4xx Moved, try another host, stop
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
 ** fail => 4xx Your data is verifying, try again later, log, stop
-** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
-* проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
-** ok => 5xx Access denied (local user policy), stop
-* проверка белых списков (ip, hostname, certificate) для [addr to, domain to, client to]
-** ok => flag_user_wl+=1, ok, stop
-Проверить черный список для addr from имеет смысл даже без проверки SPF. Но делать отдельную проверку для черного списка
-не эфективно. Белый список для addr from не имеет смысла до проверки SPF.
-* flag_spf => sys_spamtrap ? ok, flag_spamtrap+="Access denied (SPF: ...)", stop : 5xx Access denied (SPF: ...), stop
-* проверка черных списков (addr from) для [addr to, domain to, client to]
-** ok => 5xx Access denied (local user policy), stop
-* проверка белых списков (addr from) для [addr to, domain to, client to]
-** ok => flag_user_wl+=1, ok, stop
-* flag_dnsbl => sys_spamtrap ? ok, flag_spamtrap+="Access denied (DNSBL: ...)", stop : 5xx Access denied (DNSBL: ...), stop
+** ok, absent => sys_spamtrap ? ok, msg_spamdescr+="<recipient>: Mail box does not exist", stop : 5xx Mail box does not exist, stop
+* получение пользовательских настроек user_spt (Spam PassThrough), user_no_spf, user_no_dnsbl
+* проверка пользовательских списков фильтрации => ok/fail, descr
+** user ok => ok $descr, flag_wl+=1, stop
+** user fail => 5xx $descr, stop
+* flag_spf && !user_no_spf => msg_spamdescr+="<recipient>: Access denied (SPF: ...)"
+* flag_dnsbl && !user_no_dnsbl => msg_spamdescr+="<recipient>: Access denied (DNSBL: ...)"
+* sys_spamtrap && msg_spamdescr => ok, stop
+* user_spt && msg_spamdescr => ok, stop
+* msg_spamdescr => 5xx $msg_spamdescr, stop
+* ok
+msg_spamdescr
 flag_user_wl
+flag_user_spt
 
 data
 * ok
@@ -78,9 +69,9 @@ data
 http://www.jwz.org/doc/threading.html
 
 data_end
-* flag_spamtrap => 5xx $flag_spamtrap, stop
 * flag_sys_wl => ok, stop, log message-id
-* flag_user_wl == recipients_count => ok, stop, log message-id
+* flag_user_wl == recipients_count => ok, stop
+* sys_spamtrap && msg_spamdescr => ok, stop, log message-id
 #* sys_trustedport => ok, stop, log message-id
 На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
@@ -93,3 +84,6 @@ data_end
 * message_size >= sys_trustedmessagesize
 ** ok => ok, stop, log message-id
 * 4xx Your data is verifying, try again later, mailproc
+
+* flag_user_spt == recipients_count => ok, stop
+* flag_spamtrap => 5xx $flag_spamtrap, stop
