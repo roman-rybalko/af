@@ -26,64 +26,61 @@ helo
 mail
 * проверка spf
 ** fail => flag_spf
-* проверка системных списков фильтрации => ok/fail, descr
-
-
-
-
-
-TODO ...
-
-
-
-
-
-
+* проверка системных списков фильтрации => flag_sys_wl, flag_sys_bl, msg_sys_wbl
 * ok
 flag_spf
+flag_sys_wl
+flag_sys_bl
+msg_sys_wbl
 
 rcpt
 * проверка realm для домена
 ** нет домена => 5xx The domain is not in service, stop
-** чужой realm => 4xx Moved, try another host, stop
+** чужой realm => 4xx Moved, please try another host, stop
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-** fail => 4xx Your data is verifying, try again later, log, stop
-** ok, absent => sys_spamtrap ? ok, msg_spamdescr+="<recipient>: Mail box does not exist", stop : 5xx Mail box does not exist, stop
+** fail => 4xx Your data is verifying, please try again later, log, stop
+** ok, absent => sys_spamtrap ? ok Mail box does not exist, flag_mb_absent, stop : 5xx Mail box does not exist, stop
+* recipients_count > 1 => 4xx Mail box is temporily unavailable, please try again later
+recipients_count - параметр exim, количество ответов 2xx на RCPT
 * получение пользовательских настроек user_spt (Spam PassThrough), user_no_spf, user_no_dnsbl
-* проверка пользовательских списков фильтрации => ok/fail, descr
-** user ok => ok $descr, flag_wl+=1, stop
-** user fail => 5xx $descr, stop
-* flag_spf && !user_no_spf => msg_spamdescr+="<recipient>: Access denied (SPF: ...)"
-* flag_dnsbl && !user_no_dnsbl => msg_spamdescr+="<recipient>: Access denied (DNSBL: ...)"
-* sys_spamtrap && msg_spamdescr => ok, stop
-* user_spt && msg_spamdescr => ok, stop
-* msg_spamdescr => 5xx $msg_spamdescr, stop
+* проверка пользовательских списков фильтрации => flag_user_wl, flag_user_bl, msg_user_wbl
+* flag_user_wl => ok $msg_user_wbl, stop
+* flag_user_bl => 5xx $msg_user_wbl, stop
+* flag_sys_wl => ok $msg_sys_wbl, stop
+* flag_user_bl => 5xx $msg_user_wbl, stop
+* flag_sys_bl && !sys_spamtrap && !user_spt => 5xx $msg_sys_wbl, stop
+* flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop
+* flag_spf && !user_no_spf && !user_spt && !sys_spamtrap => 5xx Access denied (SPF: ...), stop
+* flag_spf && !user_no_spf => ok ST/SPT (SPF: ...), stop
+ST, SPT - короткие аббревиатуры для тестов без раскрытия смысла
+* flag_dnsbl && !user_no_dnsbl && !user_spt && !sys_spamtrap => 5xx Access denied (DNSBL: ...), stop
+* flag_dnsbl && !user_no_dnsbl => ok ST/SPT (DNSBL: ...), stop
 * ok
-msg_spamdescr
+flag_mb_absent
+flag_user_bl
 flag_user_wl
-flag_user_spt
+msg_user_wbl
 
 data
 * ok
 
-http://www.jwz.org/doc/threading.html
-
 data_end
-* flag_sys_wl => ok, stop, log message-id
-* flag_user_wl == recipients_count => ok, stop
-* sys_spamtrap && msg_spamdescr => ok, stop, log message-id
-#* sys_trustedport => ok, stop, log message-id
-На trusted port шлют правильные почтовики и именно они рассылают спам, который определить только контентными методами.
+* flag_mb_absent => ok Mail box does not exist, stop
+* flag_user_wl => ok $msg_user_wbl, stop
+* flag_sys_wl => ok $msg_sys_wbl, stop
+* flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop
+* flag_spf && !user_no_spf => ok ST/SPT (SPF: ...), stop, log Message-ID
+* flag_dnsbl && !user_no_dnsbl => ok ST/SPT (DNSBL: ...), stop, log Message-ID
+# TODO: DKIM, log Message-ID
+#* sys_trustedport => ok, stop
+На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx SPAM: No Message-ID header, stop
-** ok, afIsSpam => 5xx SPAM: afSpamDescription, stop
+** ok, afIsSpam => 5xx SPAM: $afSpamDescription, stop
 ** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => ok, stop, hamtrap, log message-id
+** ok => ok, stop, hamtrap
 * message_size >= sys_trustedmessagesize
-** ok => ok, stop, log message-id
-* 4xx Your data is verifying, try again later, mailproc
-
-* flag_user_spt == recipients_count => ok, stop
-* flag_spamtrap => 5xx $flag_spamtrap, stop
+** ok => ok, stop
+* 4xx Your data is verifying, please try again later, mailproc
