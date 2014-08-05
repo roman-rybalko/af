@@ -8,6 +8,10 @@ sys_trustedport
 ** ok => sys_spamtrap
 sys_spamtrap
 
+* получение системной настройки hamtrap
+** ok => sys_hamtrap
+sys_hamtrap (исп. в роутерах)
+
 * получение системной настройки mailboxtimeout
 sys_mailboxtimeout
 
@@ -65,22 +69,27 @@ data
 * ok
 
 data_end
-* flag_mb_absent => ok Mail box does not exist, stop
+* flag_mb_absent => 5xx Mail box does not exist, stop, flag_spamtrap
+* flag_sys_bl || flag_spf || flag_dnsbl => flag_spamtrap
 * flag_user_wl => ok $msg_user_wbl, stop
 * flag_sys_wl => ok $msg_sys_wbl, stop
-* flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop
-* flag_spf && !user_no_spf => ok ST/SPT (SPF: ...), stop, log Message-ID
-* flag_dnsbl && !user_no_dnsbl => ok ST/SPT (DNSBL: ...), stop, log Message-ID
-# TODO: DKIM, log Message-ID
+* flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop, flag_spam
+* flag_spf && !user_no_spf => ok ST/SPT (SPF: ...), stop, log Message-ID, flag_spam
+* flag_dnsbl && !user_no_dnsbl => ok ST/SPT (DNSBL: ...), stop, log Message-ID, flag_spam
+# TODO: DKIM, log Message-ID, flag_spam
 #* sys_trustedport => ok, stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx SPAM: No Message-ID header, stop
 ** ok, afIsSpam => 5xx SPAM: $afSpamDescription, stop
-** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, spamtrap
+** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, flag_spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => ok, stop, hamtrap
+** ok => ok, stop, flag_hamtrap
 * message_size >= sys_trustedmessagesize
 ** ok => ok, stop
-* 4xx Your data is verifying, please try again later, mailproc
+* 4xx Your data is verifying, please try again later, flag_mailproc
+flag_spam
+flag_spamtrap
+flag_mailproc
+flag_hamtrap
