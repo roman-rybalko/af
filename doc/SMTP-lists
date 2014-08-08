@@ -10,7 +10,7 @@
 2. certificate
 3. ip
 4. hostname
-5. dnsbl (!user_no_dnsbl)
+5. dnsbl (!trusted_port)
 
 Порядок проверки:
 

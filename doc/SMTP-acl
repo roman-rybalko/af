@@ -19,10 +19,7 @@ sys_mailboxtimeout
 sys_trustedmessagesize
 
 connect
-* ! sys_trustedport => проверка dnsbl
-** fail => flag_dnsbl
 * ok
-flag_dnsbl
 
 helo
 * ok
@@ -44,7 +41,7 @@ rcpt
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
 ** fail => 4xx Your data is verifying, please try again later, log, stop
 ** ok, absent => sys_spamtrap ? ok Mail box does not exist, flag_mb_absent, stop : 5xx Mail box does not exist, stop
-* recipients_count > 1 => 4xx Mail box is temporily unavailable, please try again later
+* recipients_count > 0 => 4xx Mail box is temporily unavailable, please try again later
 recipients_count - параметр exim, количество ответов 2xx на RCPT
 * получение пользовательских настроек user_spt (Spam PassThrough), user_no_spf, user_no_dnsbl
 * проверка пользовательских списков фильтрации => flag_user_wl, flag_user_bl, msg_user_wbl
@@ -54,11 +51,9 @@ recipients_count - параметр exim, количество ответов 2x
 * flag_user_bl => 5xx $msg_user_wbl, stop
 * flag_sys_bl && !sys_spamtrap && !user_spt => 5xx $msg_sys_wbl, stop
 * flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop
-* flag_spf && !user_no_spf && !user_spt && !sys_spamtrap => 5xx Access denied (SPF: ...), stop
-* flag_spf && !user_no_spf => ok ST/SPT (SPF: ...), stop
+* flag_spf && !user_spt && !sys_spamtrap => 5xx Access denied (SPF: ...), stop
+* flag_spf => ok ST/SPT (SPF: ...), stop
 ST, SPT - короткие аббревиатуры для тестов без раскрытия смысла
-* flag_dnsbl && !user_no_dnsbl && !user_spt && !sys_spamtrap => 5xx Access denied (DNSBL: ...), stop
-* flag_dnsbl && !user_no_dnsbl => ok ST/SPT (DNSBL: ...), stop
 * ok
 flag_mb_absent
 flag_user_bl
@@ -70,12 +65,11 @@ data
 
 data_end
 * flag_mb_absent => 5xx Mail box does not exist, stop, flag_spamtrap
-* flag_sys_bl || flag_spf || flag_dnsbl => flag_spamtrap
+* flag_sys_bl || flag_spf => flag_spamtrap
 * flag_user_wl => ok $msg_user_wbl, stop
 * flag_sys_wl => ok $msg_sys_wbl, stop
 * flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop, flag_spam
-* flag_spf && !user_no_spf => ok ST/SPT (SPF: ...), stop, log Message-ID, flag_spam
-* flag_dnsbl && !user_no_dnsbl => ok ST/SPT (DNSBL: ...), stop, log Message-ID, flag_spam
+* flag_spf => ok ST/SPT (SPF: ...), stop, log Message-ID, flag_spam
 # TODO: DKIM, log Message-ID, flag_spam
 #* sys_trustedport => ok, stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
