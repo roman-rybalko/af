@@ -89,20 +89,18 @@ helo_acl:
 ldap_bwl_acl:
   warn
     set acl_c_bwl_d = ${lookup ldap{LDAP_C/$acl_c_bwl_ldap_q,$acl_c_bwl_ldap_dn?objectClass,afSMTPBWListIsBlack?base}}
+    set acl_c_bl_f = false
+    set acl_c_wl_f = false
   accept
     condition = ${extract {afSMTPBWListIsBlack}{$acl_c_bwl_d}{true}{false}}
     # Result
     set acl_c_bl_f = true
-    set acl_c_wl_f = false
     logwrite = DEBUG: bwl: black
   accept
     condition = ${if bool_lax{$acl_c_bwl_d}}
-    set acl_c_bl_f = false
     set acl_c_wl_f = true
     logwrite = DEBUG: bwl: white
   deny
-    set acl_c_bl_f = false
-    set acl_c_wl_f = false
 
 # Sender Mail Address Black/White List
 # accept - match, deny - not match
@@ -181,11 +179,8 @@ dnsbl_acl:
     dnslists = <, ${lookup ldap{LDAP_C/$acl_c_bwl_ldap_dn?afSSMTPDNSBLDomainName?base}}
     set acl_c_bwl_m = DNSBL: $sender_host_address is listed at $dnslist_domain ($dnslist_value: $dnslist_text)
     set acl_c_bl_f = true
-    set acl_c_wl_f = false
     logwrite = DEBUG: dnsbl
   deny
-    set acl_c_bl_f = false
-    set acl_c_wl_f = false
 
 # Black/White List
 # accept - match, deny - not match
@@ -220,16 +215,6 @@ mail_acl:
     set acl_c_s_bwl_m = system policy: $acl_c_bwl_m
   accept
 
-  
-  
-  
-  TODO
-  
-  
-  
-  
-  
-  
 # User SMTP Realm DN
 U_SMTP_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+U_SMTP_LDAP_DN
 # User SMTP Realm Client DN
@@ -251,7 +236,7 @@ domain_rcpt_acl:
     condition = ${if bool_lax{$acl_m_u_domain}}
     logwrite = DEBUG: acl_m_u_domain=$acl_m_u_domain (alias)
   defer
-    message = Replicating, try again later
+    message = Replicating, please try again later
 
 # User Black List Message
 U_BL_M = Access denied ($acl_m_bwl_category_m, $acl_c_bwl_m)
@@ -306,13 +291,13 @@ rcpt_acl:
     acl = domain_rcpt_acl
 
   # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-  # ** fail => 4xx Your data is verifying, try again later, log, stop
+  # ** fail => 4xx Your data is verifying, please try again later, log, stop
   # ** ok, absent => sys_spamtrap ? ok, flag_spamtrap+="Mail box does not exist", stop : 5xx Mail box does not exist, stop
   defer
     # User Mail Box Data
     set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=$acl_c_s_mbct_d)}}
     ! condition = ${if bool_lax{$acl_m_u_mb_d}}
-    message = Your data is verifying, try again later
+    message = Your data is verifying, please try again later
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
   deny
     ! condition = $acl_c_s_st_f
@@ -323,6 +308,11 @@ rcpt_acl:
     condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
     set acl_c_s_st_m = U_MBA_M
     message = U_MBA_M
+
+  # * recipients_count > 0 => 4xx Mail box is temporarily unavailable, please try again later
+  defer
+    condition = ${if bool_lax{$recipients_count}}
+    message = Mail box is temporarily unavailable, please try again later
 
   # * проверка черных списков (ip, hostname, certificate) для [addr to, domain to, client to]
   # ** ok => 5xx Access denied (local user policy), stop
@@ -526,9 +516,9 @@ data_acl:
     set acl_m_mp_f = true
     set acl_m_mp_unseen_f = true
   
-  # * 4xx Your data is verifying, try again later, mailproc
+  # * 4xx Your data is verifying, please try again later, mailproc
   accept
-    control = fakedefer/Your data is verifying, try again later
+    control = fakedefer/Your data is verifying, please try again later
     set acl_m_mp_f = true
 
 begin routers

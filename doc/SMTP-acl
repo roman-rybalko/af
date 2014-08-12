@@ -41,9 +41,9 @@ rcpt
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
 ** fail => 4xx Your data is verifying, please try again later, log, stop
 ** ok, absent => sys_spamtrap ? ok Mail box does not exist, flag_mb_absent, stop : 5xx Mail box does not exist, stop
-* recipients_count > 0 => 4xx Mail box is temporily unavailable, please try again later
+* recipients_count > 0 => 4xx Mail box is temporarily unavailable, please try again later
 recipients_count - параметр exim, количество ответов 2xx на RCPT
-* получение пользовательских настроек user_spt (Spam PassThrough), user_no_spf, user_no_dnsbl
+* получение пользовательских настроек user_spt (Spam PassThrough)
 * проверка пользовательских списков фильтрации => flag_user_wl, flag_user_bl, msg_user_wbl
 * flag_user_wl => ok $msg_user_wbl, stop
 * flag_user_bl => 5xx $msg_user_wbl, stop
