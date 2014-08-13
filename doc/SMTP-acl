@@ -48,7 +48,6 @@ recipients_count - параметр exim, количество ответов 2x
 * flag_user_wl => ok $msg_user_wbl, stop
 * flag_user_bl => 5xx $msg_user_wbl, stop
 * flag_sys_wl => ok $msg_sys_wbl, stop
-* flag_user_bl => 5xx $msg_user_wbl, stop
 * flag_sys_bl && !sys_spamtrap && !user_spt => 5xx $msg_sys_wbl, stop
 * flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop
 * flag_spf && !user_spt && !sys_spamtrap => 5xx Access denied (SPF: ...), stop
@@ -68,20 +67,20 @@ data_end
 * flag_sys_bl || flag_spf => flag_spamtrap
 * flag_user_wl => ok $msg_user_wbl, stop
 * flag_sys_wl => ok $msg_sys_wbl, stop
-* flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop, flag_spam
-* flag_spf => ok ST/SPT (SPF: ...), stop, log Message-ID, flag_spam
-# TODO: DKIM, log Message-ID, flag_spam
+* flag_sys_bl => 5xx $msg_sys_wbl, stop, flag_spam
+* flag_spf => 5xx SPF: ..., stop, log Message-ID, flag_spam
 #* sys_trustedport => ok, stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
-** нет MessageId => 5xx SPAM: No Message-ID header, stop
+** нет MessageId => 5xx No Message-ID header, stop
 ** ok, afIsSpam => 5xx SPAM: $afSpamDescription, stop
-** не совпадает sender => 5xx SPAM: Several senders for the same Message-ID, stop, flag_spamtrap
+** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop, flag_hamtrap
 * message_size >= sys_trustedmessagesize
-** ok => ok, stop
+** ok => ok TMS, stop
+TMS - Trusted Message Size
 * 4xx Your data is verifying, please try again later, flag_mailproc
 flag_spam
 flag_spamtrap
