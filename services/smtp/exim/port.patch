@@ -1,0 +1,72 @@
+commit 7158ff068cae3b1b62e7033f52ab68f2c77ff9e8
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Tue Aug 19 20:42:46 2014 +0400
+
+    $port variable
+
+diff --git a/src/deliver.c b/src/deliver.c
+index 87b54d8..a4e506a 100644
+--- a/src/deliver.c
++++ b/src/deliver.c
+@@ -141,11 +141,13 @@ the first address. */
+ if (addr->host_list == NULL)
+   {
+   deliver_host = deliver_host_address = US"";
++  deliver_port = 0;
+   }
+ else
+   {
+   deliver_host = addr->host_list->name;
+   deliver_host_address = addr->host_list->address;
++  deliver_port = (addr->host_list->port == PORT_NONE) ? 25 : addr->host_list->port;
+   }
+ 
+ deliver_recipients = addr;
+diff --git a/src/expand.c b/src/expand.c
+index 70d7c7d..795593b 100644
+--- a/src/expand.c
++++ b/src/expand.c
+@@ -569,6 +569,7 @@ static var_entry var_table[] = {
+   { "originator_uid",      vtype_uid,         &originator_uid },
+   { "parent_domain",       vtype_stringptr,   &deliver_domain_parent },
+   { "parent_local_part",   vtype_stringptr,   &deliver_localpart_parent },
++  { "port",                vtype_int,         &deliver_port },
+   { "pid",                 vtype_pid,         NULL },
+   { "primary_hostname",    vtype_stringptr,   &primary_hostname },
+ #ifdef EXPERIMENTAL_PROXY
+diff --git a/src/globals.c b/src/globals.c
+index d3f9987..289098a 100644
+--- a/src/globals.c
++++ b/src/globals.c
+@@ -588,6 +588,7 @@ uschar *deliver_localpart_suffix = NULL;
+ BOOL    deliver_force_thaw     = FALSE;
+ BOOL    deliver_manual_thaw    = FALSE;
+ uschar *deliver_out_buffer     = NULL;
++int     deliver_port           = 0;
+ int     deliver_queue_load_max = -1;
+ address_item  *deliver_recipients = NULL;
+ uschar *deliver_selectstring   = NULL;
+diff --git a/src/globals.h b/src/globals.h
+index 2bedcf5..895fc7b 100644
+--- a/src/globals.h
++++ b/src/globals.h
+@@ -339,6 +339,7 @@ extern uschar *deliver_localpart_suffix; /* The stripped suffix, if any */
+ extern BOOL    deliver_force_thaw;     /* TRUE to force thaw in queue run */
+ extern BOOL    deliver_manual_thaw;    /* TRUE if manually thawed */
+ extern uschar *deliver_out_buffer;     /* Buffer for copying file */
++extern int     deliver_port;           /* Remote port during delivery */
+ extern int     deliver_queue_load_max; /* Different value for queue running */
+ extern address_item *deliver_recipients; /* Current set of addresses */
+ extern uschar *deliver_selectstring;   /* For selecting by recipient */
+diff --git a/src/transports/smtp.c b/src/transports/smtp.c
+index 40eebe8..9bf51e6 100644
+--- a/src/transports/smtp.c
++++ b/src/transports/smtp.c
+@@ -3035,6 +3035,7 @@ for (cutoff_retry = 0; expired &&
+ 
+     deliver_host = host->name;
+     deliver_host_address = host->address;
++    deliver_port = (host->port == PORT_NONE) ? port : host->port;
+     lookup_dnssec_authenticated = host->dnssec == DS_YES ? US"yes"
+ 				: host->dnssec == DS_NO ? US"no"
+ 				: US"";
