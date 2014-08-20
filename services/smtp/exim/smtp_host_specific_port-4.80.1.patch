@@ -1,0 +1,54 @@
+commit 637811eca11010b33f0a6de0fe7444be37614c47
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Tue Aug 19 20:49:09 2014 +0400
+
+    $port variable
+
+diff --git src/expand.c src/expand.c
+index 84167b6..011de0f 100644
+--- src/expand.c
++++ src/expand.c
+@@ -576,6 +576,7 @@ static var_entry var_table[] = {
+   { "smtp_command",        vtype_stringptr,   &smtp_cmd_buffer },
+   { "smtp_command_argument", vtype_stringptr, &smtp_cmd_argument },
+   { "smtp_count_at_connection_start", vtype_int, &smtp_accept_count },
++  { "smtp_host_specific_port", vtype_int,     &smtp_host_specific_port },
+   { "smtp_notquit_reason", vtype_stringptr,   &smtp_notquit_reason },
+   { "sn0",                 vtype_filter_int,  &filter_sn[0] },
+   { "sn1",                 vtype_filter_int,  &filter_sn[1] },
+diff --git src/globals.c src/globals.c
+index f29fb3c..30f2fdf 100644
+--- src/globals.c
++++ src/globals.c
+@@ -1121,6 +1121,7 @@ int     smtp_mailcmd_count     = 0;
+ FILE   *smtp_out               = NULL;
+ uschar *smtp_etrn_command      = NULL;
+ BOOL    smtp_etrn_serialize    = TRUE;
++int     smtp_host_specific_port = 0;
+ int     smtp_max_synprot_errors= 3;
+ int     smtp_max_unknown_commands = 3;
+ uschar *smtp_notquit_reason    = NULL;
+diff --git src/globals.h src/globals.h
+index fbbec32..8294f49 100644
+--- src/globals.h
++++ src/globals.h
+@@ -702,6 +702,7 @@ extern double  smtp_delay_rcpt;        /* Current RCPT delay */
+ extern BOOL    smtp_enforce_sync;      /* Enforce sync rules */
+ extern uschar *smtp_etrn_command;      /* Command to run */
+ extern BOOL    smtp_etrn_serialize;    /* Only one at once */
++extern int     smtp_host_specific_port; /* Custom port for SMTP delivery */
+ extern FILE   *smtp_in;                /* Incoming SMTP input file */
+ extern int     smtp_load_reserve;      /* Only from reserved if load > this */
+ extern int     smtp_mailcmd_count;     /* Count of MAIL commands */
+diff --git src/transports/smtp.c src/transports/smtp.c
+index f9f225f..2309f85 100644
+--- src/transports/smtp.c
++++ src/transports/smtp.c
+@@ -2604,6 +2604,7 @@ for (cutoff_retry = 0; expired &&
+ 
+     deliver_host = host->name;
+     deliver_host_address = host->address;
++    smtp_host_specific_port = (host->port == PORT_NONE) ? 0 : host->port;
+ 
+     /* Set up a string for adding to the retry key if the port number is not
+     the standard SMTP port. A host may have its own port setting that overrides
