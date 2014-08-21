@@ -41,44 +41,47 @@ S_LDAP_DN = ou=system,o=advancedfiltering
 S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
 # User SMTP LDAP DN
 U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
-# System Realms
-S_REALMS = ${sg {${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
+# System Realm List (separated by coma)
+S_REALM_Lc = ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base}}
 
-message_size_limit = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMaxMessageSize?base} }
+message_size_limit = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMaxMessageSize?base}}
 
 begin acl
 
 # System SMTP Trusted Port Data
-S_TP_D = ${sg {${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedPort?base} }} {,\\s*} {:} }
+S_TP_Lc = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedPort?base}}
 # ... Trusted Port Flag
-S_TP_F = ${if inlist{$received_port}{S_TP_D}}
-# ... Spam Trap Probability Numerator
-S_STPN = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityNumerator?base}}
-# ... Spam Trap Probability Denominator
-S_STPD = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityDenominator?base}}
+S_TP_F = ${if inlist{$received_port}{<, S_TP_Lc}}
+# ... Spam Trap Probability Numerator Data
+S_STPN_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityNumerator?base}}
+# ... Spam Trap Probability Denominator Data
+S_STPD_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPSpamTrapProbabilityDenominator?base}}
 # ... Spam Trap Flag
-S_ST_F = ${if >{S_STPN}{${randint:S_STPD}}}
+S_ST_F = ${if >{S_STPN_D}{${randint:S_STPD_D}}}
+# ... Ham Trap Probability Numerator Data
+S_HTPN_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPHamTrapProbabilityNumerator?base}}
+# ... Ham Trap Probability Denominator Data
+S_HTPD_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPHamTrapProbabilityDenominator?base}}
+# ... Ham Trap Flag
+S_HT_F = ${if >{S_HTPN_D}{${randint:S_HTPD_D}}}
 # System MailBox Timeout Data
-S_MBTO_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMailBoxTimeout?base} }
+S_MBTO_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMailBoxTimeout?base}}
+# System MailBox Cutoff Time Data
+S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
 # System Trusted Message Size
-S_TMS_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedMessageSize?base} }
+S_TMS_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedMessageSize?base}}
+
 connect_acl:
   warn
-    # System Trusted Port Flag
-    set acl_c_s_tp_f = S_TP_F
     # System SpamTrap Flag
     set acl_c_s_st_f = S_ST_F
-    # System MailBox Cutoff Time Data
-    set acl_c_s_mbct_d = ${eval10:$tod_epoch-S_MBTO_D}
-    # System Trusted Message Size Data
-    set acl_c_s_tms_d = S_TMS_D
-    # System Realm(s)
-    set acl_c_s_realms = S_REALMS
+    # System HamTrap Flag
+    set acl_c_s_ht_f = S_HT_F
     control = dkim_disable_verify
-    logwrite = DEBUG: acl_c_s_tp_f=$acl_c_s_tp_f acl_c_s_st_f=$acl_c_s_st_f acl_c_s_realms=$acl_c_s_realms
+    logwrite = DEBUG: tp_f=S_TP_F st_f=$acl_c_s_st_f realms=S_REALM_Lc
   accept
     # smtp_banner
-    message = smtp.services.advancedfiltering.net ESMTP${if bool_lax{$acl_c_s_tp_f}{ TP}{}}${if bool_lax{$acl_c_s_st_f}{ ST}{}}
+    message = smtp.services.advancedfiltering.net ESMTP${if bool_lax{S_TP_F}{ TP}{}}${if bool_lax{$acl_c_s_st_f}{ ST}{}}
 
 helo_acl:
   accept
@@ -171,7 +174,7 @@ shn_bwl_acl:
 # accept - match, deny - not match
 dnsbl_acl:
   deny
-    condition = $acl_c_s_tp_f
+    condition = S_TP_F
     set acl_c_bl_f = false
     set acl_c_wl_f = false
     logwrite = DEBUG: dnsbl: trusted port
@@ -281,7 +284,7 @@ rcpt_acl:
     # User Realm
     set acl_m_u_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_u_client},S_LDAP_DN?afSClientRealm?base}}
     logwrite = DEBUG: acl_m_u_realm=$acl_m_u_realm
-    ! condition = ${if inlist{$acl_m_u_realm}{$acl_c_s_realms}}
+    ! condition = ${if inlist{$acl_m_u_realm}{<, S_REALM_Lc}}
     message = Moved, try another host
   warn
     set acl_m_u_realms = ${if bool_lax{$acl_m_u_realms} {$acl_m_u_realms:$acl_m_u_realm} {$acl_m_u_realm} }
@@ -293,7 +296,7 @@ rcpt_acl:
   # ** ok, absent => sys_spamtrap ? ok Mail box does not exist, flag_mb_absent, stop : 5xx Mail box does not exist, stop
   defer
     # User Mail Box Data
-    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=$acl_c_s_mbct_d)}}
+    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=S_MBCT_D)}}
     ! condition = ${if bool_lax{$acl_m_u_mb_d}}
     message = Your data is verifying, please try again later
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
@@ -418,14 +421,14 @@ U_SMTPDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:
 # SMTPDB Realm Message Incoming LDAP DNs
 U_SMTPDB_R_MI_LDAP_DN_L = ${map {U_SMTPDB_R_LDAP_DN_L} {afUSMTPMessageId=${quote_ldap_dn:U_MI_FF},$item} }
 # SMTPDB Realm Message Incoming ... Item
-U_SMTPDB_R_MI_spam_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSpamDescription?base} }
+U_SMTPDB_R_MI_spam_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSpamDescription?base}}
 # ... Data
 U_SMTPDB_R_MI_spam_D = ${reduce {U_SMTPDB_R_MI_LDAP_DN_L} {} {$value U_SMTPDB_R_MI_spam_I} }
-U_SMTPDB_R_MI_sender_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base} }
+U_SMTPDB_R_MI_sender_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base}}
 # ... List
 U_SMTPDB_R_MI_sender_L = ${map {U_SMTPDB_R_MI_LDAP_DN_L} {U_SMTPDB_R_MI_sender_I} }
 U_SMTPDB_R_MI_sender_D = ${reduce {U_SMTPDB_R_MI_sender_L} {} {$value $item} }
-U_SMTPDB_R_MI_bad_sender_D = ${filter {U_SMTPDB_R_MI_sender_L} { and{ { bool_lax{$item} } { !eqi{$item}{$sender_address} } } } }
+U_SMTPDB_R_MI_bad_sender_L = ${filter {U_SMTPDB_R_MI_sender_L} { and{ { bool_lax{$item} } { !eqi{$item}{$sender_address} } } } }
 
 data_acl:
   warn
@@ -478,8 +481,8 @@ data_acl:
     condition = ${if bool_lax{U_SMTPDB_R_MI_spam_D}}
   # ** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap
   accept
-    logwrite = DEBUG: bad sender: U_SMTPDB_R_MI_bad_sender_D
-    condition = ${if bool_lax{U_SMTPDB_R_MI_bad_sender_D}}
+    logwrite = DEBUG: bad sender: U_SMTPDB_R_MI_bad_sender_L
+    condition = ${if bool_lax{U_SMTPDB_R_MI_bad_sender_L}}
     set acl_m_spamtrap_f = true
     control = fakereject/Several senders for the same message
   # ** ok => ok, stop
@@ -496,13 +499,13 @@ data_acl:
     logwrite = DEBUG: recipients: $recipients
     condition = ${if forany {U_SDB_R_MO_LDAP_DN_L} { inlist {U_SDB_R_MO_LDAP_I} {<, $recipients} } }
     set acl_m_hamtrap_f = true
-  
+
   # * message_size >= sys_trustedmessagesize
   # ** ok => ok TMS, stop
   accept
-    condition = ${if >{$message_size}{$acl_c_s_tms_d}}
+    condition = ${if >{$message_size}{S_TMS_D}}
     message = OK id=$message_exim_id TMS
-  
+
   # * 4xx Your data is verifying, please try again later, flag_mailproc
   accept
     control = fakedefer/Your data is verifying, please try again later
@@ -521,7 +524,7 @@ R_AD_R_LDAP_Q = afSHostRealm=${quote_ldap_dn:${extract {realm} {$address_data} }
 # Router Address_Data Realm Flag
 R_AD_R_F = ${extract {realm} {$address_data} }
 # Router System Realm LDAP Query
-R_SYS_R_LDAP_Q = ${reduce {S_REALMS} {|} {$value(afSHostRealm=${quote_ldap_dn:$item})} }
+R_SYS_R_LDAP_Q = ${reduce {S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:$item})} }
 # Router Services Realm LDAP Q
 R_S_R_LDAP_Q = ${if bool_lax{R_AD_R_F} {R_AD_R_LDAP_Q} {R_SYS_R_LDAP_Q} }
 
@@ -533,11 +536,20 @@ service_verify_router:
   domains = services.advancedfiltering.net
   driver = accept
 
+# Routers/Service Router Route Data Hosts List (separated by \n)
+R_SRRD_H_Lnl = ${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_S_R_LDAP_Q)(afSHostServiceName=$local_part))}}
+# Routers/Service Router Route Data Address (uses $item)
+R_SRRD_address_I = ${lookup ldap{LDAP_C/afSHostServiceName=$local_part,afSHostName=${quote_ldap_dn:$item},S_LDAP_DN?afSHServiceHostAddress?base}}
+# Routers/Service Router Route Data Port (uses $item)
+R_SRRD_port_I = ${lookup ldap{LDAP_C/afSHostServiceName=$local_part,afSHostName=${quote_ldap_dn:$item},S_LDAP_DN?afSHServiceTCPPort?base}}
+# Routers/Service Router Route Data List (separated by \n)
+R_SRRD_Lnl = ${map{<\n R_SRRD_H_Lnl}{${if bool_lax{R_SRRD_address_I}{R_SRRD_address_I}{$item}}${if bool_lax{R_SRRD_port_I}{:R_SRRD_port_I}{}}}}
+
 service_router:
   domains = services.advancedfiltering.net
   driver = manualroute
   debug_print = address_data = $address_data, sys_r = R_SYS_R_LDAP_Q
-  route_data = ${tr {${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_S_R_LDAP_Q)(afSHostServiceName=$local_part))} }} {\n} {:} }
+  route_list = ${if bool_lax{R_SRRD_Lnl}{* "<\n R_SRRD_Lnl"}{}}
   hosts_randomize = true
   transport = service_transport
   address_data = system_authenticator="true" $address_data
@@ -550,42 +562,43 @@ service_defer_router:
   data = :defer:
   errors_to = error@services.advancedfiltering.net
 
-# Router Services Headers Delete
-R_SH_D = X-AdvancedFiltering-Sender:X-AdvancedFiltering-Recipient:X-AdvancedFiltering-Recipients:X-AdvancedFiltering-Realms
-# Router Services Headers Add
-R_SH_A = X-AdvancedFiltering-Sender: $sender_address\nX-AdvancedFiltering-Recipient: $local_part@$domain\nX-AdvancedFiltering-Recipients: ${tr{$acl_m_u_recipients}{,}{ }}\nX-AdvancedFiltering-Realms: ${tr{$acl_m_u_realms}{:}{ }}
+# Router Services Headers Delete List
+R_SHD_L = X-AdvancedFiltering-Sender:X-AdvancedFiltering-Recipient:X-AdvancedFiltering-Recipients:X-AdvancedFiltering-Realms
+# Router Services Headers Add List (separated by \n)
+R_SHA_Lnl = X-AdvancedFiltering-Sender: $sender_address\nX-AdvancedFiltering-Recipient: $local_part@$domain\nX-AdvancedFiltering-Recipients: ${tr{$acl_m_u_recipients}{,}{ }}\nX-AdvancedFiltering-Realms: ${tr{$acl_m_u_realms}{:}{ }}
 
 # * mailproc
 mailproc_router:
-  condition = $acl_m_mp_f
+  condition = $acl_m_mailproc_f
   driver = redirect
   data = mailproc@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SH_D
-  headers_add = R_SH_A
-  unseen = ${if bool_lax{$acl_m_mp_unseen_f}{true}{false}}
+  headers_remove = R_SHD_L
+  headers_add = R_SHA_Lnl
 
 # * hamtrap
 hamtrap_router:
-  condition = $acl_m_ht_f
+  condition = $acl_c_s_ht_f
+  condition = $acl_m_hamtrap_f
   driver = redirect
   data = hamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SH_D
-  headers_add = R_SH_A
+  headers_remove = R_SHD_L
+  headers_add = R_SHA_Lnl
   unseen = true
 
 # * spamtrap
 spamtrap_router:
-  condition = ${if bool_lax{$acl_c_s_st_m}}
+  condition = $acl_c_s_st_f
+  condition = $acl_m_spamtrap_f
   driver = redirect
   data = spamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SH_D
-  headers_add = R_SH_A
+  headers_remove = R_SHD_L
+  headers_add = R_SHA_Lnl
   unseen = true
 
 # Router Client LDAP DN
@@ -595,7 +608,7 @@ R_CD_LDAP_DN = afUSMTPDomainName=${quote_ldap_dn:$domain},R_C_LDAP_DN
 # Router Client Domain Mail Box LDAP DN
 R_CDM_LDAP_DN = afUSMTPDMBLocalPart=${quote_ldap_dn:$local_part},R_CD_LDAP_DN
 # Router MailBox Absent Data
-R_MBA_D = ${lookup ldap{LDAP_C/R_CDM_LDAP_DN?afUSMTPDMBIsAbsent?base} }
+R_MBA_D = ${lookup ldap{LDAP_C/R_CDM_LDAP_DN?afUSMTPDMBIsAbsent?base}}
 
 # *************************************************************************************************
 
@@ -607,191 +620,343 @@ R_MBA_D = ${lookup ldap{LDAP_C/R_CDM_LDAP_DN?afUSMTPDMBIsAbsent?base} }
 # Router General LDAP DN
 R_LDAP_DN = ""
 
-# Router Copy Target Data
-R_CT_D = ""
+# Router Copy Target List (separated by coma)
+R_CT_Lc = ""
 
 # Router Copy Sender Data
 R_CS_D = ""
 
-# Router Copy Headers Delete
+# Router Copy Headers Delete List
 # X-AdvancedFiltering-Sender-XXX header for separate batch
-R_CH_D = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-XXX
-# Router Copy Headers Add
-R_CH_A = X-AdvancedFiltering-Return-Path: $sender_address
+R_CHD_L = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-XXX
+# Router Copy Headers Add List (separated by \n)
+R_CHA_Lnl = X-AdvancedFiltering-Return-Path: $sender_address
 
-# * spam
+# * spamaddress
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
-# the same for all spam_user_ routers
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
-R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-spam_mailbox_router:
-  condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
-  condition = ${if bool_lax{R_CLIENT}}
+# the same for all spamaddress_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+spamaddress_mailbox_router:
+  condition = $acl_m_u_spt_f
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router, R_MBA_D
   condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
-  data = R_CT_D
+  data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CH_D
-  headers_add = R_CH_A
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
   unseen = true
-  redirect_router = backup_router
+  redirect_router = spambox_router
 
 R_LDAP_DN == R_CD_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
-# the same for all spam_user_ routers
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
-R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-spam_domain_router:
-  condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
-  condition = ${if bool_lax{R_CLIENT}}
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
+# the same for all spamaddress_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+spamaddress_domain_router:
+  condition = $acl_m_u_spt_f
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
-  data = R_CT_D
+  data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CH_D
-  headers_add = R_CH_A
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
   unseen = true
-  redirect_router = backup_router
+  redirect_router = spambox_router
 
 R_LDAP_DN == R_C_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
-# the same for all spam_user_ routers
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPSpamMailAddress?sub?(objectClass=afUSMTPSpamTarget)} }
-R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-spam_client_router:
-  condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
-  condition = ${if bool_lax{R_CLIENT}}
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
+# the same for all spamaddress_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+spamaddress_client_router:
+  condition = $acl_m_u_spt_f
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
-  data = R_CT_D
+  data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CH_D
-  headers_add = R_CH_A
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
   unseen = true
-  redirect_router = backup_router
+  redirect_router = spambox_router
 
-spam_last_router:
-  condition = ${if or{ {bool_lax{$acl_c_s_st_m}} {bool_lax{$acl_m_u_mi_s_m}} } }
-  condition = ${if bool_lax{R_CLIENT}}
+# * spambox
+
+spambox_router:
+  driver = redirect
+  data = ""
+  errors_to = error@services.advancedfiltering.net
+
+# Router Copy Target Data
+R_CT_D = ""
+
+R_LDAP_DN == R_CDM_LDAP_DN
+# the same for all spambox_ routers
+R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+spambox_mailbox_router:
+  condition = $acl_m_u_spt_f
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router, R_MBA_D
+  condition = ${if !bool_lax{R_MBA_D}}
+  driver = redirect
+  data = R_CT_D+$local_part@$domain
+  address_data = sender=$sender_address realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  unseen = true
+  redirect_router = user_spam_block_router
+
+R_LDAP_DN == R_CD_LDAP_DN
+# the same for all spambox_ routers
+R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+spambox_domain_router:
+  condition = $acl_m_u_spt_f
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  driver = redirect
+  data = R_CT_D+$local_part@$domain
+  address_data = sender=$sender_address realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  unseen = true
+  redirect_router = user_spam_block_router
+
+R_LDAP_DN == R_C_LDAP_DN
+# the same for all spambox_ routers
+R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+spambox_client_router:
+  condition = $acl_m_u_spt_f
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  driver = redirect
+  data = R_CT_D+$local_part@$domain
+  address_data = sender=$sender_address realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  unseen = true
+  redirect_router = user_spam_block_router
+
+# не пропускаем спам если !user_spt
+user_spam_block_router:
+  condition = ${if !bool_lax{$acl_m_u_spt_f}}
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
 
 # * backup
 
-backup_router:
+R_LDAP_DN == R_CDM_LDAP_DN
+R_CS_D == $local_part@$domain
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+backup_mailbox_router:
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  condition = ${if !bool_lax{R_MBA_D}} # unreachable
   driver = redirect
-  data = ""
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  unseen = true
+  redirect_router = spam_block_router
+
+R_LDAP_DN == R_CD_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+backup_domain_router:
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  unseen = true
+  redirect_router = spam_block_router
+
+R_LDAP_DN == R_C_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+backup_client_router:
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  unseen = true
+  redirect_router = spam_block_router
+
+# не пропускаем спам
+spam_block_router:
+  condition = $acl_m_spam_f
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  driver = redirect
+  data = :blackhole:
+  errors_to = error@services.advancedfiltering.net
+
+# * redirect
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
-# the same for all backup_user_ routers
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
-R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_mailbox_router:
-  condition = ${if bool_lax{R_CLIENT}}
+# the same for all redirect_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+redirect_mailbox_router:
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   condition = ${if !bool_lax{R_MBA_D}} # unreachable
   driver = redirect
-  data = R_CT_D
+  data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CH_D
-  headers_add = R_CH_A
-  unseen = true
-  redirect_router = mx_router
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  redirect_router = user_spam_block_router
 
 R_LDAP_DN == R_CD_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base} }
-# the same for all backup_user_ routers
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
-R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
+# the same for all redirect_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_domain_router:
-  condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
-  data = R_CT_D
+  data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CH_D
-  headers_add = R_CH_A
-  unseen = true
-  redirect_router = mx_router
-  
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  redirect_router = user_spam_block_router
+
 R_LDAP_DN == R_C_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base} }
-# the same for all backup_user_ routers
-R_CT_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPBackupMailAddress?sub?(objectClass=afUSMTPBackupTarget)} }
-R_CH_D == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
+# the same for all redirect_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_client_router:
-  condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
-  data = R_CT_D
+  data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CH_D
-  headers_add = R_CH_A
-  unseen = true
-  redirect_router = mx_router
+  headers_remove = R_CHD_L
+  headers_add = R_CHA_Lnl
+  redirect_router = user_spam_block_router
 
 # * mx
 
-mx_router:
-  driver = redirect
-  data = ""
-  errors_to = error@services.advancedfiltering.net
-
-# Router Mail Exchanger Data
-R_MX_D = ""
+# Routers/Mail Exchanger Name List (separated by coma)
+R_MX_N_Lc = ""
+# Routers/Mail Exchanger Address (uses $item)
+R_MX_address_I = ""
+# Routers/Mail Exchanger Port (uses $item)
+R_MX_port_I = ""
+# Routers/Mail Exchanger Address:Port (uses $item)
+R_MX_address_port_I = ""
+# Routers/Mail Exchanger User (uses $item)
+R_MX_user_I = ""
+# Routers/Mail Exchanger Password (uses $item)
+R_MX_password_I = ""
+# Routers/Mail Exchanger List (separated by coma)
+R_MX_Lc = ""
 
 R_LDAP_DN == R_CDM_LDAP_DN
-R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
+R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
+R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
+R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
+R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
+R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
+R_MX_address_port_I = ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}/A${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_mailbox_router:
-  condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router, R_MBA_D
   condition = ${if !bool_lax{R_MBA_D}} # unreachable
   driver = manualroute
-  route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
 
 R_LDAP_DN == R_CD_LDAP_DN
-R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
+R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
+R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
+R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
+R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
+R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
+R_MX_address_port_I = ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}/A${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_domain_router:
-  condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = manualroute
-  route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
 
 R_LDAP_DN == R_C_LDAP_DN
-R_MX_D == ${lookup ldapm{LDAP_C/ou=settings,R_LDAP_DN?afUSMTPMXHostName,afUSMTPMXTCPPort,afUSMTPMXAuthUser,afUSMTPMXAuthPassword?sub?(objectClass=afUSMTPMailExchanger)} }
+R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
+R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
+R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
+R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
+R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
+R_MX_address_port_I = ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}/A${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_client_router:
-  condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = manualroute
-  route_data = ${tr {${map {<\n R_MX_D} {${extract {afUSMTPMXHostName} {$item} }::${extract {afUSMTPMXTCPPort} {$item} }} }} {\n} {:} }
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<\n R_MX_D} {} {$value ${extract {afUSMTPMXHostName} {$item} }_user=${extract {afUSMTPMXAuthUser} {$item} } ${extract {afUSMTPMXHostName} {$item} }_password=${extract {afUSMTPMXAuthPassword} {$item} }}} $address_data
+  route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
 
 mx_defer_router:
-  condition = ${if bool_lax{R_CLIENT}}
+  condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
   allow_defer = true
   data = :defer:
   errors_to = bounce@services.advancedfiltering.net
-  
+
 # * submission
 # (client copy mail, delivery to other addresses)
 # the realm should be in the address_data, if not - the leaked bounce (errors_to verification failed)
 
+# Routers/Submission Router Route Data Hosts List
+R_SubRRD_H_Lnl = ${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_AD_R_LDAP_Q)(afSHostServiceName=submission))}}
+# Routers/Submission Router Route Data Address (uses $item)
+R_SubRRD_address_I = ${lookup ldap{LDAP_C/afSHostServiceName=submission,afSHostName=${quote_ldap_dn:$item},S_LDAP_DN?afSHServiceHostAddress?base}}
+# Routers/Submission Router Route Data Port (uses $item)
+R_SubRRD_port_I = ${lookup ldap{LDAP_C/afSHostServiceName=submission,afSHostName=${quote_ldap_dn:$item},S_LDAP_DN?afSHServiceTCPPort?base}}
+# Routers/Submission Router Route Data List
+R_SubRRD_Lnl = ${map{<\n R_SubRRD_H_Lnl}{${if bool_lax{R_SubRRD_address_I}{R_SubRRD_address_I}{$item}}${if bool_lax{R_SubRRD_port_I}{:R_SubRRD_port_I}{}}}}
+
 submission_router:
   condition = R_AD_R_F
   driver = manualroute
-  route_data = ${tr {${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_AD_R_LDAP_Q)(afSHostServiceName=submission))} }} {\n} {:} }
+  route_list = ${if bool_lax{R_SubRRD_Lnl}{* "<\n R_SubRRD_Lnl"}{}}
   hosts_randomize = true
   transport = submission_transport
   address_data = system_authenticator="true" $address_data
@@ -806,6 +971,16 @@ submission_defer_router:
   errors_to = error@services.advancedfiltering.net
 
 begin transports
+
+
+
+
+# TODO
+
+
+
+
+
 
 service_transport:
   driver = smtp
@@ -837,11 +1012,11 @@ T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settin
 # Transport TLS-required Hosts
 T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXTLSRequired=TRUE)} }
 # Transport TLS Certificate
-T_TLSC = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base} }
+T_TLSC = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base}}
 # Transport TLS Key
-T_TLSK = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSKey?base} }
+T_TLSK = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSKey?base}}
 # Transport TLS Verify data, OpenSSL path to root certificates & crls
-T_TLSV = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCA?base} }
+T_TLSV = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCA?base}}
 
 mx_transport:
   driver = smtp

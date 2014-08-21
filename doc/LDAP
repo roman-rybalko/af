@@ -43,7 +43,9 @@ afSSMTPDNSBLDomainName: bl.spamcop.net
 afSSMTPDNSBLDomainName: bl.spamhaus.org
 afSSMTPMaxMessageSize: 30000000
 afSSMTPSpamTrapProbabilityDenominator: 100
-afSSMTPSpamTrapProbabilityNumerator: 0
+afSSMTPSpamTrapProbabilityNumerator: 10
+afSSMTPHamTrapProbabilityDenominator: 100
+afSSMTPHamTrapProbabilityNumerator: 10
 afSSMTPTrustedMessageSize: 2000000
 afSSMTPTrustedPort: 445
 afSSMTPMailBoxTimeout: 14400
@@ -105,6 +107,7 @@ afUSMTPBackupMailAddress: backup@org.com
 afUSMTPBackupMailAddress: backup2@org.com
 afUSMTPSpamMailAddress: spam@org.com
 afUSMTPSpamMailAddress: spam2@org.com
+afUSMTPSpamMailBox: SPAM
 afUSMTPSpamPassthrough: TRUE
 objectClass: afUClient
 objectClass: afUSMTPSettings

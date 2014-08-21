@@ -6,13 +6,17 @@
 [] - condition
 {} - unseen
 
-* service [@services] {stop} => error
+* service [@services] {stop} (-> service) => error
 * mailproc [flag_mailproc] {stop} (-> service) => error
 * hamtrap [flag_hamtrap && sys_hamtrap] {continue} (-> service) => error
 * spamtrap [flag_spamtrap && sys_spamtrap] {continue} (-> service) => error
-* spam [flag_spam && user_spt] {continue} -> backup => error
-* backup {continue} -> mx => error
-* mx {stop} => bounce
+* spamaddress user/domain/client [flag_spam && user_spt] {continue} -> spambox => error
+* spambox user/domain/client [flag_spam && user_spt] {continue} -> user_spam_block => error
+* user_spam_block # не пропускаем спам если !user_spt
+* backup user/domain/client {continue} -> spam_block => error
+* spam_block # не пропускаем спам
+* redirect user/domain/client {stop} -> user_spam_block => error
+* mx user/domain/client {stop} => bounce
 * submission {stop} => error
 
 Для spam проверять afUSMTPDMBIsAbsent,
