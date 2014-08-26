@@ -649,9 +649,9 @@ R_CS_D = ""
 
 # Router Copy Headers Delete List
 # X-AdvancedFiltering-Sender-XXX header for separate batch
-R_CHD_L = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-XXX
+R_CHD_L = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-XXX
 # Router Copy Headers Add List (separated by \n)
-R_CHA_Lnl = X-AdvancedFiltering-Return-Path: $sender_address
+R_CHA_Lnl = X-AdvancedFiltering-Return-Path: $sender_address\nX-AdvancedFiltering-Envelope-To: $local_part@$domain
 
 # * spamaddress
 
@@ -659,7 +659,7 @@ R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spamaddress_mailbox_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
@@ -678,7 +678,7 @@ R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spamaddress_domain_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
@@ -696,7 +696,7 @@ R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spamaddress_client_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
@@ -723,7 +723,7 @@ R_CT_D = ""
 R_LDAP_DN == R_CDM_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spambox_mailbox_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
@@ -741,7 +741,7 @@ spambox_mailbox_router:
 R_LDAP_DN == R_CD_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spambox_domain_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
@@ -758,7 +758,7 @@ spambox_domain_router:
 R_LDAP_DN == R_C_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spambox_client_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
@@ -787,7 +787,7 @@ R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   condition = ${if !bool_lax{R_MBA_D}} # unreachable
@@ -804,7 +804,7 @@ R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_domain_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
@@ -820,7 +820,7 @@ R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_client_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
@@ -846,7 +846,7 @@ R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 redirect_mailbox_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   condition = ${if !bool_lax{R_MBA_D}} # unreachable
@@ -862,8 +862,8 @@ R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_domain_router:
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+redirect_domain_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
   data = R_CT_Lc
@@ -877,8 +877,8 @@ R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_client_router:
+R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
+redirect_client_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = redirect
   data = R_CT_Lc
