@@ -270,6 +270,9 @@ bwl_rcpt_acl:
     acl = bwl_acl
   deny
 
+# User SMTP MailBox Data
+U_SMTP_MB_D = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=S_MBCT_D)}}
+
 rcpt_acl:
   # * проверка realm для домена
   # ** нет домена => 5xx The domain is not in service, stop
@@ -291,31 +294,49 @@ rcpt_acl:
   require
     acl = domain_rcpt_acl
 
+  # * получение пользовательской настройки user_nombxchk (NoMailBoxCheck - no auto-add)
+  warn
+    set acl_m_u_nombxchk_f = false
+    set acl_m_u_conf_name = afUSMTPNoMailBoxCheck
+    acl = conf_rcpt_acl
+    set acl_m_u_nombxchk_f = $acl_m_u_conf_value
+
   # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-  # ** fail => 4xx Your data is verifying, please try again later, log, stop
-  # ** ok, absent => sys_spamtrap ? ok Mail box does not exist, flag_mb_absent, stop : 5xx Mail box does not exist, stop
-  defer
-    # User Mail Box Data
-    set acl_m_u_mb_d = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=S_MBCT_D)}}
-    ! condition = ${if bool_lax{$acl_m_u_mb_d}}
-    message = Your data is verifying, please try again later
-    logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
-  deny
-    ! condition = $acl_c_s_st_f
-    condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
-    message = Mail box does not exist
+  # ** absent && sys_spamtrap => ok Mail box does not exist, flag_mb_absent, stop
   accept
     condition = $acl_c_s_st_f
-    condition = ${extract {afUSMTPDMBIsAbsent}{$acl_m_u_mb_d}{true}{false}}
+    condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
     set acl_m_u_absent = true
     message = Mail box does not exist
+  # ** absent => 5xx Mail box does not exist, stop
+  deny
+    condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
+    message = Mail box does not exist
+  # ** (expired || not_found) && user_nombxchk && sys_spamtrap => ok Mail box does not exist, flag_mb_absent, stop
+  accept
+    condition = $acl_c_s_st_f
+    condition = $acl_m_u_nombxchk_f
+    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}} # existing
+    set acl_m_u_absent = true
+    message = Mail box does not exist
+  # ** (expired || not_found) && user_nombxchk => 5xx Mail box does not exist, stop
+  deny
+    condition = $acl_m_u_nombxchk_f
+    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}} # existing
+    message = Mail box does not exist
+  # ** expired || not_found => 4xx Your data is verifying, please try again later, log, stop
+  defer
+    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}} # existing
+    message = Your data is verifying, please try again later
+    logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
+  # ** ok
 
   # * recipients_count > 0 => 4xx Mail box is temporarily unavailable, please try again later
   defer
     condition = ${if bool_lax{$recipients_count}}
     message = Mail box is temporarily unavailable, please try again later
 
-  # * получение пользовательских настроек user_spt (Spam PassThrough)
+  # * получение пользовательской настройки user_spt (Spam PassThrough)
   warn
     set acl_m_u_spt_f = false
     set acl_m_u_conf_name = afUSMTPSpamPassthrough

@@ -87,6 +87,7 @@ olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.3.1 NAME 'afUSMTPSpamMailAddres
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.3.2 NAME 'afUSMTPSpamMailBox' DESC 'User (ou=user) SMTP Spam Mail Box' SUP afMailAddress SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.4 NAME 'afUSMTPBackupMailAddress' DESC 'User (ou=user) SMTP Backup Mail Address' SUP afMailAddress )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.5 NAME 'afUSMTPRedirectMailAddress' DESC 'User (ou=user) SMTP Backup Mail Address' SUP afMailAddress )
+olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.3.6 NAME 'afUSMTPNoMailBoxCheck' DESC 'User (ou=user) SMTP disable MailBox check - disable auto-add' SUP afBoolean )
 # user/mdb (Message DataBase)
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.4.1 NAME 'afUSMTPMessageId' DESC 'User (ou=user) SMTP/Submission Message-Id header' SUP afCaseExactString SINGLE-VALUE )
 olcAttributeTypes: ( 1.3.6.1.4.1.40547.1.1.2.2.4.2 NAME 'afUSMTPMessageSpamDescription' DESC 'User (ou=user) SMTP/Submission Message Spam Description' SUP afCaseExactString SINGLE-VALUE )
@@ -112,7 +113,7 @@ olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.1.2 NAME 'afUClient' DESC 'User (ou=
 # user/smtp
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.1 NAME 'afUSMTPDomain' DESC 'User (ou=user) SMTP service Domain' SUP top STRUCTURAL MUST ( afUSMTPDomainName $ afUSMTPDomainAdminMailAddress $ afUSMTPDomainTechMailAddress ) MAY ( afUSMTPDomainAliasName $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.2 NAME 'afUSMTPDMailBox' DESC 'User (ou=user) SMTP Domain Mail Box' SUP top STRUCTURAL MUST ( afUSMTPDMBLocalPart $ afUSMTPDMBTimeUpdated ) MAY ( afUSMTPDMBIsAbsent $ afDescription ) )
-olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.3 NAME 'afUSMTPSettings' DESC 'User (ou=user) SMTP Settings' SUP top AUXILIARY MAY ( afUSMTPMXName $ afUSMTPBackupMailAddress $ afUSMTPSpamMailAddress $ afUSMTPSpamMailBox $ afUSMTPSpamPassthrough $ afDescription ) )
+olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.3 NAME 'afUSMTPSettings' DESC 'User (ou=user) SMTP Settings' SUP top AUXILIARY MAY ( afUSMTPMXName $ afUSMTPSpamPassthrough $ afUSMTPBackupMailAddress $ afUSMTPSpamMailAddress $ afUSMTPSpamMailBox $ afUSMTPNoMailBoxCheck $ afDescription ) )
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.2.3.1 NAME 'afUSMTPMailExchanger' DESC 'User (ou=user) SMTP Mail Exchanger' SUP top STRUCTURAL MUST ( afUSMTPMXName $ afUSMTPMXHostName ) MAY ( afUSMTPMXTCPPort $ afUSMTPMXAuthUser $ afUSMTPMXAuthPassword $ afUSMTPMXTLSRequired $ afUSMTPMXAuthTLSCertificate $ afUSMTPMXAuthTLSKey $ afUSMTPMXAuthTLSCA $ afDescription ) )
 # user/smtpdb user/submissiondb
 olcObjectClasses: ( 1.3.6.1.4.1.40547.1.2.2.3.1 NAME 'afUSMTPMessage' DESC 'User (ou=user) SMTP/Submission Message' SUP top ABSTRACT MUST ( afUSMTPMessageId $ afUSMTPMessageSenderMailAddress $ afUSMTPMessageTimeCreated ) MAY ( afDescription ) )

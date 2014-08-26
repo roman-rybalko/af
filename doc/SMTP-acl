@@ -38,12 +38,17 @@ rcpt
 * проверка realm для домена
 ** нет домена => 5xx The domain is not in service, stop
 ** чужой realm => 4xx Moved, please try another host, stop
+* получение пользовательской настройки user_nombxchk (NoMailBoxCheck - no auto-add)
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-** fail => 4xx Your data is verifying, please try again later, log, stop
-** ok, absent => sys_spamtrap ? ok Mail box does not exist, flag_mb_absent, stop : 5xx Mail box does not exist, stop
+** absent && sys_spamtrap => ok Mail box does not exist, flag_mb_absent, stop
+** absent => 5xx Mail box does not exist, stop
+** (expired || not_found) && user_nombxchk && sys_spamtrap => ok Mail box does not exist, flag_mb_absent, stop
+** (expired || not_found) && user_nombxchk => 5xx Mail box does not exist, stop
+** expired || not_found => 4xx Your data is verifying, please try again later, log, stop
+** ok
 * recipients_count > 0 => 4xx Mail box is temporarily unavailable, please try again later
 recipients_count - параметр exim, количество ответов 2xx на RCPT
-* получение пользовательских настроек user_spt (Spam PassThrough)
+* получение пользовательской настройки user_spt (Spam PassThrough)
 * проверка пользовательских списков фильтрации => flag_user_wl, flag_user_bl, msg_user_wbl
 * flag_user_wl => ok $msg_user_wbl, stop
 * flag_user_bl => 5xx $msg_user_wbl, stop
