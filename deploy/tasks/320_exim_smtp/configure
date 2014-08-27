@@ -15,8 +15,8 @@ ignore_bounce_errors_after = 2d
 timeout_frozen_after = 7d
 tls_advertise_hosts = *
 tls_try_verify_hosts = *
-tls_certificate = /usr/local/advancedfiltering/smtp/ssl/smtp.services.advancedfiltering.net.crt
-tls_privatekey = /usr/local/advancedfiltering/smtp/ssl/smtp.services.advancedfiltering.net.key
+tls_certificate = /usr/local/advancedfiltering/ssl/smtp.services.advancedfiltering.net.crt
+tls_privatekey = /usr/local/advancedfiltering/ssl/smtp.services.advancedfiltering.net.key
 tls_verify_certificates = /usr/local/advancedfiltering/ssl/ca
 tls_crl = /usr/local/advancedfiltering/ssl/ca
 acl_smtp_connect = connect_acl
@@ -918,7 +918,7 @@ mx_mailbox_router:
   condition = ${if !bool_lax{R_MBA_D}} # unreachable
   driver = manualroute
   route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
 
@@ -934,7 +934,7 @@ mx_domain_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = manualroute
   route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
 
@@ -950,7 +950,7 @@ mx_client_router:
   condition = ${if bool_lax{R_CLIENT}} # for submission_router
   driver = manualroute
   route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I}} $address_data
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
 
@@ -993,16 +993,6 @@ submission_defer_router:
 
 begin transports
 
-
-
-
-# TODO
-
-
-
-
-
-
 service_transport:
   driver = smtp
   # mandatory tls
@@ -1028,16 +1018,18 @@ submission_transport:
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
+# Transport Mail eXchanger Name Data
+T_MXN_D = ${extract {$host/A{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/name} {$address_data} }
 # Transport Auth-required Hosts
-T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
+T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
 # Transport TLS-required Hosts
-T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXTLSRequired=TRUE)} }
+T_TH_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXTLSRequired=TRUE)} }
 # Transport TLS Certificate
-T_TLSC = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base}}
+T_TLSC_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXAuthTLSCertificate?base}}
 # Transport TLS Key
-T_TLSK = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSKey?base}}
+T_TLSK_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXAuthTLSKey?base}}
 # Transport TLS Verify data, OpenSSL path to root certificates & crls
-T_TLSV = ${lookup ldap{LDAP_C/afUSMTPMXHostName=${quote_ldap_dn:$host},ou=settings,T_LDAP_DN?afUSMTPMXAuthTLSCA?base}}
+T_TLSV_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXAuthTLSCA?base}}
 
 mx_transport:
   driver = smtp
@@ -1045,25 +1037,16 @@ mx_transport:
   hosts_require_auth = T_AH_D
   hosts_require_tls = T_TH_D
   # public cert, no verify
-  tls_certificate = ${if bool_lax{T_TLSC} {/usr/local/etc/exim/ssl/T_TLSC.crt} {/usr/local/etc/ssl/smtp.services.advancedfiltering.net.crt} }
-  tls_privatekey = ${if bool_lax{T_TLSK} {/usr/local/etc/exim/ssl/T_TLSK.key} {/usr/local/etc/ssl/smtp.services.advancedfiltering.net.key} }
-  tls_verify_certificates = ${if bool_lax{T_TLSV} {/usr/local/etc/exim/ssl/T_TLSV} fail }
+  tls_certificate = ${if bool_lax{T_TLSC_D} {/usr/local/advancedfiltering/smtp/ssl/T_TLSC_D.crt} {/usr/local/advancedfiltering/ssl/smtp.services.advancedfiltering.net.crt} }
+  tls_privatekey = ${if bool_lax{T_TLSK_D} {/usr/local/advancedfiltering/smtp/ssl/T_TLSK_D.key} {/usr/local/advancedfiltering/ssl/smtp.services.advancedfiltering.net.key} }
+  tls_verify_certificates = ${if bool_lax{T_TLSV_D} {/usr/local/advancedfiltering/smtp/ssl/T_TLSV_D} fail }
   # return path fix (sender_address)
   return_path = $sender_address
   dkim_domain = dkim.advancedfiltering.net
   dkim_selector = smtp
-  dkim_private_key = /usr/local/etc/exim/dkim-smtp.key
+  dkim_private_key = /usr/local/advancedfiltering/smtp/dkim-smtp.key
   dkim_strict = true
-  dkim_sign_headers = From:Sender:Reply-To\
-    :Subject\
-    :Date:Message-ID\
-    :To:Cc\
-    :MIME-Version\
-    :Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description\
-    :Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID\
-    :In-Reply-To:References\
-    :List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive\
-    :X-AdvancedFiltering-Rating
+  dkim_sign_headers = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To
 
 begin retry
 ^\N[^@]+@test\d+[^\.]*\.hosts\.advancedfiltering\.net$\N * F,5s,1s
@@ -1073,8 +1056,8 @@ services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 begin authenticators
 
 # client_send does not allow ":" in the data
-A_USER = ${extract {${host}_user} {$address_data} }
-A_PASSWORD = ${extract {${host}_password} {$address_data} }
+A_USER = ${extract {$host/A{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/user} {$address_data} }
+A_PASSWORD = ${extract {$host/A{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/password} {$address_data} }
 
 user_cram_md5_authenticator:
   client_condition = ${if bool_lax{A_USER}}
