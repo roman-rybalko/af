@@ -219,11 +219,10 @@ basicConstraints=CA:FALSE
 # nsComment			= "Easy-RSA Generated Server Certificate"
 subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid,issuer:always
-#extendedKeyUsage=serverAuth
 extendedKeyUsage=serverAuth,clientAuth
 keyUsage = digitalSignature, keyEncipherment
-crlDistributionPoints=URI:http://deploy.hosts.advancedfiltering.net/public/ca-advancedfiltering.crl
-authorityInfoAccess = caIssuers;URI:http://deploy.hosts.advancedfiltering.net/public/ca-advancedfiltering.crt
+crlDistributionPoints = URI:http://deploy.services.advancedfiltering.net/public/ca-advancedfiltering.crl
+authorityInfoAccess = caIssuers;URI:http://deploy.services.advancedfiltering.net/public/ca-advancedfiltering.crt
 
 [ v3_req ]
 
