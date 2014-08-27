@@ -5,9 +5,9 @@ passfile=$1
 [ -f $passfile ]
 pass="`cat $passfile`"
 shift
-exec expect -c "log_user 0 ; set timeout 45 ;\
+exec expect -c "log_user 0 ; set timeout 60 ;\
  spawn $* ;\
- expect assword: ;\
+ expect assword ;\
  send \"$pass\\n\" ;\
  log_user 1 ;\
  expect timeout { exit 1 } eof ;\
