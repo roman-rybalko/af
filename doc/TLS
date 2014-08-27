@@ -5,7 +5,8 @@
 2 набора:
 
 /etc/ssl/ - для доступа к инфраструктуре, один внутренний ЦС и сертификат для хоста (`hostname`.crt/.key)
-/usr/local/advancedfiltering/ssl/ - для внешних сервисов, один или несколько сертификатов и набор ЦС для сервисов (smtp.advancedfiltering.net, clients.advancedfiltering.ru/.com)
+/usr/local/advancedfiltering/ssl/ - для внешних сервисов, один или несколько сертификатов
+и набор ЦС для сервисов (smtp.advancedfiltering.net, clients.advancedfiltering.ru/.com)
 
 /etc/ssl нужен для deploy,
 для работы при отмонтированном /usr/local/advancedfiltering (который может быть зашифрован),

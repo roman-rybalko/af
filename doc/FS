@@ -1,0 +1,27 @@
+Концепция файловай системы.
+
+/usr/local/advancedfiltering
+Корневой каталог всех сервисов. Зашифрован.
+
+/usr/local/advancedfiltering/<service> 
+Домашний каталог сервиса. Создается отдельный аккаунт.
+Пример: smtp, ldap, error, spamtrap, mailproc.
+
+/usr/local/advancedfiltering/<service>/<backend>
+Каталог приложения, реализуюшего сервис.
+Пример: exim, openldap, nginx.
+
+/usr/local/etc/rc.d/<service>_<backend>
+Скрипт запуска сервиса. Создается копированием из etc/rc.d/<backend>.
+Пример: smtp_exim, ldap_openldap, mailproc_exim, mailproc_nginx.
+
+/etc/ssl
+Сертификаты и ключи для доступа в сеть AdvancedFiltering. Нужны для сервисов,
+которые стартуют до монтирования /usr/local/advancedfiltering, например ipsec-vpn, deploy.
+
+/usr/local/advancedfiltering/ssl
+Сертификаты и ключи для системы SSL. Содержит глобальные центры сертификации
+и публичные сертификаты и ключи сервисов.
+
+/usr/local/advancedfiltering/<service>/ssl
+Клиентские сертификаты и ключи сервиса.
