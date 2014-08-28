@@ -13,7 +13,7 @@
 
 /usr/local/etc/rc.d/<service>_<backend>
 Скрипт запуска сервиса. Создается копированием из etc/rc.d/<backend>.
-Пример: smtp_exim, ldap_openldap, mailproc_exim, mailproc_nginx.
+Пример: smtp_exim, ldap_slapd, mailproc_exim, mailproc_nginx, deploy_nginx.
 
 /etc/ssl
 Сертификаты и ключи для доступа в сеть AdvancedFiltering. Нужны для сервисов,
