@@ -1,9 +1,10 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-pw groupadd ssl-key || true
-cp -Rf `hostname`.crt `hostname`.key ca /etc/ssl/
-chown -R root:wheel /etc/ssl
-chmod -R a+r /etc/ssl
-chgrp ssl-key /etc/ssl/*.key
-chmod o-rwx,g-w /etc/ssl/*.key
+pw groupadd advancedfiltering_ssl || true
+mkdir /etc/advancedfiltering_ssl || true
+chmod u=rwx,g=rx,o= /etc/advancedfiltering_ssl
+cp -Rf `hostname`.crt `hostname`.key ca /etc/advancedfiltering_ssl/
+chown -R root:advancedfiltering_ssl /etc/advancedfiltering_ssl
+chgrp advancedfiltering_ssl /etc/advancedfiltering_ssl/*.key
+chmod g=r,o= /etc/advancedfiltering_ssl/*.key

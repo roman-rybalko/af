@@ -1,0 +1,6 @@
+advancedfiltering_ldap_slapd_enable="YES"
+advancedfiltering_ldap_slapd_owner="advancedfiltering_ldap:advancedfiltering_ldap"
+advancedfiltering_ldap_slapd_sockets_mode="660"
+advancedfiltering_ldap_slapd_flags='-h "ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi/ ldap://0.0.0.0/" -F /usr/local/advancedfiltering/ldap/slapd/slapd.d'
+advancedfiltering_ldap_slapd_sockets="/usr/local/advancedfiltering/ldap/ldapi"
+advancedfiltering_ldap_slapd_pidfile="/usr/local/advancedfiltering/ldap/slapd/slapd.pid"

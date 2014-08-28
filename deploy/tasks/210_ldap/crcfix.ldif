@@ -1,5 +1,0 @@
-
-dn: cn=config
-changetype: modify
-replace: olcConfigDir
-olcConfigDir: /usr/local/etc/openldap/slapd.d
