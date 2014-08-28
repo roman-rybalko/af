@@ -1,5 +1,8 @@
 Концепция файловай системы.
 
+Все каталоги имеют префикс advancedfiltering_ или находятся в /usr/local/advancedfiltering.
+Префикс требуется для избежания конфликтов при обновлении операционной системы.
+
 /usr/local/advancedfiltering
 Корневой каталог всех сервисов. Зашифрован.
 
@@ -11,11 +14,11 @@
 Каталог приложения, реализуюшего сервис.
 Пример: exim, openldap, nginx.
 
-/usr/local/etc/rc.d/<service>_<backend>
+/usr/local/etc/rc.d/advancedfiltering_<service>_<backend>
 Скрипт запуска сервиса. Создается копированием из etc/rc.d/<backend>.
 Пример: smtp_exim, ldap_slapd, mailproc_exim, mailproc_nginx, deploy_nginx.
 
-/etc/ssl
+/etc/advancedfiltering_ssl
 Сертификаты и ключи для доступа в сеть AdvancedFiltering. Нужны для сервисов,
 которые стартуют до монтирования /usr/local/advancedfiltering, например ipsec-vpn, deploy.
 
