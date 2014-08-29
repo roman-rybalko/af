@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-adduser -f adduser.batch -M 0710 -w no -G "advancedfiltering_ssl"
+adduser -f adduser.batch -M 0750 -w no -G "advancedfiltering_ssl"
 
 tar -xvf ldap.tgz -C /usr/local/
 
