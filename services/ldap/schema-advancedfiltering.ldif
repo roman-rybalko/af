@@ -1,1 +1,1 @@
-../../deploy/tasks/210_ldap/schema-advancedfiltering.ldif
+../../deploy/tasks/215_ldap_slapd/schema-advancedfiltering.ldif
