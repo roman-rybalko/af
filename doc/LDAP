@@ -1,8 +1,8 @@
 ################################################################################
 
-dn: ou=system,o=advancedfiltering
-objectClass: organizationalUnit
-ou: system
+#dn: ou=system,o=advancedfiltering
+#objectClass: organizationalUnit
+#ou: system
 
 #===============================================================================
 
@@ -84,9 +84,9 @@ objectClass: afSSMTPDomain
 
 ################################################################################
 
-dn: ou=user,o=advancedfiltering
-objectClass: organizationalUnit
-ou: user
+#dn: ou=user,o=advancedfiltering
+#objectClass: organizationalUnit
+#ou: user
 
 #===============================================================================
 
@@ -101,8 +101,8 @@ dn: afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advanced
 afUClientName: cli1
 afUClientAdminMailAddress: admin-client-admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin-client-tech@tests.advancedfiltering.net
-afUSMTPMXHostName: host1.org.com
-afUSMTPMXHostName: host2.org.com
+afUSMTPMXName: host1
+afUSMTPMXName: host2
 afUSMTPBackupMailAddress: backup@org.com
 afUSMTPBackupMailAddress: backup2@org.com
 afUSMTPSpamMailAddress: spam@org.com
@@ -111,6 +111,30 @@ afUSMTPSpamMailBox: SPAM
 afUSMTPSpamPassthrough: TRUE
 objectClass: afUClient
 objectClass: afUSMTPSettings
+
+dn: afUSMTPMXName=host1,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXName: host1
+afUSMTPMXHostName: host1.org.com
+afUSMTPMXTCPPort: 2525
+afUSMTPMXAuthUser: user1
+afUSMTPMXAuthPassword: 12345
+afUSMTPMXTLSRequired: TRUE
+afUSMTPMXAuthTLSCertificate: cert1
+afUSMTPMXAuthTLSKey: key1
+afUSMTPMXAuthTLSCA: ca1
+objectClass: afUSMTPMailExchanger
+
+dn: afUSMTPMXName=host2,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXName: host2
+afUSMTPMXHostName: host1.org.com
+afUSMTPMXTCPPort: 2526
+afUSMTPMXAuthUser: user1
+afUSMTPMXAuthPassword: 12345
+afUSMTPMXTLSRequired: TRUE
+afUSMTPMXAuthTLSCertificate: cert1
+afUSMTPMXAuthTLSKey: key1
+afUSMTPMXAuthTLSCA: ca1
+objectClass: afUSMTPMailExchanger
 
 dn: afSMTPBWListHostAddress=1.2.3.4,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afSMTPBWListHostAddress: 1.2.3.4
@@ -140,8 +164,8 @@ dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUService
 afUSMTPDomainName: test.com
 afUSMTPDomainAdminMailAddress: admin-domain-admin@tests.advancedfiltering.net
 afUSMTPDomainTechMailAddress: admin-domain-tech@tests.advancedfiltering.net
-afUSMTPMXHostName: host1.org.com
-afUSMTPMXHostName: host2.org.com
+afUSMTPMXName: host1
+afUSMTPMXName: host2
 afUSMTPBackupMailAddress: backup@org.com
 afUSMTPBackupMailAddress: backup2@org.com
 afUSMTPSpamMailAddress: spam@org.com
@@ -149,6 +173,30 @@ afUSMTPSpamMailAddress: spam2@org.com
 afUSMTPSpamPassthrough: FALSE
 objectClass: afUSMTPDomain
 objectClass: afUSMTPSettings
+
+dn: afUSMTPMXName=host1,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXName: host1
+afUSMTPMXHostName: host1.org.com
+afUSMTPMXTCPPort: 2525
+afUSMTPMXAuthUser: user1
+afUSMTPMXAuthPassword: 12345
+afUSMTPMXTLSRequired: TRUE
+afUSMTPMXAuthTLSCertificate: cert1
+afUSMTPMXAuthTLSKey: key1
+afUSMTPMXAuthTLSCA: ca1
+objectClass: afUSMTPMailExchanger
+
+dn: afUSMTPMXName=host2,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXName: host2
+afUSMTPMXHostName: host1.org.com
+afUSMTPMXTCPPort: 2526
+afUSMTPMXAuthUser: user1
+afUSMTPMXAuthPassword: 12345
+afUSMTPMXTLSRequired: TRUE
+afUSMTPMXAuthTLSCertificate: cert1
+afUSMTPMXAuthTLSKey: key1
+afUSMTPMXAuthTLSCA: ca1
+objectClass: afUSMTPMailExchanger
 
 dn: afSMTPBWListHostAddress=1.2.3.4,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afSMTPBWListHostAddress: 1.2.3.4
@@ -177,8 +225,8 @@ objectClass: top
 dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
 afUSMTPDMBLocalPart: mbox
 afUSMTPDMBTimeUpdated: 1234567890
-afUSMTPMXHostName: host1.org.com
-afUSMTPMXHostName: host2
+afUSMTPMXName: host1
+afUSMTPMXName: host2
 afUSMTPBackupMailAddress: backup@org.com
 afUSMTPBackupMailAddress: backup2@org.com
 afUSMTPSpamMailAddress: spam@org.com
@@ -187,9 +235,21 @@ afUSMTPSpamPassthrough: TRUE
 objectClass: afUSMTPDMailBox
 objectClass: afUSMTPSettings
 
-dn: afUSMTPMXHostName=host2,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
-afUSMTPMXHostName: host2
-afUSMTPMXAltHostName: host1.org.com
+dn: afUSMTPMXName=host1,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXName: host1
+afUSMTPMXHostName: host1.org.com
+afUSMTPMXTCPPort: 2525
+afUSMTPMXAuthUser: user1
+afUSMTPMXAuthPassword: 12345
+afUSMTPMXTLSRequired: TRUE
+afUSMTPMXAuthTLSCertificate: cert1
+afUSMTPMXAuthTLSKey: key1
+afUSMTPMXAuthTLSCA: ca1
+objectClass: afUSMTPMailExchanger
+
+dn: afUSMTPMXName=host2,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceName=smtp+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMXName: host2
+afUSMTPMXHostName: host1.org.com
 afUSMTPMXTCPPort: 2526
 afUSMTPMXAuthUser: user1
 afUSMTPMXAuthPassword: 12345
