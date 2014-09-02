@@ -11,3 +11,5 @@
 /etc/advancedfiltering_ssl нужен для deploy,
 для работы при отмонтированном /usr/local/advancedfiltering (который может быть зашифрован),
 для запуска системы (примонтировать /usr/local/advancedfiltering, запустить сервисы) удаленно через deploy.
+
+Ошибка SSL: снова поменялся алгоритм хеширования OpenSSL - не находится корневой сертификат - переустановить ssl (/etc/advancedfiltering_ssl).
