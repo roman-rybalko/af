@@ -17,4 +17,4 @@ then
 fi
 
 cp $easyrsa/keys/$host.crt $easyrsa/keys/$host.key ./
-cp -a $ca ./ca
+cp $easyrsa/keys/ca.crt $easyrsa/keys/crl.pem ./
