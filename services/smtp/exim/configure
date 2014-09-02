@@ -1049,7 +1049,8 @@ mx_transport:
   dkim_sign_headers = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To
 
 begin retry
-^\N[^@]+@test\d+[^\.]*\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@test\-smtp\-2\.hosts\.advancedfiltering\.net$\N * F,5s,1s
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 * * F,2h,15m; G,16h,1h,1.5; F,4d,6h
 
