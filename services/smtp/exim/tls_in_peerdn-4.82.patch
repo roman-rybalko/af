@@ -1,0 +1,27 @@
+commit 9748c7df4298fd0c4c7e97de03d28b0fee4dfdff
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Thu Sep 4 15:55:31 2014 +0400
+
+    set tls_in_peerdn for any certificate
+
+diff --git src/tls-openssl.c src/tls-openssl.c
+index b273fff..1e52b89 100644
+--- src/tls-openssl.c
++++ src/tls-openssl.c
+@@ -268,6 +268,8 @@ static uschar txt[256];
+ X509_NAME_oneline(X509_get_subject_name(x509ctx->current_cert),
+   CS txt, sizeof(txt));
+ 
++tlsp->peerdn = txt;
++
+ if (state == 0)
+   {
+   log_write(0, LOG_MAIN, "SSL verify error: depth=%d error=%s cert=%s",
+@@ -302,7 +304,6 @@ else
+   {
+   DEBUG(D_tls) debug_printf("SSL%s peer: %s\n",
+     *calledp ? "" : " authenticated", txt);
+-  tlsp->peerdn = txt;
+   }
+ 
+ /*XXX JGH: this looks bogus - we set "verified" first time through, which
