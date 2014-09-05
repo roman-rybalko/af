@@ -2,5 +2,4 @@
 dn: afSMTPBWListSenderMailAddress=test@mcafee.com,afSServiceName=smtp,ou=system,o=advancedfiltering
 afsmtpbwlistisblack: TRUE
 afsmtpbwlistsendermailaddress: test@mcafee.com
-objectclass: afSMTPSenderMailAddressBWListEntry
-objectclass: top
+objectClass: afSMTPSenderMailAddressBWListEntry

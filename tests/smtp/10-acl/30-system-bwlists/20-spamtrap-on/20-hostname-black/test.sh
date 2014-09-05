@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -f test@tests.advancedfiltering.net -t mail@unhandled.com -s $DST_HOST -q connect | grep "220.Access denied (system policy, sender host name)"
+swaks -f test@tests.advancedfiltering.net -t mail@test.com -s $DST_HOST -q rcpt | grep "250.OK ST/SPT (system policy: sender host name)"

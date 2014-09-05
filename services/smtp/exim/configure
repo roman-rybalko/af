@@ -81,7 +81,7 @@ connect_acl:
     logwrite = DEBUG: tp_f=S_TP_F st_f=$acl_c_s_st_f realms=S_REALM_Lc
   accept
     # smtp_banner
-    message = smtp.services.advancedfiltering.net ESMTP${if bool_lax{S_TP_F}{ TP}{}}${if bool_lax{$acl_c_s_st_f}{ ST}{}}
+    message = smtp.services.advancedfiltering.net ESMTP${if bool_lax{S_TP_F}{ TP}{}}${if bool_lax{$acl_c_s_st_f}{ ST}{}}${if bool_lax{$acl_c_s_ht_f}{ HT}{}}
 
 helo_acl:
   accept
@@ -114,7 +114,7 @@ sma_bwl_acl:
     set acl_c_bwl_m = sender mail address
     logwrite = DEBUG: sma_bwl
   accept
-    condition = $acl_m_spf_f
+    # no spf check
     condition = $acl_c_bl_f
   accept
     ! condition = $acl_m_spf_f
@@ -130,19 +130,20 @@ sma_bwl_acl:
 cert_bwl_acl:
   deny
     ! condition = ${if bool_lax{$tls_peerdn}}
+    logwrite = DEBUG: cert_bwl: no cert
   warn
     set acl_c_bwl_ldap_q = afSMTPBWListCertificateSubject=${quote_ldap_dn:$tls_peerdn}
     acl = ldap_bwl_acl
     set acl_c_bwl_m = certificate
     logwrite = DEBUG: cert_bwl ($tls_peerdn)
   accept
-    ! verify = certificate
+    # no certificate verification
     condition = $acl_c_bl_f
   accept
     verify = certificate
     condition = $acl_c_wl_f
   deny
-    verify = certificate
+    ! verify = certificate
     condition = $acl_c_wl_f
     logwrite = DEBUG: cert_bwl: cert verify fail
   deny
@@ -262,12 +263,16 @@ bwl_rcpt_acl:
   accept
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_MB_LDAP_DN
     acl = bwl_acl
+    # Black/White List Recipient Msg
+    set acl_m_bwl_rcpt_m = user recipient policy
   accept
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_D_LDAP_DN
     acl = bwl_acl
+    set acl_m_bwl_rcpt_m = user domain policy
   accept
     set acl_c_bwl_ldap_dn = U_SMTP_R_C_LDAP_DN
     acl = bwl_acl
+    set acl_m_bwl_rcpt_m = user policy
   deny
 
 # User SMTP MailBox Data
@@ -316,17 +321,20 @@ rcpt_acl:
   accept
     condition = $acl_c_s_st_f
     condition = $acl_m_u_nombxchk_f
-    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}} # existing
+    # existing
+    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
     set acl_m_u_absent = true
     message = Mail box does not exist
   # ** (expired || not_found) && user_nombxchk => 5xx Mail box does not exist, stop
   deny
     condition = $acl_m_u_nombxchk_f
-    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}} # existing
+    # existing
+    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
     message = Mail box does not exist
   # ** expired || not_found => 4xx Your data is verifying, please try again later, log, stop
   defer
-    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}} # existing
+    # existing
+    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
     message = Your data is verifying, please try again later
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
   # ** ok
@@ -350,7 +358,7 @@ rcpt_acl:
     acl = bwl_rcpt_acl
     set acl_m_u_wl_f = $acl_c_wl_f
     set acl_m_u_bl_f = $acl_c_bl_f
-    set acl_m_u_bwl_m = user policy: $acl_c_bwl_m
+    set acl_m_u_bwl_m = $acl_m_bwl_rcpt_m: $acl_c_bwl_m
 
   # * flag_user_wl => ok $msg_user_wbl, stop
   accept
@@ -472,12 +480,12 @@ data_acl:
   # * flag_user_wl => ok $msg_user_wbl, stop
   accept
     condition = $acl_m_u_wl_f
-    message = OK ($acl_m_u_bwl_m)
+    message = OK ($acl_m_u_bwl_m) id=$message_exim_id
 
   # * flag_sys_wl => ok $msg_sys_wbl, stop
   accept
     condition = $acl_c_s_wl_f
-    message = OK ($acl_c_s_bwl_m)
+    message = OK ($acl_c_s_bwl_m) id=$message_exim_id
 
   # * flag_sys_bl => 5xx $msg_sys_wbl, stop, flag_spam
   accept
@@ -500,11 +508,13 @@ data_acl:
   deny
     logwrite = DEBUG: spam descr: U_SMTPDB_R_MI_spam_D
     condition = ${if bool_lax{U_SMTPDB_R_MI_spam_D}}
-  # ** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap
+    message = U_SMTPDB_R_MI_spam_D
+  # ** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap, flag_spam
   accept
     logwrite = DEBUG: bad sender: U_SMTPDB_R_MI_bad_sender_L
     condition = ${if bool_lax{U_SMTPDB_R_MI_bad_sender_L}}
     set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
     control = fakereject/Several senders for the same message
   # ** ok => ok, stop
   accept
@@ -515,7 +525,7 @@ data_acl:
   accept
     condition = ${if bool_lax{U_MR_D}}
     logwrite = DEBUG: realms: ${reduce {$acl_m_u_realms} {} {$value $item} }
-    logwrite = DEBUG: references: ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value $item} }
+    logwrite = DEBUG: references (ldap dn): ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value $item} }
     logwrite = DEBUG: senders: ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value U_SDB_R_MO_LDAP_I} }
     logwrite = DEBUG: recipients: $recipients
     condition = ${if forany {U_SDB_R_MO_LDAP_DN_L} { inlist {U_SDB_R_MO_LDAP_I} {<, $recipients} } }
@@ -525,7 +535,7 @@ data_acl:
   # ** ok => ok TMS, stop
   accept
     condition = ${if >{$message_size}{S_TMS_D}}
-    message = OK id=$message_exim_id TMS
+    message = OK (TMS) id=$message_exim_id
 
   # * 4xx Your data is verifying, please try again later, flag_mailproc
   accept
@@ -570,11 +580,13 @@ service_router:
   domains = services.advancedfiltering.net
   driver = manualroute
   debug_print = address_data = $address_data, sys_r = R_SYS_R_LDAP_Q
-  route_list = ${if bool_lax{R_SRRD_Lnl}{* "<\n R_SRRD_Lnl"}{}}
+  route_data = ${if bool_lax{R_SRRD_Lnl}{\"<\n R_SRRD_Lnl\"}{}}
   hosts_randomize = true
   transport = service_transport
   address_data = system_authenticator="true" $address_data
-  errors_to = error@services.advancedfiltering.net
+  # error delivery loop prevention
+  errors_to = ${if eqi{$local_part}{error}{}{error@services.advancedfiltering.net}}
+  self = send
 
 service_defer_router:
   domains = services.advancedfiltering.net
@@ -663,7 +675,8 @@ R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-Adv
 spamaddress_mailbox_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router, R_MBA_D
+  # for submission_router, R_MBA_D
+  condition = ${if bool_lax{R_CLIENT}}
   condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
   data = R_CT_Lc
@@ -682,7 +695,8 @@ R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-Adv
 spamaddress_domain_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -700,7 +714,8 @@ R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-Adv
 spamaddress_client_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -727,7 +742,8 @@ R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-Adv
 spambox_mailbox_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router, R_MBA_D
+  # for submission_router, R_MBA_D
+  condition = ${if bool_lax{R_CLIENT}}
   condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
   data = R_CT_D+$local_part@$domain
@@ -745,7 +761,8 @@ R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-Adv
 spambox_domain_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D+$local_part@$domain
   address_data = sender=$sender_address realm=R_C_REALM $address_data
@@ -762,7 +779,8 @@ R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-Adv
 spambox_client_router:
   condition = $acl_m_u_spt_f
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_D+$local_part@$domain
   address_data = sender=$sender_address realm=R_C_REALM $address_data
@@ -776,7 +794,8 @@ spambox_client_router:
 user_spam_block_router:
   condition = ${if !bool_lax{$acl_m_u_spt_f}}
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
@@ -789,8 +808,10 @@ R_CS_D == $local_part@$domain
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_mailbox_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
-  condition = ${if !bool_lax{R_MBA_D}} # unreachable
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
+  # unreachable
+  condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -806,7 +827,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_domain_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -822,7 +844,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 backup_client_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -835,7 +858,8 @@ backup_client_router:
 # не пропускаем спам
 spam_block_router:
   condition = $acl_m_spam_f
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
@@ -848,8 +872,10 @@ R_CS_D == $local_part@$domain
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 redirect_mailbox_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
-  condition = ${if !bool_lax{R_MBA_D}} # unreachable
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
+  # unreachable
+  condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -864,7 +890,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 redirect_domain_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -879,7 +906,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 redirect_client_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -911,16 +939,19 @@ R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LD
 R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
 R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
-R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}/A${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_mailbox_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router, R_MBA_D
-  condition = ${if !bool_lax{R_MBA_D}} # unreachable
+  # for submission_router, R_MBA_D
+  condition = ${if bool_lax{R_CLIENT}}
+  # unreachable
+  condition = ${if !bool_lax{R_MBA_D}}
   driver = manualroute
-  route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
+  route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
+  self = send
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
@@ -928,15 +959,17 @@ R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LD
 R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
 R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
-R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}/A${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_domain_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
-  route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
+  route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
+  self = send
 
 R_LDAP_DN == R_C_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
@@ -944,18 +977,21 @@ R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LD
 R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
 R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
-R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}/A${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_client_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
-  route_list = ${if bool_lax{R_MX_Lc}{* "<, R_MX_Lc"}{}}
+  route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
+  self = send
 
 mx_defer_router:
-  condition = ${if bool_lax{R_CLIENT}} # for submission_router
+  # for submission_router
+  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   allow_defer = true
   data = :defer:
@@ -977,12 +1013,13 @@ R_SubRRD_Lnl = ${map{<\n R_SubRRD_H_Lnl}{${if bool_lax{R_SubRRD_address_I}{R_Sub
 submission_router:
   condition = R_AD_R_F
   driver = manualroute
-  route_list = ${if bool_lax{R_SubRRD_Lnl}{* "<\n R_SubRRD_Lnl"}{}}
+  route_data = ${if bool_lax{R_SubRRD_Lnl}{\"<\n R_SubRRD_Lnl\"}{}}
   hosts_randomize = true
   transport = submission_transport
   address_data = system_authenticator="true" $address_data
   # loosing a copy mail, bad but is the best solution
   errors_to = error@services.advancedfiltering.net
+  self = send
 
 submission_defer_router:
   condition = R_AD_R_F
@@ -1019,7 +1056,7 @@ submission_transport:
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
 # Transport Mail eXchanger Name Data
-T_MXN_D = ${extract {$host/A{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/name} {$address_data} }
+T_MXN_D = ${extract {$host${if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/name} {$address_data} }
 # Transport Auth-required Hosts
 T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
 # Transport TLS-required Hosts
@@ -1049,16 +1086,23 @@ mx_transport:
   dkim_sign_headers = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To
 
 begin retry
+
+# DEBUG
 ^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,5s,1s
-^\N[^@]+@test\-smtp\-2\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@h02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
+
 * * F,2h,15m; G,16h,1h,1.5; F,4d,6h
 
 begin authenticators
 
 # client_send does not allow ":" in the data
-A_USER = ${extract {$host/A{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/user} {$address_data} }
-A_PASSWORD = ${extract {$host/A{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/password} {$address_data} }
+A_USER = ${extract {$host{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/user} {$address_data} }
+A_PASSWORD = ${extract {$host{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/password} {$address_data} }
 
 user_cram_md5_authenticator:
   client_condition = ${if bool_lax{A_USER}}

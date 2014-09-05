@@ -1,9 +1,8 @@
 
-dn: afUSMTPMXHostName=src2.hosts.advancedfiltering.net,ou=settings,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpmxauthpassword: password
 afusmtpmxauthuser: user
-afusmtpmxhostname: src2.hosts.advancedfiltering.net
+afusmtpmxhostname: src.hosts.advancedfiltering.net
 afUSMTPMXTLSRequired: TRUE
 afusmtpmxtcpport: 25252
-objectclass: afUSMTPMailExchanger
-objectclass: top
+objectClass: afUSMTPMailExchanger

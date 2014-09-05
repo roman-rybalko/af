@@ -1,29 +1,26 @@
 
 dn: afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
 afuservicerealm: r1
-objectclass: afUService
-objectclass: top
+objectClass: afUService
 
 dn: afUServiceRealm=r1+afUServiceName=sdb,ou=user,o=advancedfiltering
 afuservicerealm: r1
-objectclass: afUService
-objectclass: top
+objectClass: afUService
 
 dn: afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afuservicerealm: r1
-objectclass: afUService
-objectclass: top
+objectClass: afUService
 
 dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afuclientname: cli1
-objectclass: afUClient
-objectclass: top
 afUClientAdminMailAddress: admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin@tests.advancedfiltering.net
+objectClass: afUClient
+afUSMTPMXName: src
+objectClass: afUSMTPSettings
 
 dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdomainname: test.com
-objectclass: afUSMTPDomain
-objectclass: top
+objectClass: afUSMTPDomain
 afUSMTPDomainAdminMailAddress: admin@tests.advancedfiltering.net
 afUSMTPDomainTechMailAddress: admin@tests.advancedfiltering.net

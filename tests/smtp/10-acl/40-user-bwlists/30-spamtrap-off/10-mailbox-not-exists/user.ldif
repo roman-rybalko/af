@@ -3,5 +3,4 @@ dn: afUSMTPDMBLocalPart=absent,afUSMTPDomainName=test.com,afUClientName=cli1,afU
 afusmtpdmbisabsent: TRUE
 afusmtpdmblocalpart: absent
 afUSMTPDMBTimeUpdated: 1234567890
-objectclass: afUSMTPDMailBox
-objectclass: top
+objectClass: afUSMTPDMailBox

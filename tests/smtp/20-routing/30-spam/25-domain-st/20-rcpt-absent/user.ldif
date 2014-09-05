@@ -2,16 +2,13 @@
 dn: afUSMTPDMBLocalPart=absentmbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdmblocalpart: absentmbox
 afUSMTPDMBTimeUpdated: 1234567890
-objectclass: afUSMTPDMailBox
-objectclass: top
+objectClass: afUSMTPDMailBox
 afUSMTPDMBIsAbsent: TRUE
 
 dn: ou=settings,afUSMTPDMBLocalPart=absentmbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-objectclass: organizationalUnit
-objectclass: top
+objectClass: organizationalUnit
 ou: settings
 
 dn: afUSMTPSpamMailAddress=absentspam@tests.advancedfiltering.net,ou=settings,afUSMTPDMBLocalPart=absentmbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpspammailaddress: absentspam@tests.advancedfiltering.net
-objectclass: afUSMTPSpamTarget
-objectclass: top
+objectClass: afUSMTPSpamTarget

@@ -2,8 +2,7 @@
 dn: afSClientName=cli1,ou=system,o=advancedfiltering
 afsclientname: cli1
 afsclientrealm: r1
-objectclass: afSClient
-objectclass: top
+objectClass: afSClient
 
 dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: dst.hosts.advancedfiltering.net
@@ -11,8 +10,7 @@ afshostrealm: r1
 afshostservicename: smtp
 afSHDBSyncServiceName: smtpdb
 afSHDBSyncServiceName: sdb
-objectclass: afSHost
-objectclass: top
+objectClass: afSHost
 
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering
 afsservicename: smtp
@@ -20,17 +18,17 @@ afssmtpdnsbldomainname: bl.spamcop.net
 afssmtpmaxmessagesize: 30000000
 afssmtpspamtrapprobabilitydenominator: 100
 afssmtpspamtrapprobabilitynumerator: 0
+afssmtpHamtrapprobabilitydenominator: 100
+afssmtpHamtrapprobabilitynumerator: 0
 afssmtptrustedmessagesize: 2000000
 afssmtptrustedport: 445
 afSSMTPMailBoxTimeout: 14400
-objectclass: afSSMTPService
-objectclass: top
+objectClass: afSSMTPService
 
 dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfiltering
 afssmtpdomainclientname: cli1
 afssmtpdomainname: test.com
-objectclass: afSSMTPDomain
-objectclass: top
+objectClass: afSSMTPDomain
 
 dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: src.hosts.advancedfiltering.net
@@ -41,5 +39,4 @@ afshostservicename: hamtrap
 afshostservicename: error
 afshostservicename: bounce
 afshostservicename: submission
-objectclass: afSHost
-objectclass: top
+objectClass: afSHost

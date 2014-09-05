@@ -3,8 +3,7 @@ dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUSMTPDMBLoca
 afusmtpmxhostname: src.hosts.advancedfiltering.net
 afUSMTPMXTLSRequired: TRUE
 afusmtpmxtcpport: 25251
-objectclass: afUSMTPMailExchanger
-objectclass: top
+objectClass: afUSMTPMailExchanger
 afUSMTPMXAuthTLSCertificate: tests-smtp-crt
 afUSMTPMXAuthTLSKey: tests-smtp-key
 afUSMTPMXAuthTLSCA: tests-smtp-ca

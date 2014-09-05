@@ -3,5 +3,4 @@ dn: afUSMTPMessageId=dGVzdC1vdXRnb2luZy1tZXNzYWdlLTE_,afUServiceRealm=r1+afUServ
 afUSMTPMessageId: dGVzdC1vdXRnb2luZy1tZXNzYWdlLTE_
 afUSMTPmessagesendermailaddress: mbox2@test.com
 afUSMTPmessagetimecreated: 1234567890
-objectclass: afUSMTPMessageOutgoing
-objectclass: top
+objectClass: afUSMTPMessageOutgoing

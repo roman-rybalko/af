@@ -4,5 +4,4 @@ afusmtpmxauthpassword: password
 afusmtpmxauthuser: user
 afusmtpmxhostname: src.hosts.advancedfiltering.net
 afusmtpmxtcpport: 25251
-objectclass: afUSMTPMailExchanger
-objectclass: top
+objectClass: afUSMTPMailExchanger

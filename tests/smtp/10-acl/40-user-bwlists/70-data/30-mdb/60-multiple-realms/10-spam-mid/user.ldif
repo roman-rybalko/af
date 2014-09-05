@@ -4,5 +4,4 @@ afUSMTPMessageId: dGVzdC1zcGFtLW1lc3NhZ2UtMQ__
 afUSMTPmessagesendermailaddress: test@tests.advancedfiltering.net
 afUSMTPmessagespamdescription: Test spam message
 afUSMTPmessagetimecreated: 1234567890
-objectclass: afUSMTPMessageIncoming
-objectclass: top
+objectClass: afUSMTPMessageIncoming

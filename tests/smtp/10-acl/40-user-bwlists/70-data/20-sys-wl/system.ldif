@@ -1,5 +1,4 @@
 
 dn: afSMTPBWListHostAddress=1.2.3.4,afSServiceName=smtp,ou=system,o=advancedfiltering
 afsmtpbwlisthostaddress: 1.2.3.4
-objectclass: afSMTPHostAddressBWListEntry
-objectclass: top
+objectClass: afSMTPHostAddressBWListEntry

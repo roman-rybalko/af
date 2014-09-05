@@ -1,0 +1,8 @@
+
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+changetype: modify
+replace: afSSMTPHamTrapProbabilityNumerator
+afSSMTPHamTrapProbabilityNumerator: 50
+-
+replace: afSSMTPHamTrapProbabilityDenominator
+afSSMTPHamTrapProbabilityDenominator: 100

@@ -1,46 +1,36 @@
 
 dn: afUServiceRealm=r2+afUServiceName=smtpdb,ou=user,o=advancedfiltering
 afuservicerealm: r2
-objectclass: afUService
-objectclass: top
+objectClass: afUService
 
 dn: afUServiceRealm=r2+afUServiceName=sdb,ou=user,o=advancedfiltering
 afuservicerealm: r2
-objectclass: afUService
-objectclass: top
+objectClass: afUService
 
 dn: afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
 afuservicerealm: r2
-objectclass: afUService
-objectclass: top
+objectClass: afUService
 
 dn: afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
 afuclientname: cli2
-objectclass: afUClient
-objectclass: top
+objectClass: afUClient
 afUClientAdminMailAddress: admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin@tests.advancedfiltering.net
+afUSMTPMXName: src
+objectClass: afUSMTPSettings
 
 dn: afUSMTPDomainName=test2.com,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdomainname: test2.com
-objectclass: afUSMTPDomain
-objectclass: top
+objectClass: afUSMTPDomain
 afUSMTPDomainAdminMailAddress: admin@tests.advancedfiltering.net
 afUSMTPDomainTechMailAddress: admin@tests.advancedfiltering.net
 
 dn: afUSMTPDMBLocalPart=mbox2,afUSMTPDomainName=test2.com,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpdmblocalpart: mbox2
 afUSMTPDMBTimeUpdated: 1234567890
-objectclass: afUSMTPDMailBox
-objectclass: top
+objectClass: afUSMTPDMailBox
 
-dn: ou=settings,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
-objectclass: organizationalUnit
-objectclass: top
-ou: settings
-
-dn: afUSMTPMXHostName=src.hosts.advancedfiltering.net,ou=settings,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
+dn: afUSMTPMXName=src,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
 afusmtpmxhostname: src.hosts.advancedfiltering.net
 afusmtpmxtcpport: 2525
-objectclass: afUSMTPMailExchanger
-objectclass: top
+objectClass: afUSMTPMailExchanger

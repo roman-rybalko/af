@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -tls --tls-cert tests-bwlist.crt --tls-key tests-bwlist.key -f test@tests.advancedfiltering.net -t mail@unhandled.com -s $DST_HOST -q helo | grep -A1 EHLO | grep "250.Access denied (system policy, certificate)"
+swaks -tls --tls-cert test-smtp-black.crt --tls-key test-smtp-black.key -f test@tests.advancedfiltering.net -t mail@test.com -s $DST_HOST -q rcpt | grep "250.OK ST/SPT (system policy: certificate)"

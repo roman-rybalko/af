@@ -3,5 +3,4 @@ dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLTE_,afUServiceRealm=r1+afUServiceName=smtp
 afUSMTPMessageId: dGVzdC1tZXNzYWdlLTE_
 afUSMTPmessagesendermailaddress: test@tests.advancedfiltering.net
 afUSMTPmessagetimecreated: 1234567890
-objectclass: afUSMTPMessageIncoming
-objectclass: top
+objectClass: afUSMTPMessageIncoming

@@ -79,7 +79,7 @@ data_end
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId => 5xx No Message-ID header, stop
 ** ok, afIsSpam => 5xx SPAM: $afSpamDescription, stop
-** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap
+** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap, flag_spam
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
 ** ok => ok, stop, flag_hamtrap

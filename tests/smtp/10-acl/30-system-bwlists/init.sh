@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-wait_file ../service.env
+add_ldif user.ldif

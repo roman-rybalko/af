@@ -7,9 +7,11 @@ cd ..
 
 deploy_batch(){
 	rm -vf hosts_batch/*.ok tasks_batch/*
+	tasks=
 	for task in $@; do
 		[ -e tasks/$task ]
 		ln -sv ../tasks/$task tasks_batch/
+		tasks="$tasks $task"
 	done
 	if [ -n "$DEPLOY_BATCH_REORDER" ]; then
 		src_task=
@@ -24,6 +26,7 @@ deploy_batch(){
 				[ -e tasks/$src_task ]
 				[ ! -e tasks_batch/$dst_task ]
 				ln -sv ../tasks/$src_task tasks_batch/$dst_task
+				tasks="$tasks $src_task"
 				src_task=
 				dst_task=
 			fi
@@ -32,5 +35,5 @@ deploy_batch(){
 	fi
 	./deploy.sh tasks_batch hosts_batch
 	for f in hosts_batch/*.fail; do [ ! -e $f ]; done
-	echo "OK: $*"
+	echo "OK: $tasks"
 }
