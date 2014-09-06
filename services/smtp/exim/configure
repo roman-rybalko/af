@@ -278,6 +278,16 @@ bwl_rcpt_acl:
 # User SMTP MailBox Data
 U_SMTP_MB_D = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=S_MBCT_D)}}
 
+
+
+TODO:
+удалить
+acl_m_u_realms
+acl_m_u_recipients
+
+
+
+
 rcpt_acl:
   # * проверка realm для домена
   # ** нет домена => 5xx The domain is not in service, stop
