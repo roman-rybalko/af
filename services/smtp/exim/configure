@@ -294,8 +294,6 @@ rcpt_acl:
     logwrite = DEBUG: acl_m_u_realm=$acl_m_u_realm
     ! condition = ${if inlist{$acl_m_u_realm}{<, S_REALM_Lc}}
     message = Moved, try another host
-  warn
-    set acl_m_u_realms = ${if bool_lax{$acl_m_u_realms} {$acl_m_u_realms:$acl_m_u_realm} {$acl_m_u_realm} }
   require
     acl = domain_rcpt_acl
 
@@ -307,7 +305,7 @@ rcpt_acl:
     set acl_m_u_nombxchk_f = $acl_m_u_conf_value
 
   # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-  # ** absent && sys_spamtrap => ok Mail box does not exist, flag_mb_absent, stop
+  # ** absent && sys_spamtrap => 2xx OK Mail box does not exist, flag_mb_absent, stop
   accept
     condition = $acl_c_s_st_f
     condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
@@ -317,7 +315,7 @@ rcpt_acl:
   deny
     condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
     message = Mail box does not exist
-  # ** (expired || not_found) && user_nombxchk && sys_spamtrap => ok Mail box does not exist, flag_mb_absent, stop
+  # ** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx OK Mail box does not exist, flag_mb_absent, stop
   accept
     condition = $acl_c_s_st_f
     condition = $acl_m_u_nombxchk_f
@@ -360,29 +358,29 @@ rcpt_acl:
     set acl_m_u_bl_f = $acl_c_bl_f
     set acl_m_u_bwl_m = $acl_m_bwl_rcpt_m: $acl_c_bwl_m
 
-  # * flag_user_wl => ok $msg_user_wbl, stop
+  # * flag_user_wl => 2xx OK ($msg_user_wbl), stop
   accept
     condition = $acl_m_u_wl_f
     message = OK ($acl_m_u_bwl_m)
 
-  # * flag_user_bl => 5xx $msg_user_wbl, stop
+  # * flag_user_bl => 5xx Access denied ($msg_user_wbl), stop
   deny
     condition = $acl_m_u_bl_f
     message = Access denied ($acl_m_u_bwl_m)
 
-  #  * flag_sys_wl => ok $msg_sys_wbl, stop
+  #  * flag_sys_wl => 2xx OK ($msg_sys_wbl), stop
   accept
     condition = $acl_c_s_wl_f
     message = OK ($acl_c_s_bwl_m)
 
-  # * flag_sys_bl && !sys_spamtrap && !user_spt => 5xx $msg_sys_wbl, stop
+  # * flag_sys_bl && !sys_spamtrap && !user_spt => 5xx Access denied ($msg_sys_wbl), stop
   deny
     condition = $acl_c_s_bl_f
     ! condition = $acl_c_s_st_f
     ! condition = $acl_m_u_spt_f
     message = Access denied ($acl_c_s_bwl_m)
 
-  # * flag_sys_bl => ok ST/SPT $msg_sys_wbl, stop
+  # * flag_sys_bl => 2xx OK ST/SPT ($msg_sys_wbl), stop
   accept
     condition = $acl_c_s_bl_f
     message = OK ST/SPT ($acl_c_s_bwl_m)
@@ -394,7 +392,7 @@ rcpt_acl:
     ! condition = $acl_c_s_st_f
     message = Access denied (SPF: $acl_m_spf_m)
 
-  # * flag_spf => ok ST/SPT (SPF: ...), stop
+  # * flag_spf => 2xx OK ST/SPT (SPF: ...), stop
   accept
     condition = $acl_m_spf_f
     message = OK ST/SPT (SPF: $acl_m_spf_m)
@@ -402,145 +400,161 @@ rcpt_acl:
   # * ok
   accept
 
-# Message References
-U_MR_D = $bheader_in-reply-to: $bheader_references:
-# Message References Fix 1
-U_MR_F1 = ${sg{U_MR_D}{^\\s+}{}}
-# Message References Fix 2
-U_MR_F2 = ${sg{U_MR_F1}{\\s+\$}{}}
-U_MR_F3 = ${sg{U_MR_F2}{^[^\<]*\<}{}}
-U_MR_F4 = ${sg{U_MR_F3}{\>[^\>]*\$}{}}
-U_MR_F5 = ${sg{U_MR_F4}{\>[^\<\>]*\<}{\<}}
-U_MR_F6 = ${map {<\< U_MR_F5} {${str2b64:$item}}}
-U_MR_F7 = ${tr{U_MR_F6}{/+=}{.-_}}
-U_MR_F8 = ${sg{U_MR_F7}{\<}{:}}
-# Message References Final Fix
-U_MR_FF = U_MR_F8
-
-# User Submission DataBase LDAP DN
-U_SDB_LDAP_DN = afUServiceName=sdb,ou=user,o=advancedfiltering
-# User Submission DataBase Realm LDAP DN List
-U_SDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:$item}+U_SDB_LDAP_DN} }
-
-# User SDB Realm Message Outgoing
-U_SDB_R_MO_VALUE_ORIG = ${sg {$value} {\\|.*\$} {} }
-U_SDB_R_MO_VALUE_MID = ${sg {:U_SDB_R_MO_VALUE_ORIG} {:} {:afUSMTPMessageId=${quote_ldap_dn:$item},} }
-U_SDB_R_MO_VALUE_ALL = ${reduce {U_MR_FF} {U_SDB_R_LDAP_DN_L|} {${value}U_SDB_R_MO_VALUE_MID} }
-U_SDB_R_MO_LDAP_DN_L = ${sg {U_SDB_R_MO_VALUE_ALL} {^.+\\|:} {} }
-U_SDB_R_MO_LDAP_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base}}
-
-# Message Id/Incoming
-U_MI_D = $rheader_message-id:
-# Message Id Fix 1
-U_MI_F1 = ${sg{U_MI_D}{^\\s+}{}}
-# Message Id Fix 2
+# Message Incoming Header
+U_MI_H_D = $rheader_message-id:
+# Message Incoming Fix 1
+U_MI_F1 = ${sg{U_MI_H_D}{^\\s+}{}}
+# Message Incoming Fix 2
 U_MI_F2 = ${sg{U_MI_F1}{\\s+\$}{}}
 U_MI_F3 = ${sg{U_MI_F2}{^[^\<]*\<}{}}
 U_MI_F4 = ${sg{U_MI_F3}{\>[^\>]*\$}{}}
 U_MI_F5 = ${str2b64:U_MI_F4}
 U_MI_F6 = ${tr{U_MI_F5}{/+=}{.-_}}
-# Message Id Final Fix
-U_MI_FF = U_MI_F6
+# Message Incoming Data
+U_MI_D = U_MI_F6
 
 # User SMTP DataBase LDAP DN
-U_SMTPDB_LDAP_DN = afUServiceName=smtpdb,ou=user,o=advancedfiltering
-# User SMTP DataBase Realm LDAP DN List
-U_SMTPDB_R_LDAP_DN_L = ${map {$acl_m_u_realms} {afUServiceRealm=${quote_ldap_dn:$item}+U_SMTPDB_LDAP_DN} }
+U_SMTPDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=smtpdb,ou=user,o=advancedfiltering
 
-# SMTPDB Realm Message Incoming LDAP DNs
-U_SMTPDB_R_MI_LDAP_DN_L = ${map {U_SMTPDB_R_LDAP_DN_L} {afUSMTPMessageId=${quote_ldap_dn:U_MI_FF},$item} }
-# SMTPDB Realm Message Incoming ... Item
-U_SMTPDB_R_MI_spam_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSpamDescription?base}}
-# ... Data
-U_SMTPDB_R_MI_spam_D = ${reduce {U_SMTPDB_R_MI_LDAP_DN_L} {} {$value U_SMTPDB_R_MI_spam_I} }
-U_SMTPDB_R_MI_sender_I = ${lookup ldap{LDAP_C/$item?afUSMTPMessageSenderMailAddress?base}}
-# ... List
-U_SMTPDB_R_MI_sender_L = ${map {U_SMTPDB_R_MI_LDAP_DN_L} {U_SMTPDB_R_MI_sender_I} }
-U_SMTPDB_R_MI_sender_D = ${reduce {U_SMTPDB_R_MI_sender_L} {} {$value $item} }
-U_SMTPDB_R_MI_bad_sender_L = ${filter {U_SMTPDB_R_MI_sender_L} { and{ { bool_lax{$item} } { !eqi{$item}{$sender_address} } } } }
+# User SMTP DB Message Incoming
+U_SMTPDB_MI_spam_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_MI_D},U_SMTPDB_LDAP_DN?afUSMTPMessageSpamDescription?base}}
+U_SMTPDB_MI_sender_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_MI_D},U_SMTPDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}
+
+# Message Outgoing Header(s)
+U_MO_H_D = $bheader_in-reply-to: $bheader_references:
+# Message Outgoing Fix 1
+U_MO_F1 = ${sg{U_MO_H_D}{^\\s+}{}}
+# Message Outgoing Fix 2
+U_MO_F2 = ${sg{U_MO_F1}{\\s+\$}{}}
+U_MO_F3 = ${sg{U_MO_F2}{^[^\<]*\<}{}}
+U_MO_F4 = ${sg{U_MO_F3}{\>[^\>]*\$}{}}
+U_MO_F5 = ${sg{U_MO_F4}{\>[^\<\>]*\<}{\<}}
+U_MO_F6 = ${map {<\< U_MO_F5} {${str2b64:$item}}}
+U_MO_F7 = ${tr{U_MO_F6}{/+=}{.-_}}
+U_MO_F8 = ${sg{U_MO_F7}{\<}{:}}
+# Message Outgoing List
+U_MO_L = U_MO_F8
+
+# User Submission DataBase LDAP DN
+U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=sdb,ou=user,o=advancedfiltering
+
+# User SDB Message Outgoing
+U_SDB_MO_sender_L = ${map{U_MO_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:$item},U_SDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}}}
 
 data_acl:
-  warn
-    set acl_m_u_recipients = $recipients
-
-  # * flag_mb_absent => 5xx Mail box does not exist, stop, flag_spamtrap
+  # * flag_mb_absent => fake/5xx Mail box does not exist, stop, flag_spamtrap
   accept
     condition = ${if bool_lax{$acl_m_u_absent}}
+    set acl_m_spamtrap_f = true
     control = fakereject/Mail box does not exist
-    set acl_m_spamtrap_f = true
 
-  # * flag_sys_bl || flag_spf => flag_spamtrap
-  warn
-    condition = $acl_c_s_bl_f
-    set acl_m_spamtrap_f = true
-  warn
-    condition = $acl_m_spf_f
-    set acl_m_spamtrap_f = true
-
-  # * flag_user_wl => ok $msg_user_wbl, stop
+  # * flag_user_wl => 2xx OK ($msg_user_wbl), stop
   accept
     condition = $acl_m_u_wl_f
     message = OK ($acl_m_u_bwl_m) id=$message_exim_id
 
-  # * flag_sys_wl => ok $msg_sys_wbl, stop
+  # * flag_sys_wl => 2xx OK ($msg_sys_wbl), stop
   accept
     condition = $acl_c_s_wl_f
     message = OK ($acl_c_s_bwl_m) id=$message_exim_id
 
-  # * flag_sys_bl => 5xx $msg_sys_wbl, stop, flag_spam
+  # * flag_sys_bl && user_spt => 2xx OK ST/SPT ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
   accept
     condition = $acl_c_s_bl_f
-    control = fakereject/Access denied ($acl_c_s_bwl_m)
-    set acl_m_spam_f = true
-
-  # * flag_spf => 5xx SPF: ..., stop, log Message-ID, flag_spam
-  accept
-    condition = $acl_m_spf_f
-    control = fakereject/Access denied (SPF: $acl_m_spf_m)
-    set acl_m_spam_f = true
-
-  # * проверка Message-Id в afMessageIncoming
-  # ** нет MessageId => 5xx No Message-ID header, stop
-  deny
-    ! condition = ${if bool_lax{U_MI_D}}
-    message = No Message-ID header
-  # ** ok, afIsSpam => 5xx SPAM: $afSpamDescription, stop
-  deny
-    logwrite = DEBUG: spam descr: U_SMTPDB_R_MI_spam_D
-    condition = ${if bool_lax{U_SMTPDB_R_MI_spam_D}}
-    message = U_SMTPDB_R_MI_spam_D
-  # ** не совпадает sender => 5xx Several senders for the same message, stop, flag_spamtrap, flag_spam
-  accept
-    logwrite = DEBUG: bad sender: U_SMTPDB_R_MI_bad_sender_L
-    condition = ${if bool_lax{U_SMTPDB_R_MI_bad_sender_L}}
+    condition = $acl_m_u_spt_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    control = fakereject/Several senders for the same message
-  # ** ok => ok, stop
+    message = OK ST/SPT ($acl_c_s_bwl_m) id=$message_exim_id
+
+  # * flag_sys_bl => fake/5xx Access denied ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
   accept
-    condition = ${if bool_lax{U_SMTPDB_R_MI_sender_D}}
+    condition = $acl_c_s_bl_f
+    set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
+    control = fakereject/Access denied ($acl_c_s_bwl_m) id=$message_exim_id
+
+  # * flag_spf && user_spt => 2xx OK ST/SPT (SPF: ...), stop, flag_spamtrap, flag_spam
+  accept
+    condition = $acl_m_spf_f
+    condition = $acl_m_u_spt_f
+    set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
+    message = OK ST/SPT (SPF: $acl_m_spf_m) id=$message_exim_id
+
+  # * flag_spf => fake/5xx Access denied (SPF: ...), stop, log Message-ID, flag_spamtrap, flag_spam
+  accept
+    condition = $acl_m_spf_f
+    set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
+    control = fakereject/Access denied (SPF: $acl_m_spf_m) id=$message_exim_id
+
+  # * проверка Message-Id в afMessageIncoming
+  # ** нет MessageId && user_spt => 2xx OK SPT (No Message-ID header), stop, flag_spam
+  accept
+    ! condition = ${if bool_lax{U_MI_H_D}}
+    condition = $acl_m_u_spt_f
+    set acl_m_spam_f = true
+    message = OK SPT (No Message-ID header)
+  # ** нет MessageId => 5xx Access denied (No Message-ID header), stop
+  deny
+    ! condition = ${if bool_lax{U_MI_H_D}}
+    message = Access denied (No Message-ID header)
+  # ** ok, afIsSpam && user_spt => 2xx OK SPT ($afSpamDescription), stop, flag_spam
+  accept
+    condition = ${if bool_lax{U_SMTPDB_MI_spam_D}}
+    condition = $acl_m_u_spt_f
+    set acl_m_spam_f = true
+    message = OK SPT (U_SMTPDB_MI_spam_D)
+  # ** ok, afIsSpam => 5xx Access denied ($afSpamDescription), stop
+  deny
+    condition = ${if bool_lax{U_SMTPDB_MI_spam_D}}
+    message = Access denied (U_SMTPDB_MI_spam_D)
+  # ** не совпадает sender && user_spt => 2xx OK SPT (Several senders for the same message), stop, flag_spamtrap, flag_spam
+  accept
+    ! condition = ${if eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
+    condition = $acl_m_u_spt_f
+    set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
+    message = OK SPT (Several senders for the same message)
+  # ** не совпадает sender && sys_spamtrap => fake/5xx Access denied (Several senders for the same message), stop, flag_spamtrap, flag_spam
+  accept
+    ! condition = ${if eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
+    condition = $acl_c_s_st_f
+    set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
+    control = fakereject/Access denied (Several senders for the same message) id=$message_exim_id
+  # ** не совпадает sender => 5xx Access denied (Several senders for the same message), stop, flag_spamtrap, flag_spam
+  deny
+    ! condition = ${if eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
+    set acl_m_spamtrap_f = true
+    set acl_m_spam_f = true
+    message = Access denied (Several senders for the same message)
+  # ** ok => 2xx OK, stop
+  accept
+    condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
 
   # * проверка In-Reply-To, References в afMessageOutgoing
-  # ** ok => ok, stop, hamtrap
+  # ** ok => 2xx OK, stop, flag_hamtrap
   accept
-    condition = ${if bool_lax{U_MR_D}}
-    logwrite = DEBUG: realms: ${reduce {$acl_m_u_realms} {} {$value $item} }
-    logwrite = DEBUG: references (ldap dn): ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value $item} }
-    logwrite = DEBUG: senders: ${reduce {U_SDB_R_MO_LDAP_DN_L} {} {$value U_SDB_R_MO_LDAP_I} }
-    logwrite = DEBUG: recipients: $recipients
-    condition = ${if forany {U_SDB_R_MO_LDAP_DN_L} { inlist {U_SDB_R_MO_LDAP_I} {<, $recipients} } }
+    condition = ${if bool_lax{U_MO_H_D}}
+    logwrite = DEBUG: realm: $acl_m_u_realm
+    logwrite = DEBUG: references: U_MO_L
+    logwrite = DEBUG: senders: U_SDB_MO_sender_L
+    logwrite = DEBUG: recipient: $recipients
+    # $recipients has a single value
+    condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$recipients}}}
     set acl_m_hamtrap_f = true
 
   # * message_size >= sys_trustedmessagesize
-  # ** ok => ok TMS, stop
+  # ** ok => 2xx OK (TMS), stop
   accept
     condition = ${if >{$message_size}{S_TMS_D}}
     message = OK (TMS) id=$message_exim_id
 
   # * 4xx Your data is verifying, please try again later, flag_mailproc
   accept
-    control = fakedefer/Your data is verifying, please try again later
     set acl_m_mailproc_f = true
+    control = fakedefer/Your data is verifying, please try again later
 
 begin routers
 
@@ -598,7 +612,7 @@ service_defer_router:
 # Router Services Headers Delete List
 R_SHD_L = X-AdvancedFiltering-Sender:X-AdvancedFiltering-Recipient:X-AdvancedFiltering-Recipients:X-AdvancedFiltering-Realms
 # Router Services Headers Add List (separated by \n)
-R_SHA_Lnl = X-AdvancedFiltering-Sender: $sender_address\nX-AdvancedFiltering-Recipient: $local_part@$domain\nX-AdvancedFiltering-Recipients: ${tr{$acl_m_u_recipients}{,}{ }}\nX-AdvancedFiltering-Realms: ${tr{$acl_m_u_realms}{:}{ }}
+R_SHA_Lnl = X-AdvancedFiltering-Sender: $sender_address\nX-AdvancedFiltering-Recipient: $local_part@$domain
 
 # * mailproc
 mailproc_router:
