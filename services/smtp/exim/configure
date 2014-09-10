@@ -578,7 +578,7 @@ R_SYS_R_LDAP_Q = ${reduce {S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:
 # Router Services Realm LDAP Q
 R_S_R_LDAP_Q = ${if bool_lax{R_AD_R_F} {R_AD_R_LDAP_Q} {R_SYS_R_LDAP_Q} }
 
-# * service
+# * service [@services] {stop} (-> service) => error
 
 # errors_to addresses need to be verified
 service_verify_router:
@@ -614,22 +614,15 @@ service_defer_router:
   data = :defer:
   errors_to = error@services.advancedfiltering.net
 
-# Router Services Headers Delete List
-R_SHD_L = X-AdvancedFiltering-Sender:X-AdvancedFiltering-Recipient:X-AdvancedFiltering-Recipients:X-AdvancedFiltering-Realms
-# Router Services Headers Add List (separated by \n)
-R_SHA_Lnl = X-AdvancedFiltering-Sender: $sender_address\nX-AdvancedFiltering-Recipient: $local_part@$domain
-
-# * mailproc
+# * mailproc [flag_mailproc] {stop} (-> service) => error
 mailproc_router:
   condition = $acl_m_mailproc_f
   driver = redirect
   data = mailproc@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SHD_L
-  headers_add = R_SHA_Lnl
 
-# * hamtrap
+# * hamtrap [flag_hamtrap && sys_hamtrap] {continue} (-> service) => error
 hamtrap_router:
   condition = $acl_c_s_ht_f
   condition = $acl_m_hamtrap_f
@@ -637,11 +630,9 @@ hamtrap_router:
   data = hamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SHD_L
-  headers_add = R_SHA_Lnl
   unseen = true
 
-# * spamtrap
+# * spamtrap [flag_spamtrap && sys_spamtrap] {continue} (-> service) => error
 spamtrap_router:
   condition = $acl_c_s_st_f
   condition = $acl_m_spamtrap_f
@@ -649,12 +640,10 @@ spamtrap_router:
   data = spamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_SHD_L
-  headers_add = R_SHA_Lnl
   unseen = true
 
-# * user_absent
-user_absent_router:
+# * absent :blackhole: [flag_mb_absent] {stop} => error
+absent_router:
   condition = $acl_m_u_absent
   driver = redirect
   data = :blackhole:
@@ -671,7 +660,7 @@ R_MBA_D = ${lookup ldap{LDAP_C/R_CDM_LDAP_DN?afUSMTPDMBIsAbsent?base}}
 
 # *************************************************************************************************
 
-# same contents for all spam_* and backup_* routers
+# same contents for all copy routers (spamaddress_*, backup_*, redirect_*, spambox_*)
 # (except condition clause)
 
 # *************************************************************************************************
@@ -679,262 +668,176 @@ R_MBA_D = ${lookup ldap{LDAP_C/R_CDM_LDAP_DN?afUSMTPDMBIsAbsent?base}}
 # Router General LDAP DN
 R_LDAP_DN = ""
 
+# Router Copy Target Data
+R_CT_D = ""
+
 # Router Copy Target List (separated by coma)
 R_CT_Lc = ""
 
 # Router Copy Sender Data
 R_CS_D = ""
 
-# Router Copy Headers Delete List
-# X-AdvancedFiltering-Sender-XXX header for separate batch
-R_CHD_L = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-XXX
-# Router Copy Headers Add List (separated by \n)
-R_CHA_Lnl = X-AdvancedFiltering-Return-Path: $sender_address\nX-AdvancedFiltering-Envelope-To: $local_part@$domain
-
-# * spamaddress
+# * spamaddress user/domain/client [flag_spam] {continue} -> submission => error
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spamaddress_mailbox_router:
   condition = $acl_m_spam_f
-  # for data, R_MBA_D
-  condition = ${if bool_lax{R_CLIENT}}
-  condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
   unseen = true
-  redirect_router = spambox_router
+  redirect_router = submission_router
 
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spamaddress_domain_router:
   condition = $acl_m_spam_f
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
   unseen = true
-  redirect_router = spambox_router
+  redirect_router = submission_router
 
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spamaddress_client_router:
   condition = $acl_m_spam_f
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
   unseen = true
-  redirect_router = spambox_router
+  redirect_router = submission_router
 
-# * spambox
-
-spambox_router:
+# * spam :blackhole: [flag_spam && !user_spt] {stop} => error
+spam_router:
+  condition = $acl_m_spam_f
+  condition = $acl_m_u_spt_f
   driver = redirect
-  data = ""
+  data = :blackhole:
   errors_to = error@services.advancedfiltering.net
 
-# Router Copy Target Data
-R_CT_D = ""
+# * backup user/domain/client [!flag_spam] {continue} -> submission => error
+
+R_LDAP_DN == R_CDM_LDAP_DN
+R_CS_D == $local_part@$domain
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
+backup_mailbox_router:
+  ! condition = $acl_m_spam_f
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  unseen = true
+  redirect_router = submission_router
+
+R_LDAP_DN == R_CD_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
+backup_domain_router:
+  ! condition = $acl_m_spam_f
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  unseen = true
+  redirect_router = submission_router
+
+R_LDAP_DN == R_C_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
+backup_client_router:
+  ! condition = $acl_m_spam_f
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  unseen = true
+  redirect_router = submission_router
+
+# * redirect user/domain/client {stop} -> submission => error
+
+R_LDAP_DN == R_CDM_LDAP_DN
+R_CS_D == $local_part@$domain
+# the same for all redirect_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
+redirect_mailbox_router:
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = submission_router
+
+R_LDAP_DN == R_CD_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
+# the same for all redirect_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
+redirect_domain_router:
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = submission_router
+
+R_LDAP_DN == R_C_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
+# the same for all redirect_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
+redirect_client_router:
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D realm=R_C_REALM $address_data
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = submission_router
+
+# * spambox user/domain/client [flag_spam] {stop} -> mx => error
 
 R_LDAP_DN == R_CDM_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spambox_mailbox_router:
   condition = $acl_m_spam_f
-  # for data, R_MBA_D
-  condition = ${if bool_lax{R_CLIENT}}
-  condition = ${if !bool_lax{R_MBA_D}}
   driver = redirect
-  data = R_CT_D+$local_part@$domain
+  data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  unseen = true
-  redirect_router = user_spam_block_router
+  redirect_router = mx_router
 
 R_LDAP_DN == R_CD_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spambox_domain_router:
   condition = $acl_m_spam_f
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
-  data = R_CT_D+$local_part@$domain
+  data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  unseen = true
-  redirect_router = user_spam_block_router
+  redirect_router = mx_router
 
 R_LDAP_DN == R_C_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
 spambox_client_router:
   condition = $acl_m_spam_f
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
-  data = R_CT_D+$local_part@$domain
+  data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  unseen = true
-  redirect_router = user_spam_block_router
+  redirect_router = mx_router
 
-# не пропускаем спам если !user_spt
-user_spam_block_router:
-  condition = ${if !bool_lax{$acl_m_u_spt_f}}
-  condition = $acl_m_spam_f
-  driver = redirect
-  data = :blackhole:
-  errors_to = error@services.advancedfiltering.net
-
-# * backup
-
-R_LDAP_DN == R_CDM_LDAP_DN
-R_CS_D == $local_part@$domain
-# the same for all backup_ routers
-R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_mailbox_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  # unreachable
-  condition = ${if !bool_lax{R_MBA_D}}
-  driver = redirect
-  data = R_CT_Lc
-  address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  unseen = true
-  redirect_router = spam_block_router
-
-R_LDAP_DN == R_CD_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
-# the same for all backup_ routers
-R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_domain_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  driver = redirect
-  data = R_CT_Lc
-  address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  unseen = true
-  redirect_router = spam_block_router
-
-R_LDAP_DN == R_C_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
-# the same for all backup_ routers
-R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-backup_client_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  driver = redirect
-  data = R_CT_Lc
-  address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  unseen = true
-  redirect_router = spam_block_router
-
-# не пропускаем спам
-spam_block_router:
-  condition = $acl_m_spam_f
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  driver = redirect
-  data = :blackhole:
-  errors_to = error@services.advancedfiltering.net
-
-# * redirect
-
-R_LDAP_DN == R_CDM_LDAP_DN
-R_CS_D == $local_part@$domain
-# the same for all redirect_ routers
-R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-redirect_mailbox_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  # unreachable
-  condition = ${if !bool_lax{R_MBA_D}}
-  driver = redirect
-  data = R_CT_Lc
-  address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  redirect_router = user_spam_block_router
-
-R_LDAP_DN == R_CD_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
-# the same for all redirect_ routers
-R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-redirect_domain_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  driver = redirect
-  data = R_CT_Lc
-  address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  redirect_router = user_spam_block_router
-
-R_LDAP_DN == R_C_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
-# the same for all redirect_ routers
-R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-R_CHD_L == X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To:X-AdvancedFiltering-Sender-${str2b64:R_CS_D}
-redirect_client_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
-  driver = redirect
-  data = R_CT_Lc
-  address_data = sender=R_CS_D realm=R_C_REALM $address_data
-  errors_to = error@services.advancedfiltering.net
-  headers_remove = R_CHD_L
-  headers_add = R_CHA_Lnl
-  redirect_router = user_spam_block_router
-
-# * mx
+# * mx user/domain/client {stop} => bounce
 
 # Routers/Mail Exchanger Name List (separated by coma)
 R_MX_N_Lc = ""
@@ -950,6 +853,11 @@ R_MX_user_I = ""
 R_MX_password_I = ""
 # Routers/Mail Exchanger List (separated by coma)
 R_MX_Lc = ""
+
+mx_router:
+  driver = redirect
+  data = ""
+  errors_to = error@services.advancedfiltering.net
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}

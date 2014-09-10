@@ -34,30 +34,39 @@ flag_sys_wl
 flag_sys_bl
 msg_sys_wbl
 
+# в SMTP-ответе: исходные параметры "/" выставленные параметры
+# пример: SBL/ST,S /MBA,ST SBL,(SST|USPT)/S
+# флаги: UNMBC - user_nombxchk, MBA - flag_mb_absent, UWL - flag_user_wl, SWL - flag_sys_wl, UBL - flag_user_bl, SBL - flag_sys_bl
+# флаги: USPT - user_spt, SPF - flag_spf, SST - sys_spamtrap, TMS - sys_trustedmessagesize
+# флаги: ST - flag_spamtrap, S - flag_spam, HT - flag_hamtrap, MP - flag_mailproc
+
 rcpt
+* recipients_count > 0 => 4xx / Mail box is temporarily unavailable, please try again later
+recipients_count - параметр exim, количество ответов 2xx на RCPT
 * проверка realm для домена
 ** нет домена => 5xx The domain is not in service, stop
 ** чужой realm => 4xx Moved, please try another host, stop
+* определяем имя домена по синониму
+** домен => user_domain
+** синоним => user_domain
+** не найден в ou=user => 4xx Replicating, please try again later
 * получение пользовательской настройки user_nombxchk (NoMailBoxCheck - no auto-add)
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-** absent && sys_spamtrap => 2xx OK Mail box does not exist, flag_mb_absent, stop
+** absent && sys_spamtrap => 2xx SST/MBA Mail box does not exist, flag_mb_absent, stop
 ** absent => 5xx Mail box does not exist, stop
-** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx OK Mail box does not exist, flag_mb_absent, stop
-** (expired || not_found) && user_nombxchk => 5xx Mail box does not exist, stop
+** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx UNMBC,SST/MBA Mail box does not exist, flag_mb_absent, stop
+** (expired || not_found) && user_nombxchk => 5xx UNMBC/ Mail box does not exist, stop
 ** expired || not_found => 4xx Your data is verifying, please try again later, log, stop
 ** ok
-* recipients_count > 0 => 4xx Mail box is temporarily unavailable, please try again later
-recipients_count - параметр exim, количество ответов 2xx на RCPT
 * получение пользовательской настройки user_spt (Spam PassThrough)
 * проверка пользовательских списков фильтрации => flag_user_wl, flag_user_bl, msg_user_wbl
-* flag_user_wl => 2xx OK ($msg_user_wbl), stop
-* flag_user_bl => 5xx Access denied ($msg_user_wbl), stop
-* flag_sys_wl => 2xx OK ($msg_sys_wbl), stop
-* flag_sys_bl && !sys_spamtrap && !user_spt => 5xx Access denied ($msg_sys_wbl), stop
-* flag_sys_bl => 2xx OK ST/SPT ($msg_sys_wbl), stop
-* flag_spf && !user_spt && !sys_spamtrap => 5xx Access denied (SPF: ...), stop
-* flag_spf => 2xx OK ST/SPT (SPF: ...), stop
-ST, SPT - короткие аббревиатуры для тестов без раскрытия смысла
+* flag_user_wl => 2xx UWL/ ($msg_user_wbl), stop
+* flag_user_bl => 5xx UBL/ ($msg_user_wbl), stop
+* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl), stop
+* flag_sys_bl && !sys_spamtrap && !user_spt => 5xx SBL/ ($msg_sys_wbl), stop
+* flag_sys_bl => 2xx SBL,(SST|USPT)/ ($msg_sys_wbl), stop
+* flag_spf && !user_spt && !sys_spamtrap => 5xx SPF/ (SPF: ...), stop
+* flag_spf => 2xx SPF,(USPT|SST)/ (SPF: ...), stop
 * ok
 flag_mb_absent
 flag_user_bl
@@ -68,30 +77,29 @@ data
 * ok
 
 data_end
-* flag_mb_absent => fake/5xx Mail box does not exist, stop, flag_spamtrap
-* flag_user_wl => 2xx OK ($msg_user_wbl), stop
-* flag_sys_wl => 2xx OK ($msg_sys_wbl), stop
-* flag_sys_bl && user_spt => 2xx OK ST/SPT ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
-* flag_sys_bl => fake/5xx Access denied ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
-* flag_spf && user_spt => 2xx OK ST/SPT (SPF: ...), stop, flag_spamtrap, flag_spam
-* flag_spf => fake/5xx Access denied (SPF: ...), stop, log Message-ID, flag_spamtrap, flag_spam
+* message_size >= sys_maxmessagesize => 5xx ...
+* flag_mb_absent => fake/5xx MBA/ST Mail box does not exist, stop, flag_spamtrap
+* flag_user_wl => 2xx UWL/ ($msg_user_wbl), stop
+* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl), stop
+* flag_sys_bl && user_spt => 2xx SBL,USPT/ST,S ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
+* flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
+* flag_spf && user_spt => 2xx SPF,USPT/ST,S (SPF: ...), stop, flag_spamtrap, flag_spam
+* flag_spf => fake/5xx SPF/ST,S (SPF: ...), stop, log Message-ID, flag_spamtrap, flag_spam
 # * sys_trustedport => 2xx OK, stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
-** нет MessageId && user_spt => 2xx OK SPT (No Message-ID header), stop, flag_spam
-** нет MessageId => 5xx Access denied (No Message-ID header), stop
-** ok, afIsSpam && user_spt => 2xx OK SPT ($afSpamDescription), stop, flag_spam
-** ok, afIsSpam => 5xx Access denied ($afSpamDescription), stop
-** не совпадает sender && user_spt => 2xx OK SPT (Several senders for the same message), stop, flag_spamtrap, flag_spam
-** не совпадает sender && sys_spamtrap => fake/5xx Access denied (Several senders for the same message), stop, flag_spamtrap, flag_spam
-** не совпадает sender => 5xx Access denied (Several senders for the same message), stop, flag_spamtrap, flag_spam
-** ok => 2xx OK, stop
+** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header), stop, flag_spam
+** нет MessageId => 5xx Malformed (No Message-ID header), stop
+** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription), stop, flag_spam
+** ok, afIsSpam => 5xx Spam ($afSpamDescription), stop
+** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message), stop, flag_spamtrap, flag_spam
+** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message), stop, flag_spamtrap, flag_spam
+** не совпадает sender => 5xx Bad sender (Several senders for the same message), stop
+** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => 2xx OK, stop, flag_hamtrap
-* message_size >= sys_trustedmessagesize
-** ok => 2xx OK (TMS), stop
-TMS - Trusted Message Size
-* 4xx Your data is verifying, please try again later, flag_mailproc
+** ok => 2xx /HT, stop, flag_hamtrap
+* message_size >= sys_trustedmessagesize => 2xx TMS/, stop
+* 4xx /MP Your data is verifying, please try again later, flag_mailproc
 flag_spam
 flag_spamtrap
 flag_mailproc
