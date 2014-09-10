@@ -1,0 +1,4 @@
+
+dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+afUSMTPDMBTimeUpdated: 1234567890
+objectClass: afUSMTPDMailBox

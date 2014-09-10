@@ -1,30 +1,24 @@
 
 dn: afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
-afuservicerealm: r1
 objectClass: afUService
 
 dn: afUServiceRealm=r1+afUServiceName=sdb,ou=user,o=advancedfiltering
-afuservicerealm: r1
 objectClass: afUService
 
 dn: afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-afuservicerealm: r1
 objectClass: afUService
 
 dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-afuclientname: cli1
 objectClass: afUClient
 afUClientAdminMailAddress: admin-client-admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin-client-tech@tests.advancedfiltering.net
 
 dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-afusmtpdomainname: test.com
 objectClass: afUSMTPDomain
 afUSMTPDomainAdminMailAddress: admin-domain-admin@tests.advancedfiltering.net
 afUSMTPDomainTechMailAddress: admin-domain-tech@tests.advancedfiltering.net
 
 dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-afusmtpdmblocalpart: mbox
 afUSMTPDMBTimeUpdated: 1234567890
 objectClass: afUSMTPDMailBox
 

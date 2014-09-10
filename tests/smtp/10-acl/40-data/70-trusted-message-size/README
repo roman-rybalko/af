@@ -1,0 +1,1 @@
+* message_size >= sys_trustedmessagesize => 2xx TMS/, stop

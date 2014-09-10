@@ -1,0 +1,2 @@
+* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl), stop
+* flag_sys_bl && !sys_spamtrap && !user_spt => 5xx SBL/ ($msg_sys_wbl), stop

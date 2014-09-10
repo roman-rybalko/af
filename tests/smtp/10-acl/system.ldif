@@ -7,7 +7,7 @@ objectClass: afSClient
 dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: dst.hosts.advancedfiltering.net
 afshostrealm: r1
-afshostservicename: smtp
+afSHostServiceName: smtp
 afSHDBSyncServiceName: smtpdb
 afSHDBSyncServiceName: sdb
 objectClass: afSHost
@@ -16,8 +16,8 @@ dn: afSServiceName=smtp,ou=system,o=advancedfiltering
 afsservicename: smtp
 afssmtpdnsbldomainname: bl.spamcop.net
 afssmtpmaxmessagesize: 30000000
-afssmtpspamtrapprobabilitydenominator: 100
-afssmtpspamtrapprobabilitynumerator: 0
+afSSMTPSpamTrapProbabilityDenominator: 100
+afSSMTPSpamTrapProbabilityNumerator: 0
 afssmtpHamtrapprobabilitydenominator: 100
 afssmtpHamtrapprobabilitynumerator: 0
 afssmtptrustedmessagesize: 2000000

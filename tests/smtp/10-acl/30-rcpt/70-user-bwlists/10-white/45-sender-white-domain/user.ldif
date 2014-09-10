@@ -1,0 +1,4 @@
+
+dn: afSMTPBWListSenderMailAddress=test@tests-nospf.advancedfiltering.net,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+afsmtpbwlistsendermailaddress: test@tests-nospf.advancedfiltering.net
+objectClass: afSMTPSenderMailAddressBWListEntry

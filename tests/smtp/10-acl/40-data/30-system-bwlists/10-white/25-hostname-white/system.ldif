@@ -1,0 +1,4 @@
+
+dn: afSMTPBWListHostName=src.hosts.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+afsmtpbwlisthostname: src.hosts.advancedfiltering.net
+objectClass: afSMTPHostNameBWListEntry
