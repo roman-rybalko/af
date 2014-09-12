@@ -578,7 +578,7 @@ R_SYS_R_LDAP_Q = ${reduce {S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:
 # Router Services Realm LDAP Q
 R_S_R_LDAP_Q = ${if bool_lax{R_AD_R_F} {R_AD_R_LDAP_Q} {R_SYS_R_LDAP_Q} }
 
-# * service [@services] {stop} (-> service) => error
+# * service [@services] {stop} => error
 
 # errors_to addresses need to be verified
 service_verify_router:
@@ -607,12 +607,14 @@ service_router:
   errors_to = ${if eqi{$local_part}{error}{}{error@services.advancedfiltering.net}}
   self = send
 
+# * service_defer [@services] {stop} -> service => error
 service_defer_router:
   domains = services.advancedfiltering.net
   driver = redirect
   allow_defer = true
   data = :defer:
   errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
 
 # * mailproc [flag_mailproc] {stop} (-> service) => error
 mailproc_router:
@@ -621,6 +623,7 @@ mailproc_router:
   data = mailproc@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
 
 # * hamtrap [flag_hamtrap && sys_hamtrap] {continue} (-> service) => error
 hamtrap_router:
@@ -631,6 +634,7 @@ hamtrap_router:
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   unseen = true
+  redirect_router = service_router
 
 # * spamtrap [flag_spamtrap && sys_spamtrap] {continue} (-> service) => error
 spamtrap_router:
@@ -641,6 +645,7 @@ spamtrap_router:
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   unseen = true
+  redirect_router = service_router
 
 # * absent :blackhole: [flag_mb_absent] {stop} => error
 absent_router:
@@ -721,7 +726,7 @@ spamaddress_client_router:
 # * spam :blackhole: [flag_spam && !user_spt] {stop} => error
 spam_router:
   condition = $acl_m_spam_f
-  condition = $acl_m_u_spt_f
+  condition = ${if ! bool_lax{$acl_m_u_spt_f}}
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
@@ -733,7 +738,7 @@ R_CS_D == $local_part@$domain
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_mailbox_router:
-  ! condition = $acl_m_spam_f
+  condition = ${if ! bool_lax{$acl_m_spam_f}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -746,7 +751,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_domain_router:
-  ! condition = $acl_m_spam_f
+  condition = ${if ! bool_lax{$acl_m_spam_f}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -759,7 +764,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_client_router:
-  ! condition = $acl_m_spam_f
+  condition = ${if ! bool_lax{$acl_m_spam_f}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -868,10 +873,6 @@ R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_L
 R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_mailbox_router:
-  # for data, R_MBA_D
-  condition = ${if bool_lax{R_CLIENT}}
-  # unreachable
-  condition = ${if !bool_lax{R_MBA_D}}
   driver = manualroute
   route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
@@ -888,8 +889,6 @@ R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_L
 R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_domain_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
@@ -906,8 +905,6 @@ R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_L
 R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_client_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = manualroute
   route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
@@ -915,15 +912,17 @@ mx_client_router:
   transport = mx_transport
   self = send
 
+# * mx_defer {stop} -> mx => bounce
+
 mx_defer_router:
-  # for data
-  condition = ${if bool_lax{R_CLIENT}}
   driver = redirect
   allow_defer = true
   data = :defer:
   errors_to = bounce@services.advancedfiltering.net
+  redirect_router = mx_router
 
-# * submission
+# * submission {stop} => error
+
 # (client copy mail, delivery to other addresses)
 # the realm should be in the address_data, if not - the leaked bounce (errors_to verification failed)
 
@@ -937,7 +936,6 @@ R_SubRRD_port_I = ${lookup ldap{LDAP_C/afSHostServiceName=submission,afSHostName
 R_SubRRD_Lnl = ${map{<\n R_SubRRD_H_Lnl}{${if bool_lax{R_SubRRD_address_I}{R_SubRRD_address_I}{$item}}${if bool_lax{R_SubRRD_port_I}{:R_SubRRD_port_I}{}}}}
 
 submission_router:
-  condition = R_AD_R_F
   driver = manualroute
   route_data = ${if bool_lax{R_SubRRD_Lnl}{\"<\n R_SubRRD_Lnl\"}{}}
   hosts_randomize = true
@@ -947,12 +945,14 @@ submission_router:
   errors_to = error@services.advancedfiltering.net
   self = send
 
+# * submission_defer {stop} -> submission => error
+
 submission_defer_router:
-  condition = R_AD_R_F
   driver = redirect
   allow_defer = true
   data = :defer:
   errors_to = error@services.advancedfiltering.net
+  redirect_router = submission_router
 
 begin transports
 

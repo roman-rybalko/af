@@ -2,17 +2,17 @@
 
 -> - redirect_router
 => - errors_to
-() - defaults
 [] - condition
 {} - unseen
 
 # spamaddress - для бэкапа спама
 # backup - для бэкапа остальной почты
 
-* service [@services] {stop} (-> service) => error
-* mailproc [flag_mailproc] {stop} (-> service) => error
-* hamtrap [flag_hamtrap && sys_hamtrap] {continue} (-> service) => error
-* spamtrap [flag_spamtrap && sys_spamtrap] {continue} (-> service) => error
+* service [@services] {stop} => error
+* service_defer [@services] {stop} -> service => error
+* mailproc [flag_mailproc] {stop} -> service => error
+* hamtrap [flag_hamtrap && sys_hamtrap] {continue} -> service => error
+* spamtrap [flag_spamtrap && sys_spamtrap] {continue} -> service => error
 * absent :blackhole: [flag_mb_absent] {stop} => error
 * spamaddress user/domain/client [flag_spam] {continue} -> submission => error
 * spam :blackhole: [flag_spam && !user_spt] {stop} => error
@@ -20,7 +20,9 @@
 * redirect user/domain/client {stop} -> submission => error
 * spambox user/domain/client [flag_spam] {stop} -> mx => error
 * mx user/domain/client {stop} => bounce
+* mx_defer {stop} -> mx => bounce
 * submission {stop} => error
+* submission_defer {stop} -> submission => error
 
 Для spam проверять afUSMTPDMBIsAbsent,
 т.к. отправка производится с адреса afUSMTPDMailBox,
