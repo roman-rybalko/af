@@ -1,0 +1,1 @@
+** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam

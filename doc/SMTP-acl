@@ -78,28 +78,28 @@ data
 
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
-* flag_mb_absent => fake/5xx MBA/ST Mail box does not exist, stop, flag_spamtrap
-* flag_user_wl => 2xx UWL/ ($msg_user_wbl), stop
-* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl), stop
-* flag_sys_bl && user_spt => 2xx SBL,USPT/ST,S ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
-* flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
-* flag_spf && user_spt => 2xx SPF,USPT/ST,S (SPF: ...), stop, flag_spamtrap, flag_spam
-* flag_spf => fake/5xx SPF/ST,S (SPF: ...), stop, log Message-ID, flag_spamtrap, flag_spam
-# * sys_trustedport => 2xx OK, stop
+* flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap
+* flag_user_wl => 2xx UWL/ ($msg_user_wbl) id=..., stop
+* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl) id=..., stop
+* flag_sys_bl && user_spt => 2xx SBL,USPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+* flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+* flag_spf && user_spt => 2xx SPF,USPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
+* flag_spf => fake/5xx SPF/ST,S (SPF: ...) id=..., stop, log Message-ID, flag_spamtrap, flag_spam
+# * sys_trustedport => 2xx STP/ id=..., stop
 На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
-** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header), stop, flag_spam
+** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header) id=..., stop, flag_spam
 ** нет MessageId => 5xx Malformed (No Message-ID header), stop
-** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription), stop, flag_spam
-** ok, afIsSpam => 5xx Spam ($afSpamDescription), stop
-** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message), stop, flag_spamtrap, flag_spam
-** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message), stop, flag_spamtrap, flag_spam
-** не совпадает sender => 5xx Bad sender (Several senders for the same message), stop
+** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription) id=..., stop, flag_spam
+** ok, afIsSpam => 5xx Spam ($afSpamDescription) id=..., stop
+** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+** не совпадает sender => 5xx Bad sender (Several senders for the same message) id=..., stop
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => 2xx /HT, stop, flag_hamtrap
-* message_size >= sys_trustedmessagesize => 2xx TMS/, stop
-* 4xx /MP Your data is verifying, please try again later, flag_mailproc
+** ok => 2xx /HT id=..., stop, flag_hamtrap
+* message_size >= sys_trustedmessagesize => 2xx TMS/ id=..., stop
+* 4xx /MP Your data is verifying, please try again later. id=..., flag_mailproc
 flag_spam
 flag_spamtrap
 flag_mailproc
