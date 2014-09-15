@@ -1,0 +1,2 @@
+* проверка In-Reply-To, References в afMessageOutgoing
+** ok => 2xx /HT id=..., stop, flag_hamtrap

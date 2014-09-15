@@ -515,21 +515,24 @@ data_acl:
     message = Spam (U_SMTPDB_MI_spam_D) id=$message_exim_id
   # ** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
   accept
-    ! condition = ${if eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
+    condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
+    condition = ${if ! eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
     condition = $acl_m_u_spt_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
     message = USPT/ST,S (Several senders for the same message) id=$message_exim_id
   # ** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
   accept
-    ! condition = ${if eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
+    condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
+    condition = ${if ! eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
     condition = $acl_c_s_st_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
     control = fakereject/SST/ST,S (Several senders for the same message) id=$message_exim_id
   # ** не совпадает sender => 5xx Bad sender (Several senders for the same message) id=..., stop
   deny
-    ! condition = ${if eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
+    condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
+    condition = ${if ! eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
     message = Bad sender (Several senders for the same message) id=$message_exim_id

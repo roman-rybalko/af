@@ -1,6 +1,0 @@
-
-dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLTE_,afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
-afUSMTPMessageId: dGVzdC1tZXNzYWdlLTE_
-afUSMTPmessagesendermailaddress: test2@tests.advancedfiltering.net
-afUSMTPmessagetimecreated: 1234567890
-objectClass: afUSMTPMessageIncoming
