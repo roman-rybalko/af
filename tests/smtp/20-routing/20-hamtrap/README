@@ -1,0 +1,1 @@
+* hamtrap [flag_hamtrap && sys_hamtrap] {continue} -> service => error

@@ -89,6 +89,7 @@ data_end
 На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header) id=..., stop, flag_spam
+# нет смысла слать в spamtrap - это и так спам, не нужно лишний раз нагружать базу
 ** нет MessageId => 5xx Malformed (No Message-ID header), stop
 ** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription) id=..., stop, flag_spam
 ** ok, afIsSpam => 5xx Spam ($afSpamDescription) id=..., stop

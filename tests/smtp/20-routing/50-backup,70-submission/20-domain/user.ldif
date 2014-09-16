@@ -1,4 +1,0 @@
-
-dn: afUSMTPBackupMailAddress=backup@tests.advancedfiltering.net,ou=settings,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-afusmtpbackupmailaddress: backup@tests.advancedfiltering.net
-objectClass: afUSMTPBackupTarget

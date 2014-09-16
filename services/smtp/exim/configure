@@ -581,8 +581,6 @@ R_SYS_R_LDAP_Q = ${reduce {S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:
 # Router Services Realm LDAP Q
 R_S_R_LDAP_Q = ${if bool_lax{R_AD_R_F} {R_AD_R_LDAP_Q} {R_SYS_R_LDAP_Q} }
 
-# * service [@services] {stop} => error
-
 # errors_to addresses need to be verified
 service_verify_router:
   verify_only = true
@@ -598,6 +596,7 @@ R_SRRD_port_I = ${lookup ldap{LDAP_C/afSHostServiceName=$local_part,afSHostName=
 # Routers/Service Router Route Data List (separated by \n)
 R_SRRD_Lnl = ${map{<\n R_SRRD_H_Lnl}{${if bool_lax{R_SRRD_address_I}{R_SRRD_address_I}{$item}}${if bool_lax{R_SRRD_port_I}{:R_SRRD_port_I}{}}}}
 
+# * service [@services] {stop} => error
 service_router:
   domains = services.advancedfiltering.net
   driver = manualroute
@@ -657,6 +656,14 @@ absent_router:
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
 
+# * spam :blackhole: [flag_spam && !user_spt] {stop} => error
+spam_router:
+  condition = $acl_m_spam_f
+  condition = ${if ! bool_lax{$acl_m_u_spt_f}}
+  driver = redirect
+  data = :blackhole:
+  errors_to = error@services.advancedfiltering.net
+
 # Router Client LDAP DN
 R_C_LDAP_DN = afUClientName=${quote_ldap_dn:R_CLIENT},afUServiceRealm=${quote_ldap_dn:R_C_REALM}+U_SMTP_LDAP_DN
 # Router Client Domain LDAP DN
@@ -685,7 +692,7 @@ R_CT_Lc = ""
 # Router Copy Sender Data
 R_CS_D = ""
 
-# * spamaddress user/domain/client [flag_spam] {continue} -> submission => error
+# * spamaddress user/domain/client [flag_spam] {stop} -> submission => error
 
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
@@ -697,7 +704,6 @@ spamaddress_mailbox_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = submission_router
 
 R_LDAP_DN == R_CD_LDAP_DN
@@ -710,7 +716,6 @@ spamaddress_domain_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = submission_router
 
 R_LDAP_DN == R_C_LDAP_DN
@@ -723,16 +728,7 @@ spamaddress_client_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = submission_router
-
-# * spam :blackhole: [flag_spam && !user_spt] {stop} => error
-spam_router:
-  condition = $acl_m_spam_f
-  condition = ${if ! bool_lax{$acl_m_u_spt_f}}
-  driver = redirect
-  data = :blackhole:
-  errors_to = error@services.advancedfiltering.net
 
 # * backup user/domain/client [!flag_spam] {continue} -> submission => error
 
@@ -916,15 +912,12 @@ mx_client_router:
   self = send
 
 # * mx_defer {stop} -> mx => bounce
-
 mx_defer_router:
   driver = redirect
   allow_defer = true
   data = :defer:
   errors_to = bounce@services.advancedfiltering.net
   redirect_router = mx_router
-
-# * submission {stop} => error
 
 # (client copy mail, delivery to other addresses)
 # the realm should be in the address_data, if not - the leaked bounce (errors_to verification failed)
@@ -938,6 +931,7 @@ R_SubRRD_port_I = ${lookup ldap{LDAP_C/afSHostServiceName=submission,afSHostName
 # Routers/Submission Router Route Data List
 R_SubRRD_Lnl = ${map{<\n R_SubRRD_H_Lnl}{${if bool_lax{R_SubRRD_address_I}{R_SubRRD_address_I}{$item}}${if bool_lax{R_SubRRD_port_I}{:R_SubRRD_port_I}{}}}}
 
+# * submission {stop} => error
 submission_router:
   driver = manualroute
   route_data = ${if bool_lax{R_SubRRD_Lnl}{\"<\n R_SubRRD_Lnl\"}{}}
@@ -949,7 +943,6 @@ submission_router:
   self = send
 
 # * submission_defer {stop} -> submission => error
-
 submission_defer_router:
   driver = redirect
   allow_defer = true

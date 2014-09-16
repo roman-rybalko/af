@@ -1,0 +1,1 @@
+* spamtrap [flag_spamtrap && sys_spamtrap] {continue} -> service => error

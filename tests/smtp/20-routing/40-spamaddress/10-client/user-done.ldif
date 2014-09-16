@@ -1,0 +1,7 @@
+
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+changetype: modify
+delete: afUSMTPSpamMailAddress
+afUSMTPSpamMailAddress: client-spam@tests.advancedfiltering.net
+-
+delete: afUSMTPSpamPassthrough

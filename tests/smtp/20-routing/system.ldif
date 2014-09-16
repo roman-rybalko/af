@@ -40,3 +40,27 @@ afSHostServiceName: error
 afSHostServiceName: bounce
 afSHostServiceName: submission
 objectClass: afSHost
+
+dn: afSHostServiceName=mailproc,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 11025
+objectClass: afSHostService
+
+dn: afSHostServiceName=spamtrap,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 12025
+objectClass: afSHostService
+
+dn: afSHostServiceName=hamtrap,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 13025
+objectClass: afSHostService
+
+dn: afSHostServiceName=error,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 14025
+objectClass: afSHostService
+
+dn: afSHostServiceName=bounce,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 15025
+objectClass: afSHostService
+
+dn: afSHostServiceName=submission,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 16025
+objectClass: afSHostService

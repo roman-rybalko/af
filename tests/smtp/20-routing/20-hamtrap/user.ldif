@@ -1,0 +1,6 @@
+
+dn: afUSMTPMessageId=dGVzdC1vdXRnb2luZy1tZXNzYWdlLTI_,afUServiceRealm=r1+afUServiceName=sdb,ou=user,o=advancedfiltering
+afUSMTPMessageId: dGVzdC1vdXRnb2luZy1tZXNzYWdlLTI_
+afUSMTPmessagesendermailaddress: mbox@test.com
+afUSMTPmessagetimecreated: 1234567890
+objectClass: afUSMTPMessageOutgoing
