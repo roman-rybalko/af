@@ -1,0 +1,1 @@
+* spamaddress_domain [flag_spam] {stop} -> submission => error

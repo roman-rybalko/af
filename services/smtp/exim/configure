@@ -692,8 +692,7 @@ R_CT_Lc = ""
 # Router Copy Sender Data
 R_CS_D = ""
 
-# * spamaddress user/domain/client [flag_spam] {stop} -> submission => error
-
+# * spamaddress_mailbox [flag_spam] {stop} -> submission => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all spamaddress_ routers
@@ -706,6 +705,7 @@ spamaddress_mailbox_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
+# * spamaddress_domain [flag_spam] {stop} -> submission => error
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all spamaddress_ routers
@@ -718,6 +718,7 @@ spamaddress_domain_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
+# * spamaddress_client [flag_spam] {stop} -> submission => error
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all spamaddress_ routers
@@ -730,8 +731,7 @@ spamaddress_client_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
-# * backup user/domain/client [!flag_spam] {continue} -> submission => error
-
+# * backup_mailbox [!flag_spam] {continue} -> submission >> redirect => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all backup_ routers
@@ -742,9 +742,17 @@ backup_mailbox_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = submission_router
+  unseen = true
+backup_mailbox_pass_router:
+  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if bool_lax{R_CT_Lc}}
+  driver = redirect
+  data = $local_part@$domain
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = redirect_router
 
+# * backup_domain [!flag_spam] {continue} -> submission >> redirect => error
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all backup_ routers
@@ -755,9 +763,17 @@ backup_domain_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = submission_router
+  unseen = true
+backup_domain_pass_router:
+  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if bool_lax{R_CT_Lc}}
+  driver = redirect
+  data = $local_part@$domain
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = redirect_router
 
+# * backup_client [!flag_spam] {continue} -> submission >> redirect => error
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all backup_ routers
@@ -768,11 +784,22 @@ backup_client_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = submission_router
+  unseen = true
+backup_client_pass_router:
+  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if bool_lax{R_CT_Lc}}
+  driver = redirect
+  data = $local_part@$domain
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = redirect_router
 
-# * redirect user/domain/client {stop} -> submission => error
+# * redirect
+redirect_router:
+  driver = redirect
+  data = ""
 
+# * redirect_mailbox {stop} -> submission => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all redirect_ routers
@@ -784,6 +811,7 @@ redirect_mailbox_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
+# * redirect_domain {stop} -> submission => error
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all redirect_ routers
@@ -795,6 +823,7 @@ redirect_domain_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
+# * redirect_client {stop} -> submission => error
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all redirect_ routers
@@ -806,8 +835,7 @@ redirect_client_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
-# * spambox user/domain/client [flag_spam] {stop} -> mx => error
-
+# * spambox_mailbox [flag_spam] {stop} -> mx => error
 R_LDAP_DN == R_CDM_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
@@ -819,6 +847,7 @@ spambox_mailbox_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = mx_router
 
+# * spambox_domain [flag_spam] {stop} -> mx => error
 R_LDAP_DN == R_CD_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
@@ -830,6 +859,7 @@ spambox_domain_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = mx_router
 
+# * spambox_client [flag_spam] {stop} -> mx => error
 R_LDAP_DN == R_C_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
@@ -840,8 +870,6 @@ spambox_client_router:
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   redirect_router = mx_router
-
-# * mx user/domain/client {stop} => bounce
 
 # Routers/Mail Exchanger Name List (separated by coma)
 R_MX_N_Lc = ""
@@ -858,11 +886,12 @@ R_MX_password_I = ""
 # Routers/Mail Exchanger List (separated by coma)
 R_MX_Lc = ""
 
+# * mx
 mx_router:
   driver = redirect
   data = ""
-  errors_to = error@services.advancedfiltering.net
 
+# * mx_mailbox {stop} => bounce
 R_LDAP_DN == R_CDM_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
 R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
@@ -879,6 +908,7 @@ mx_mailbox_router:
   transport = mx_transport
   self = send
 
+# * mx_domain {stop} => bounce
 R_LDAP_DN == R_CD_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
 R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
@@ -895,6 +925,7 @@ mx_domain_router:
   transport = mx_transport
   self = send
 
+# * mx_client {stop} => bounce
 R_LDAP_DN == R_C_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
 R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
