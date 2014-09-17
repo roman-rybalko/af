@@ -1,0 +1,1 @@
+* spambox_rcpt [flag_spam] {stop} -> mx => error

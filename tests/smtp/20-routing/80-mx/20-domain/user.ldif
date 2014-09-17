@@ -1,0 +1,5 @@
+
+dn: afUSMTPMXName=testmx,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPMailExchanger
+afUSMTPMXHostName: src.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 22525

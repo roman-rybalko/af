@@ -692,12 +692,12 @@ R_CT_Lc = ""
 # Router Copy Sender Data
 R_CS_D = ""
 
-# * spamaddress_mailbox [flag_spam] {stop} -> submission => error
+# * spamaddress_rcpt [flag_spam] {stop} -> submission => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all spamaddress_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
-spamaddress_mailbox_router:
+spamaddress_rcpt_router:
   condition = $acl_m_spam_f
   driver = redirect
   data = R_CT_Lc
@@ -731,12 +731,12 @@ spamaddress_client_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
-# * backup_mailbox [!flag_spam] {continue} -> submission >> redirect => error
+# * backup_rcpt [!flag_spam] {continue} -> submission >> redirect => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
-backup_mailbox_router:
+backup_rcpt_router:
   condition = ${if ! bool_lax{$acl_m_spam_f}}
   driver = redirect
   data = R_CT_Lc
@@ -744,7 +744,7 @@ backup_mailbox_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
   unseen = true
-backup_mailbox_pass_router:
+backup_rcpt_pass_router:
   condition = ${if ! bool_lax{$acl_m_spam_f}}
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
@@ -799,12 +799,12 @@ redirect_router:
   driver = redirect
   data = ""
 
-# * redirect_mailbox {stop} -> submission => error
+# * redirect_rcpt {stop} -> submission => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
-redirect_mailbox_router:
+redirect_rcpt_router:
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -835,11 +835,11 @@ redirect_client_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
-# * spambox_mailbox [flag_spam] {stop} -> mx => error
+# * spambox_rcpt [flag_spam] {stop} -> mx => error
 R_LDAP_DN == R_CDM_LDAP_DN
 # the same for all spambox_ routers
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
-spambox_mailbox_router:
+spambox_rcpt_router:
   condition = $acl_m_spam_f
   driver = redirect
   data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
@@ -891,7 +891,7 @@ mx_router:
   driver = redirect
   data = ""
 
-# * mx_mailbox {stop} => bounce
+# * mx_rcpt {stop} => bounce
 R_LDAP_DN == R_CDM_LDAP_DN
 R_MX_N_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPMXName?base}}
 R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXHostName?base}}
@@ -900,7 +900,7 @@ R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
 R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
-mx_mailbox_router:
+mx_rcpt_router:
   driver = manualroute
   route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
   address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
@@ -1041,11 +1041,11 @@ mx_transport:
 begin retry
 
 # DEBUG
-^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,5s,1s
-^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
-^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
-^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
-^\N[^@]+@h02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,1s,1s
+^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,1s,1s
+^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,1s,1s
+^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,1s,1s
+^\N[^@]+@h02\.hosts\.advancedfiltering\.net$\N * F,1s,1s
 
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m

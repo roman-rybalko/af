@@ -1,0 +1,1 @@
+* spambox_domain [flag_spam] {stop} -> mx => error

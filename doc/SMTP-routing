@@ -16,21 +16,21 @@
 * spamtrap [flag_spamtrap && sys_spamtrap] {continue} -> service => error
 * absent :blackhole: [flag_mb_absent] {stop} => error
 * spam :blackhole: [flag_spam && !user_spt] {stop} => error
-* spamaddress_mailbox [flag_spam] {stop} -> submission => error
+* spamaddress_rcpt [flag_spam] {stop} -> submission => error
 * spamaddress_domain [flag_spam] {stop} -> submission => error
 * spamaddress_client [flag_spam] {stop} -> submission => error
-* backup_mailbox [!flag_spam] {continue} -> submission >> redirect => error
+* backup_rcpt [!flag_spam] {continue} -> submission >> redirect => error
 * backup_domain [!flag_spam] {continue} -> submission >> redirect => error
 * backup_client [!flag_spam] {continue} -> submission >> redirect => error
 * redirect
-* redirect_mailbox {stop} -> submission => error
+* redirect_rcpt {stop} -> submission => error
 * redirect_domain {stop} -> submission => error
 * redirect_client {stop} -> submission => error
-* spambox_mailbox [flag_spam] {stop} -> mx => error
+* spambox_rcpt [flag_spam] {stop} -> mx => error
 * spambox_domain [flag_spam] {stop} -> mx => error
 * spambox_client [flag_spam] {stop} -> mx => error
 * mx
-* mx_mailbox {stop} => bounce
+* mx_rcpt {stop} => bounce
 * mx_domain {stop} => bounce
 * mx_client {stop} => bounce
 * mx_defer {stop} -> mx => bounce

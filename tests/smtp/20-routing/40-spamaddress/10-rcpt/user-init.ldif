@@ -2,7 +2,7 @@
 dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 changetype: modify
 add: afUSMTPSpamMailAddress
-afUSMTPSpamMailAddress: mbox-spam@tests.advancedfiltering.net
+afUSMTPSpamMailAddress: rcpt-spam@tests.advancedfiltering.net
 -
 add: afUSMTPSpamPassthrough
 afUSMTPSpamPassthrough: TRUE
