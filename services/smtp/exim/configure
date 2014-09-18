@@ -1041,11 +1041,11 @@ mx_transport:
 begin retry
 
 # DEBUG
-^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,1s,1s
-^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,1s,1s
-^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,1s,1s
-^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,1s,1s
-^\N[^@]+@h02\.hosts\.advancedfiltering\.net$\N * F,1s,1s
+^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@h02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
 
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m

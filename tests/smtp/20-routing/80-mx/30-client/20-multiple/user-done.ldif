@@ -2,4 +2,4 @@
 dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 changetype: modify
 delete: afUSMTPMXName
-afUSMTPMXName: client-backup@tests.advancedfiltering.net
+afUSMTPMXName: testmx2

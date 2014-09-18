@@ -5,7 +5,5 @@
 add_ldif user-done.ldif
 del_ldif user.ldif
 
-stop_server submission
 stop_server mx
-rm -f submission.env
 rm -f mx.env
