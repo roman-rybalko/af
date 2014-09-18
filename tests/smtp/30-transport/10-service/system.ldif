@@ -1,0 +1,8 @@
+
+dn: afSHostServiceName=mailproc,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+objectClass: afSHostService
+afSHServiceTCPPort: 11025
+
+dn: afSHostServiceName=mailproc,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+objectClass: afSHostService
+afSHServiceTCPPort: 21025

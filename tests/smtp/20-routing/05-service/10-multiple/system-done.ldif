@@ -1,0 +1,5 @@
+
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+changetype: modify
+delete: afSHostServiceName
+afSHostServiceName: mailproc

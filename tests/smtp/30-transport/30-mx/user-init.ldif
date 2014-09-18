@@ -1,0 +1,7 @@
+
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+changetype: modify
+add: afUSMTPMXName
+afUSMTPMXName: test
+afUSMTPMXName: test1
+afUSMTPMXName: test2

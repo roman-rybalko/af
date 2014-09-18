@@ -1,0 +1,20 @@
+
+dn: afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUService
+
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUClient
+afUClientAdminMailAddress: client-admin@tests.advancedfiltering.net
+afUClientTechMailAddress: client-tech@tests.advancedfiltering.net
+objectClass: afUSMTPSettings
+
+dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPDomain
+afUSMTPDomainAdminMailAddress: domain-admin@tests.advancedfiltering.net
+afUSMTPDomainTechMailAddress: domain-tech@tests.advancedfiltering.net
+objectClass: afUSMTPSettings
+
+dn: afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPDMailBox
+afUSMTPDMBTimeUpdated: 1234567890
+objectClass: afUSMTPSettings
