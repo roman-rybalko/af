@@ -598,10 +598,12 @@ R_SRRD_Lnl = ${map{<\n R_SRRD_H_Lnl}{${if bool_lax{R_SRRD_address_I}{R_SRRD_addr
 
 # * service [@services] {stop} => error
 service_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_SRRD_Lnl}}
   domains = services.advancedfiltering.net
   driver = manualroute
-  debug_print = address_data = $address_data, sys_r = R_SYS_R_LDAP_Q
-  route_data = ${if bool_lax{R_SRRD_Lnl}{\"<\n R_SRRD_Lnl\"}{}}
+  #debug_print = address_data = $address_data, sys_r = R_SYS_R_LDAP_Q
+  route_data = \"<\n R_SRRD_Lnl\"
   hosts_randomize = true
   transport = service_transport
   address_data = system_authenticator="true" $address_data
@@ -635,8 +637,8 @@ hamtrap_router:
   data = hamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = service_router
+  unseen = true
 
 # * spamtrap [flag_spamtrap && sys_spamtrap] {continue} (-> service) => error
 spamtrap_router:
@@ -646,8 +648,8 @@ spamtrap_router:
   data = spamtrap@services.advancedfiltering.net
   address_data = realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
-  unseen = true
   redirect_router = service_router
+  unseen = true
 
 # * absent :blackhole: [flag_mb_absent] {stop} => error
 absent_router:
@@ -699,6 +701,8 @@ R_CS_D == $local_part@$domain
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
 spamaddress_rcpt_router:
   condition = $acl_m_spam_f
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -712,6 +716,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
 spamaddress_domain_router:
   condition = $acl_m_spam_f
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -725,6 +731,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailAddress?base}}
 spamaddress_client_router:
   condition = $acl_m_spam_f
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -738,6 +746,8 @@ R_CS_D == $local_part@$domain
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_rcpt_router:
   condition = ${if ! bool_lax{$acl_m_spam_f}}
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -759,6 +769,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_domain_router:
   condition = ${if ! bool_lax{$acl_m_spam_f}}
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -780,6 +792,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_client_router:
   condition = ${if ! bool_lax{$acl_m_spam_f}}
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -805,6 +819,8 @@ R_CS_D == $local_part@$domain
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 redirect_rcpt_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -817,6 +833,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 redirect_domain_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -829,6 +847,8 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all redirect_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 redirect_client_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = R_CT_Lc
   address_data = sender=R_CS_D realm=R_C_REALM $address_data
@@ -841,8 +861,10 @@ R_LDAP_DN == R_CDM_LDAP_DN
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
 spambox_rcpt_router:
   condition = $acl_m_spam_f
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_D}}
   driver = redirect
-  data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
+  data = R_CT_D+$local_part@$domain
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   redirect_router = mx_router
@@ -853,8 +875,10 @@ R_LDAP_DN == R_CD_LDAP_DN
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
 spambox_domain_router:
   condition = $acl_m_spam_f
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_D}}
   driver = redirect
-  data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
+  data = R_CT_D+$local_part@$domain
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   redirect_router = mx_router
@@ -865,8 +889,10 @@ R_LDAP_DN == R_C_LDAP_DN
 R_CT_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPSpamMailBox?base}}
 spambox_client_router:
   condition = $acl_m_spam_f
+  # prevent address_data update
+  condition = ${if bool_lax{R_CT_D}}
   driver = redirect
-  data = ${if bool_lax{R_CT_D}{R_CT_D+$local_part@$domain}{}}
+  data = R_CT_D+$local_part@$domain
   address_data = sender=$sender_address realm=R_C_REALM $address_data
   errors_to = error@services.advancedfiltering.net
   redirect_router = mx_router
@@ -879,6 +905,8 @@ R_MX_address_I = ""
 R_MX_port_I = ""
 # Routers/Mail Exchanger Address:Port (uses $item)
 R_MX_address_port_I = ""
+# Routers/Mail Exchanger Address/Port (uses $item) - for authenticators
+R_MX_address__port_I = ""
 # Routers/Mail Exchanger User (uses $item)
 R_MX_user_I = ""
 # Routers/Mail Exchanger Password (uses $item)
@@ -898,12 +926,15 @@ R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LD
 R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
 R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
-R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}}{}}
+R_MX_address__port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I${if bool_lax{R_MX_port_I}{/R_MX_port_I}{}}}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_rcpt_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_MX_Lc}}
   driver = manualroute
-  route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
+  route_data = \"<, R_MX_Lc\"
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address__port_I/user=R_MX_user_I R_MX_address__port_I/password=R_MX_password_I R_MX_address__port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
   self = send
@@ -915,12 +946,15 @@ R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LD
 R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
 R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
-R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}}{}}
+R_MX_address__port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I${if bool_lax{R_MX_port_I}{/R_MX_port_I}{}}}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_domain_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_MX_Lc}}
   driver = manualroute
-  route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
+  route_data = \"<, R_MX_Lc\"
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address__port_I/user=R_MX_user_I R_MX_address__port_I/password=R_MX_password_I R_MX_address__port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
   self = send
@@ -932,12 +966,15 @@ R_MX_address_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LD
 R_MX_port_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXTCPPort?base}}
 R_MX_user_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthUser?base}}
 R_MX_password_I == ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:$item},R_LDAP_DN?afUSMTPMXAuthPassword?base}}
-R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I}{$item}}${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}
+R_MX_address_port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I${if bool_lax{R_MX_port_I}{:R_MX_port_I}{}}}{}}
+R_MX_address__port_I == ${if bool_lax{R_MX_address_I}{R_MX_address_I${if bool_lax{R_MX_port_I}{/R_MX_port_I}{}}}{}}
 R_MX_Lc == ${map{<, R_MX_N_Lc}{R_MX_address_port_I}}
 mx_client_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_MX_Lc}}
   driver = manualroute
-  route_data = ${if bool_lax{R_MX_Lc}{\"<, R_MX_Lc\"}{}}
-  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address_port_I/user=R_MX_user_I R_MX_address_port_I/password=R_MX_password_I R_MX_address_port_I/name=$item}} $address_data
+  route_data = \"<, R_MX_Lc\"
+  address_data = mx_ldap_dn=R_LDAP_DN ${reduce {<, R_MX_N_Lc} {} {$value R_MX_address__port_I/user=R_MX_user_I R_MX_address__port_I/password=R_MX_password_I R_MX_address__port_I/name=$item}} $address_data
   errors_to = bounce@services.advancedfiltering.net
   transport = mx_transport
   self = send
@@ -964,8 +1001,10 @@ R_SubRRD_Lnl = ${map{<\n R_SubRRD_H_Lnl}{${if bool_lax{R_SubRRD_address_I}{R_Sub
 
 # * submission {stop} => error
 submission_router:
+  # prevent address_data update
+  condition = ${if bool_lax{R_SubRRD_Lnl}}
   driver = manualroute
-  route_data = ${if bool_lax{R_SubRRD_Lnl}{\"<\n R_SubRRD_Lnl\"}{}}
+  route_data = \"<\n R_SubRRD_Lnl\"
   hosts_randomize = true
   transport = submission_transport
   address_data = system_authenticator="true" $address_data
@@ -1009,7 +1048,8 @@ submission_transport:
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
 # Transport Mail eXchanger Name Data
-T_MXN_D = ${extract {$host${if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/name} {$address_data} }
+# not using ":" in keys - not allowed in authenticators
+T_MXN_D = ${extract {$host${if bool_lax{$smtp_host_specific_port}{/$smtp_host_specific_port}{}}/name} {$address_data} }
 # Transport Auth-required Hosts
 T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
 # Transport TLS-required Hosts
@@ -1056,8 +1096,8 @@ bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m
 begin authenticators
 
 # client_send does not allow ":" in the data
-A_USER = ${extract {$host{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/user} {$address_data} }
-A_PASSWORD = ${extract {$host{if bool_lax{$smtp_host_specific_port}{:$smtp_host_specific_port}{}}/password} {$address_data} }
+A_USER = ${extract {$host${if bool_lax{$smtp_host_specific_port}{/$smtp_host_specific_port}{}}/user} {$address_data} }
+A_PASSWORD = ${extract {$host${if bool_lax{$smtp_host_specific_port}{/$smtp_host_specific_port}{}}/password} {$address_data} }
 
 user_cram_md5_authenticator:
   client_condition = ${if bool_lax{A_USER}}

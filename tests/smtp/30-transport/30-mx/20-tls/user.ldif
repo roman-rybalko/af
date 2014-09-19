@@ -1,10 +1,11 @@
 
 dn: afUSMTPMXName=test1,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPMailExchanger
-afUSMTPMXHostName: 1.2.3.4
+afUSMTPMXHostName: src.hosts.advancedfiltering.net
 afUSMTPMXTCPPort: 12525
+afUSMTPMXTLSRequired: TRUE
 
 dn: afUSMTPMXName=test2,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPMailExchanger
-afUSMTPMXHostName: 1.2.3.4
+afUSMTPMXHostName: src.hosts.advancedfiltering.net
 afUSMTPMXTCPPort: 22525
