@@ -1044,6 +1044,11 @@ submission_transport:
   tls_crl = /etc/advancedfiltering_ssl/ca
   # return path fix (address_data)
   return_path = ${extract {sender} {$address_data} }
+  dkim_domain = dkim.advancedfiltering.net
+  dkim_selector = smtp
+  dkim_private_key = /usr/local/advancedfiltering/smtp/dkim-smtp.key
+  dkim_strict = true
+  dkim_sign_headers = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }

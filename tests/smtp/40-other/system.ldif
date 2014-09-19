@@ -33,10 +33,4 @@ objectClass: afSSMTPDomain
 dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: src.hosts.advancedfiltering.net
 afshostrealm: r1
-afSHostServiceName: mailproc
-afSHostServiceName: spamtrap
-afSHostServiceName: hamtrap
-afSHostServiceName: error
-afSHostServiceName: bounce
-afSHostServiceName: submission
 objectClass: afSHost
