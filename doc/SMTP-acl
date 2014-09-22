@@ -81,6 +81,7 @@ dkim
 * dkim_domain != dkim.advancedfiltering.net => ok
 # сигнатура может испортиться при нескольких пересылках, но обязательно где-то рядом будет правильная
 * dkim_verify_status != pass => ok
+# используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
 * проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
 * ok
 

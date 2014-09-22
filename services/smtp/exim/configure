@@ -419,11 +419,16 @@ dkim_acl:
   accept
     condition = ${if ! eq{$dkim_verify_status}{pass}}
     #logwrite = DEBUG: DKIM: skip bad sig: $dkim_verify_status ($dkim_verify_reason)
+  # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
+  warn
+    # inlisti - кто-то может поправить регистр, сигнатура не сломается
+    condition = ${if inlisti{X-AdvancedFiltering-Via-Recipients}{$dkim_headernames}}
+    # Header Via-Recipients
+    set acl_m_h_via_recipients = $header_X-AdvancedFiltering-Via-Recipients:
   # * проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
   deny
-    # optimization
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-Via-Recipients:}}
-    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $header_X-AdvancedFiltering-Via-Recipients: $acl_m_recipient}{true}{false}}
+    condition = ${if bool_lax{$acl_m_h_via_recipients}}
+    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_h_via_recipients $acl_m_recipient}{true}{false}}
     message = Message loop detected ($value)
   # * ok
   accept
@@ -1081,7 +1086,7 @@ In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
 X-AdvancedFiltering-Via-Recipients
   headers_remove = X-AdvancedFiltering-Via-Recipients
-  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $acl_m_recipient
+  headers_add = X-AdvancedFiltering-Via-Recipients: $acl_m_h_via_recipients $acl_m_recipient
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
@@ -1142,7 +1147,7 @@ In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
 X-AdvancedFiltering-Via-Recipients
   headers_remove = X-AdvancedFiltering-Via-Recipients
-  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $acl_m_recipient
+  headers_add = X-AdvancedFiltering-Via-Recipients: $acl_m_h_via_recipients $acl_m_recipient
 
 begin retry
 
