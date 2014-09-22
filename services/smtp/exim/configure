@@ -429,7 +429,7 @@ dkim_acl:
   accept
 
 # Message Incoming Header
-U_MI_H_D = $rheader_Message-ID:
+U_MI_H_D = $bheader_Message-ID:
 # Message Incoming Data
 U_MI_D = ${run{/usr/local/advancedfiltering/smtp/exim/mid_list_encoder.pl U_MI_H_D}{$value}{}}
 
