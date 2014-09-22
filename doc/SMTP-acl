@@ -81,7 +81,7 @@ dkim
 * dkim_domain != dkim.advancedfiltering.net => ok
 # сигнатура может испортиться при нескольких пересылках, но обязательно где-то рядом будет правильная
 * dkim_verify_status != pass => ok
-* проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (rcpt -> rcpt -> rcpt -> rcpt -> ...)
+* проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
 * ok
 
 data_end

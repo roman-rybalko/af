@@ -33,6 +33,7 @@ received_header_text = Received:\
   id $message_exim_id\
   ${if def:sender_address { (envelope-from <$sender_address>)}}\
   ${if def:received_for { for $received_for}}
+dkim_verify_signers = dkim.advancedfiltering.net
 
 # Lightweight Directory Access Protocol Connection
 LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
@@ -347,6 +348,10 @@ rcpt_acl:
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
   # ** ok
 
+  # $recipients не доступен в transports
+  warn
+    set acl_m_recipient = $local_part@$domain
+
   # * получение пользовательской настройки user_spt (Spam PassThrough)
   warn
     set acl_m_u_spt_f = false
@@ -409,16 +414,22 @@ dkim_acl:
   # * dkim_domain != dkim.advancedfiltering.net => ok
   accept
     condition = ${if ! eqi{$dkim_domain}{dkim.advancedfiltering.net}}
+    #logwrite = DEBUG: DKIM: skip domain: $dkim_domain
   # * dkim_verify_status != pass => ok
   accept
     condition = ${if ! eq{$dkim_verify_status}{pass}}
-  # * проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (rcpt -> rcpt -> rcpt -> rcpt -> ...)
+    #logwrite = DEBUG: DKIM: skip bad sig: $dkim_verify_status ($dkim_verify_reason)
+  # * проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
   deny
-    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $header_X-AdvancedFiltering-Via-Recipients:}{true}{false}}
+    # optimization
+    condition = ${if bool_lax{$header_X-AdvancedFiltering-Via-Recipients:}}
+    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $header_X-AdvancedFiltering-Via-Recipients: $acl_m_recipient}{true}{false}}
     message = Message loop detected ($value)
+  # * ok
+  accept
 
 # Message Incoming Header
-U_MI_H_D = $rheader_message-id:
+U_MI_H_D = $rheader_Message-ID:
 # Message Incoming Fix 1
 U_MI_F1 = ${sg{U_MI_H_D}{^\\s+}{}}
 # Message Incoming Fix 2
@@ -438,7 +449,7 @@ U_SMTPDB_MI_spam_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_MI_
 U_SMTPDB_MI_sender_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_MI_D},U_SMTPDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}
 
 # Message Outgoing Header(s)
-U_MO_H_D = $bheader_in-reply-to: $bheader_references:
+U_MO_H_D = $bheader_In-Reply-To: $bheader_References:
 # Message Outgoing Fix 1
 U_MO_F1 = ${sg{U_MO_H_D}{^\\s+}{}}
 # Message Outgoing Fix 2
@@ -560,9 +571,8 @@ data_acl:
     #logwrite = DEBUG: realm: $acl_m_u_realm
     #logwrite = DEBUG: references: U_MO_L
     #logwrite = DEBUG: senders: U_SDB_MO_sender_L
-    #logwrite = DEBUG: recipient: $recipients
-    # $recipients has a single value
-    condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$recipients}}}
+    #logwrite = DEBUG: recipient: $acl_m_recipient
+    condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$acl_m_recipient}}}
     set acl_m_hamtrap_f = true
     message = /HT id=$message_exim_id
 
@@ -1089,7 +1099,7 @@ In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
 X-AdvancedFiltering-Via-Recipients
   headers_remove = X-AdvancedFiltering-Via-Recipients
-  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $recipients
+  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $acl_m_recipient
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
@@ -1150,7 +1160,7 @@ In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
 X-AdvancedFiltering-Via-Recipients
   headers_remove = X-AdvancedFiltering-Via-Recipients
-  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $recipients
+  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $acl_m_recipient
 
 begin retry
 
