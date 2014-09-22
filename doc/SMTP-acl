@@ -76,6 +76,14 @@ msg_user_wbl
 data
 * ok
 
+dkim
+# не смотрим на другие сигнатуры
+* dkim_domain != dkim.advancedfiltering.net => ok
+# сигнатура может испортиться при нескольких пересылках, но обязательно где-то рядом будет правильная
+* dkim_verify_status != pass => ok
+* проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (rcpt -> rcpt -> rcpt -> rcpt -> ...)
+* ok
+
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
 * flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap

@@ -23,6 +23,7 @@ acl_smtp_connect = connect_acl
 acl_smtp_helo = helo_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
+acl_smtp_dkim = dkim_acl
 acl_smtp_data = data_acl
 received_header_text = Received:\
   ${if def:sender_rcvhost { from $sender_rcvhost}{ from localhost}} by $primary_hostname\
@@ -403,6 +404,18 @@ rcpt_acl:
 
   # * ok
   accept
+
+dkim_acl:
+  # * dkim_domain != dkim.advancedfiltering.net => ok
+  accept
+    condition = ${if ! eqi{$dkim_domain}{dkim.advancedfiltering.net}}
+  # * dkim_verify_status != pass => ok
+  accept
+    condition = ${if ! eq{$dkim_verify_status}{pass}}
+  # * проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (rcpt -> rcpt -> rcpt -> rcpt -> ...)
+  deny
+    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $header_X-AdvancedFiltering-Via-Recipients:}{true}{false}}
+    message = Message loop detected ($value)
 
 # Message Incoming Header
 U_MI_H_D = $rheader_message-id:
@@ -1047,8 +1060,36 @@ submission_transport:
   dkim_domain = dkim.advancedfiltering.net
   dkim_selector = smtp
   dkim_private_key = /usr/local/advancedfiltering/smtp/dkim-smtp.key
+  dkim_canon = relaxed
   dkim_strict = true
-  dkim_sign_headers = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To
+#   RFC4871
+#   The following header fields SHOULD be included in the signature, if
+#   they are present in the message being signed:
+#   o  From (REQUIRED in all signatures)
+#   o  Sender, Reply-To
+#   o  Subject
+#   o  Date, Message-ID
+#   o  To, Cc
+#   o  MIME-Version
+#   o  Content-Type, Content-Transfer-Encoding, Content-ID, Content-Description
+#   o  Resent-Date, Resent-From, Resent-Sender, Resent-To, Resent-Cc, Resent-Message-ID
+#   o  In-Reply-To, References
+#   o  List-Id, List-Help, List-Unsubscribe, List-Subscribe, List-Post, List-Owner, List-Archive
+#   The following header fields SHOULD NOT be included in the signature:
+#   o  Return-Path
+#   o  Received
+#   o  Comments, Keywords
+#   o  Bcc, Resent-Bcc
+#   o  DKIM-Signature
+  dkim_sign_headers = \
+From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:\
+Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:\
+Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:\
+In-Reply-To:References:\
+List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
+X-AdvancedFiltering-Via-Recipients
+  headers_remove = X-AdvancedFiltering-Via-Recipients
+  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $recipients
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
@@ -1080,8 +1121,36 @@ mx_transport:
   dkim_domain = dkim.advancedfiltering.net
   dkim_selector = smtp
   dkim_private_key = /usr/local/advancedfiltering/smtp/dkim-smtp.key
+  dkim_canon = relaxed
   dkim_strict = true
-  dkim_sign_headers = X-AdvancedFiltering-Return-Path:X-AdvancedFiltering-Envelope-To
+#   RFC4871
+#   The following header fields SHOULD be included in the signature, if
+#   they are present in the message being signed:
+#   o  From (REQUIRED in all signatures)
+#   o  Sender, Reply-To
+#   o  Subject
+#   o  Date, Message-ID
+#   o  To, Cc
+#   o  MIME-Version
+#   o  Content-Type, Content-Transfer-Encoding, Content-ID, Content-Description
+#   o  Resent-Date, Resent-From, Resent-Sender, Resent-To, Resent-Cc, Resent-Message-ID
+#   o  In-Reply-To, References
+#   o  List-Id, List-Help, List-Unsubscribe, List-Subscribe, List-Post, List-Owner, List-Archive
+#   The following header fields SHOULD NOT be included in the signature:
+#   o  Return-Path
+#   o  Received
+#   o  Comments, Keywords
+#   o  Bcc, Resent-Bcc
+#   o  DKIM-Signature
+  dkim_sign_headers = \
+From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:\
+Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:\
+Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:\
+In-Reply-To:References:\
+List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
+X-AdvancedFiltering-Via-Recipients
+  headers_remove = X-AdvancedFiltering-Via-Recipients
+  headers_add = X-AdvancedFiltering-Via-Recipients:$header_X-AdvancedFiltering-Via-Recipients: $recipients
 
 begin retry
 
