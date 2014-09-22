@@ -1,4 +1,3 @@
-* Message Incoming/Outgoing header mangling перенести во внешнюю утилиту encode_mid_list.pl
 * пересобрать exim с отключенным perl
 * добавление исходных параметров сообщения (ip, hostname, sender, certificate) в заголовки, использование этих параметров при проверке Ч/Б-списков
 * персональный max_message_size

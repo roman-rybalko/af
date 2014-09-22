@@ -430,16 +430,8 @@ dkim_acl:
 
 # Message Incoming Header
 U_MI_H_D = $rheader_Message-ID:
-# Message Incoming Fix 1
-U_MI_F1 = ${sg{U_MI_H_D}{^\\s+}{}}
-# Message Incoming Fix 2
-U_MI_F2 = ${sg{U_MI_F1}{\\s+\$}{}}
-U_MI_F3 = ${sg{U_MI_F2}{^[^\<]*\<}{}}
-U_MI_F4 = ${sg{U_MI_F3}{\>[^\>]*\$}{}}
-U_MI_F5 = ${str2b64:U_MI_F4}
-U_MI_F6 = ${tr{U_MI_F5}{/+=}{.-_}}
 # Message Incoming Data
-U_MI_D = U_MI_F6
+U_MI_D = ${run{/usr/local/advancedfiltering/smtp/exim/mid_list_encoder.pl U_MI_H_D}{$value}{}}
 
 # User SMTP DataBase LDAP DN
 U_SMTPDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=smtpdb,ou=user,o=advancedfiltering
@@ -450,18 +442,8 @@ U_SMTPDB_MI_sender_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_M
 
 # Message Outgoing Header(s)
 U_MO_H_D = $bheader_In-Reply-To: $bheader_References:
-# Message Outgoing Fix 1
-U_MO_F1 = ${sg{U_MO_H_D}{^\\s+}{}}
-# Message Outgoing Fix 2
-U_MO_F2 = ${sg{U_MO_F1}{\\s+\$}{}}
-U_MO_F3 = ${sg{U_MO_F2}{^[^\<]*\<}{}}
-U_MO_F4 = ${sg{U_MO_F3}{\>[^\>]*\$}{}}
-U_MO_F5 = ${sg{U_MO_F4}{\>[^\<\>]*\<}{\<}}
-U_MO_F6 = ${map {<\< U_MO_F5} {${str2b64:$item}}}
-U_MO_F7 = ${tr{U_MO_F6}{/+=}{.-_}}
-U_MO_F8 = ${sg{U_MO_F7}{\<}{:}}
 # Message Outgoing List
-U_MO_L = U_MO_F8
+U_MO_L = ${run{/usr/local/advancedfiltering/smtp/exim/mid_list_encoder.pl U_MO_H_D}{$value}{}}
 
 # User Submission DataBase LDAP DN
 U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=sdb,ou=user,o=advancedfiltering
