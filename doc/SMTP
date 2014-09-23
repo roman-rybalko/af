@@ -39,38 +39,39 @@ route_list = ${if bool_lax{LIST}{* "<! LIST"}{}} - не работает
 Возможно зацикливание сообщений. Клиент может настроить циклические переадресации или задать наш сервер как свой MX.
 + Решение:
 Добавить заголовок
-X-AdvancedFiltering-Via-Recipients: rcpt@ rcpt@ rcpt@
+X-AdvancedFiltering-MessageData-ViaRecipients: rcpt@ rcpt@ rcpt@
 в smtp/mx и smtp/submission. Подписать DKIM.
 При каждой пересылке в этот заголовок добавлять текущий адрес получателя.
 Была идея использовать адреса отправителя, но это не сработает если где-то есть BATV.
-При каждом приеме искать в этом заголовке цикл. Наиболее простой способ поиска цикла: сравнить первую и вторую половину.
+При каждом приеме искать в этом заголовке цикл.
 При обнаружении цикла отвергать с 5xx.
-Проверку делать в acl_smtp_dkim.
 
 - Проблема:
 При переадресации теряется информация об оригинальном отправителе (IP, mail from, Certificate).
 Возможно настроить спам-рассылку на соседей отбелив спам-отправителя и задав Backup.
 + Решение:
 Добавить заголовки
-X-AdvancedFiltering-Original-Sender-Mail-Address: sender@test.com
-X-AdvancedFiltering-Original-Sender-Host-Address: 1.2.3.4
-X-AdvancedFiltering-Original-Sender-Host-Name: mx.test.com
-X-AdvancedFiltering-Original-Sender-Certificate-Subject: <base64>
-X-AdvancedFiltering-Original-Sender-Certificate-Verified: (TRUE/FALSE)
-X-AdvancedFiltering-Original-SPF-Pass: (TRUE/FALSE)
-X-AdvancedFiltering-Original-SPF-Description: <base64>
-X-AdvancedFiltering-Original-Spam-Pass: (TRUE/FALSE)
-X-AdvancedFiltering-Original-Spam-Description: <base64>
-в smtp/submission. Подписать DKIM.
-Нет смысла в smtp/mx - mx не может быть настроен для сокрытия отправителя (на данный момент).
+X-AdvancedFiltering-MessageData-SenderMailAddress: sender@test.com
+X-AdvancedFiltering-MessageData-SenderHostAddress: 1.2.3.4
+X-AdvancedFiltering-MessageData-SenderHostName: mx.test.com
+X-AdvancedFiltering-MessageData-SenderCertificateSubject: <base64>
+X-AdvancedFiltering-MessageData-SenderCertificateStatus: (TRUE/FALSE)
+X-AdvancedFiltering-MessageData-SPFStatus: (TRUE/FALSE)
+X-AdvancedFiltering-MessageData-SPFDescription: <base64>
+X-AdvancedFiltering-MessageData-SpamStatus: (TRUE/FALSE)
+X-AdvancedFiltering-MessageData-SpamDescription: <base64>
+в smtp/submission и smtp/mx. Подписать DKIM.
+Хоть mx не может быть настроен для сокрытия отправителя (на данный момент), но возможно sender->submission->mx, тогда потеряем оригинальные данные отправителя при отправке на mx.
 Добавлять заголовки для каждого нового параметра списков доступа (bwlist).
 Текстовые поля, где могут содержаться пробелы, кодировать в base64 (DKIM формируется relaxed (некоторые MTA,
 как MS Exchange, перекодируют тело сообщения в base64, заголовки тоже, теоретически, могут быть изменены) - возможно
 изменение количества пробелов, что приведет к несопоставлению в ч/б-списках).
 При обнаружении нашей (dkim.advancedfiltering.net) подписи делать доп. проверку по ч/б-спискам. Текущие параметры
 отправителя не обновлять - для отправки на mx использовать адрес отправителя из текущей SMTP-сессии.
+Данные проверок по заголовкам (flag_sys_wl, flag_sys_bl, msg_sys_wbl, flag_user_wl, flag_user_bl, msg_user_wbl, flag_spf) переопределяют данные проверок по текущим сетевым параметрам,
+таким образом в acl_smtp_data_end будут переопределенные данные из заголовков.
 Проверку делать в acl_smtp_dkim.
-Spam-Pass/Spam-Description может отсутствовать. При наличии повторную спам-проверку не делать.
+SpamStatus/SpamDescription может отсутствовать. При наличии повторную спам-проверку не делать.
 
 - Проблема:
 В exim нет функции определения длины строки. Нет возможности реализовать алгоритм Message-Loop-Detector средствами exim.

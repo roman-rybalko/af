@@ -27,18 +27,26 @@ helo
 mail
 * проверка spf
 ** fail => flag_spf
+* установка переменных md_... (MessageData)
 * проверка системных списков фильтрации => flag_sys_wl, flag_sys_bl, msg_sys_wbl
 * ok
 flag_spf
 flag_sys_wl
 flag_sys_bl
 msg_sys_wbl
+md_sender_mail_address
+md_sender_host_address
+md_sender_host_name
+md_sender_certificate_subject
+md_sender_certificate_status
+md_spf_status
+md_spf_description
 
 # в SMTP-ответе: исходные параметры "/" выставленные параметры
 # пример: SBL/ST,S /MBA,ST SBL,(SST|USPT)/S
 # флаги: UNMBC - user_nombxchk, MBA - flag_mb_absent, UWL - flag_user_wl, SWL - flag_sys_wl, UBL - flag_user_bl, SBL - flag_sys_bl
 # флаги: USPT - user_spt, SPF - flag_spf, SST - sys_spamtrap, TMS - sys_trustedmessagesize
-# флаги: ST - flag_spamtrap, S - flag_spam, HT - flag_hamtrap, MP - flag_mailproc
+# флаги: ST - flag_spamtrap, S - flag_spam, HT - flag_hamtrap, MP - flag_mailproc, H - headers
 
 rcpt
 * recipients_count > 0 => 4xx / Mail box is temporarily unavailable, please try again later
@@ -82,31 +90,50 @@ dkim
 # сигнатура может испортиться при нескольких пересылках, но обязательно где-то рядом будет правильная
 * dkim_verify_status != pass => ok
 # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
-* проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
+* загружаем заголовки X-AdvancedFiltering-MessageData-* => md_... (MessageData)
+* проверка системных списков фильтрации => flag_sys_wl, flag_sys_bl, msg_sys_wbl (H: ...)
+* проверка пользовательских списков фильтрации => flag_user_wl, flag_user_bl, msg_user_wbl (H: ...)
 * ok
+md_via_recipients
+md_sender_mail_address
+md_sender_host_address
+md_sender_host_name
+md_sender_certificate_subject
+md_sender_certificate_status
+md_spf_status
+md_spf_description
+md_spam_status
+md_spam_description
 
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
 * flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap
+* проверка md_via_recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
 * flag_user_wl => 2xx UWL/ ($msg_user_wbl) id=..., stop
+# flag_user_bl может быть выставлен из заголовоков X-AdvancedFiltering-Original-*
+* flag_user_bl => 5xx UBL/ ($msg_user_wbl) id=..., stop
 * flag_sys_wl => 2xx SWL/ ($msg_sys_wbl) id=..., stop
 * flag_sys_bl && user_spt => 2xx SBL,USPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
 * flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
 * flag_spf && user_spt => 2xx SPF,USPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
 * flag_spf => fake/5xx SPF/ST,S (SPF: ...) id=..., stop, log Message-ID, flag_spamtrap, flag_spam
+* md_spam_status == TRUE && user_spt => 2xx H,USPT/S (md_spam_description) id=..., stop, flag_spam
+* md_spam_status == TRUE => 5xx H,Spam (md_spam_description) id=..., stop
+* md_spam_status == FALSE => ok, stop
+# На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 # * sys_trustedport => 2xx STP/ id=..., stop
-На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header) id=..., stop, flag_spam
 # нет смысла слать в spamtrap - это и так спам, не нужно лишний раз нагружать базу
 ** нет MessageId => 5xx Malformed (No Message-ID header), stop
-** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription) id=..., stop, flag_spam
-** ok, afIsSpam => 5xx Spam ($afSpamDescription) id=..., stop
-** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+** ok, afIsSpam && user_spt => 2xx USPT/S (afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description
+** ok, afIsSpam => 5xx Spam (afSpamDescription) id=..., stop
+** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam, md_spam_status, md_spam_description
 ** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
 ** не совпадает sender => 5xx Bad sender (Several senders for the same message) id=..., stop
 ** ok => ok, stop
 * проверка In-Reply-To, References в afMessageOutgoing
+# md_spam_status не выставлять - возможно настроить спам-рассылку
 ** ok => 2xx /HT id=..., stop, flag_hamtrap
 * message_size >= sys_trustedmessagesize => 2xx TMS/ id=..., stop
 * 4xx /MP Your data is verifying, please try again later. id=..., flag_mailproc
