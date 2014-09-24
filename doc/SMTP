@@ -55,7 +55,7 @@ X-AdvancedFiltering-MessageData-SenderMailAddress: sender@test.com
 X-AdvancedFiltering-MessageData-SenderHostAddress: 1.2.3.4
 X-AdvancedFiltering-MessageData-SenderHostName: mx.test.com
 X-AdvancedFiltering-MessageData-SenderCertificateSubject: <base64>
-X-AdvancedFiltering-MessageData-SenderCertificateStatus: (TRUE/FALSE)
+X-AdvancedFiltering-MessageData-SenderCertificateVerified: (TRUE/FALSE)
 X-AdvancedFiltering-MessageData-SPFStatus: (TRUE/FALSE)
 X-AdvancedFiltering-MessageData-SPFDescription: <base64>
 X-AdvancedFiltering-MessageData-SpamStatus: (TRUE/FALSE)

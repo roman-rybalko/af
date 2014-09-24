@@ -79,11 +79,10 @@ connect_acl:
     set acl_c_s_st_f = S_ST_F
     # System HamTrap Flag
     set acl_c_s_ht_f = S_HT_F
-    control = dkim_disable_verify
     #logwrite = DEBUG: tp_f=S_TP_F st_f=$acl_c_s_st_f realms=S_REALM_Lc
   accept
     # smtp_banner
-    message = smtp.services.advancedfiltering.net ESMTP${if bool_lax{S_TP_F}{ TP}{}}${if bool_lax{$acl_c_s_st_f}{ ST}{}}${if bool_lax{$acl_c_s_ht_f}{ HT}{}}
+    message = smtp.services.advancedfiltering.net ESMTP${if bool{S_TP_F}{ TP}{}}${if bool{$acl_c_s_st_f}{ ST}{}}${if bool{$acl_c_s_ht_f}{ HT}{}}
 
 helo_acl:
   accept
@@ -111,7 +110,7 @@ ldap_bwl_acl:
 # accept - match, deny - not match
 sma_bwl_acl:
   warn
-    set acl_c_bwl_ldap_q = afSMTPBWListSenderMailAddress=${quote_ldap_dn:$sender_address}
+    set acl_c_bwl_ldap_q = afSMTPBWListSenderMailAddress=${quote_ldap_dn:$acl_m_md_sender_mail_address}
     acl = ldap_bwl_acl
     set acl_c_bwl_m = sender mail address
     #logwrite = DEBUG: sma_bwl
@@ -131,21 +130,21 @@ sma_bwl_acl:
 # accept - match, deny - not match
 cert_bwl_acl:
   deny
-    ! condition = ${if bool_lax{$tls_peerdn}}
+    ! condition = ${if bool_lax{$acl_m_md_sender_certificate_subject}}
     #logwrite = DEBUG: cert_bwl: no cert
   warn
-    set acl_c_bwl_ldap_q = afSMTPBWListCertificateSubject=${quote_ldap_dn:$tls_peerdn}
+    set acl_c_bwl_ldap_q = afSMTPBWListCertificateSubject=${quote_ldap_dn:$acl_m_md_sender_certificate_subject}
     acl = ldap_bwl_acl
     set acl_c_bwl_m = certificate
-    #logwrite = DEBUG: cert_bwl ($tls_peerdn)
+    #logwrite = DEBUG: cert_bwl ($acl_m_md_sender_certificate_subject)
   accept
     # no certificate verification
     condition = $acl_c_bl_f
   accept
-    verify = certificate
+    condition = ${if bool_lax{$acl_m_md_sender_certificate_verified}}
     condition = $acl_c_wl_f
   deny
-    ! verify = certificate
+    ! condition = ${if bool_lax{$acl_m_md_sender_certificate_verified}}
     condition = $acl_c_wl_f
     #logwrite = DEBUG: cert_bwl: cert verify fail
   deny
@@ -154,7 +153,7 @@ cert_bwl_acl:
 # accept - match, deny - not match
 sha_bwl_acl:
   accept
-    set acl_c_bwl_ldap_q = afSMTPBWListHostAddress=${quote_ldap_dn:$sender_host_address}
+    set acl_c_bwl_ldap_q = afSMTPBWListHostAddress=${quote_ldap_dn:$acl_m_md_sender_host_address}
     acl = ldap_bwl_acl
     set acl_c_bwl_m = sender host address
     #logwrite = DEBUG: sha_bwl
@@ -164,10 +163,10 @@ sha_bwl_acl:
 # accept - match, deny - not match
 shn_bwl_acl:
   deny
-    ! condition = ${if bool_lax{$sender_host_name}}
+    ! condition = ${if bool_lax{$acl_m_md_sender_host_name}}
     #logwrite = DEBUG: shn_bwl: sender host name unknown
   accept
-    set acl_c_bwl_ldap_q = afSMTPBWListHostName=${quote_ldap_dn:$sender_host_name}
+    set acl_c_bwl_ldap_q = afSMTPBWListHostName=${quote_ldap_dn:$acl_m_md_sender_host_name}
     acl = ldap_bwl_acl
     set acl_c_bwl_m = sender host name
     #logwrite = DEBUG: shn_bwl
@@ -182,8 +181,8 @@ dnsbl_acl:
     set acl_c_wl_f = false
     #logwrite = DEBUG: dnsbl: trusted port
   accept
-    dnslists = <, ${lookup ldap{LDAP_C/$acl_c_bwl_ldap_dn?afSSMTPDNSBLDomainName?base}}
-    set acl_c_bwl_m = DNSBL: $sender_host_address is listed at $dnslist_domain ($dnslist_value: $dnslist_text)
+    dnslists = <, ${map{<, ${lookup ldap{LDAP_C/$acl_c_bwl_ldap_dn?afSSMTPDNSBLDomainName?base}}}{$item/$acl_m_md_sender_host_address}}
+    set acl_c_bwl_m = DNSBL: $acl_m_md_sender_host_address is listed at $dnslist_domain ($dnslist_value: $dnslist_text)
     set acl_c_bl_f = true
     #logwrite = DEBUG: dnsbl
   deny
@@ -204,6 +203,7 @@ bwl_acl:
   deny
 
 mail_acl:
+  # * проверка spf
   warn
     # SPF Flag
     set acl_m_spf_f = false
@@ -212,6 +212,15 @@ mail_acl:
     # SPF Msg
     set acl_m_spf_m = $sender_host_address is not allowed to send mail from $sender_address_domain
     #logwrite = DEBUG: spf fail
+  # * установка переменных md_...
+  warn
+    # MessageData
+    set acl_m_md_sender_mail_address = $sender_address
+    set acl_m_md_sender_host_address = $sender_host_address
+    set acl_m_md_sender_host_name = $sender_host_name
+    set acl_m_md_sender_certificate_subject = $tls_in_peerdn
+    set acl_m_md_sender_certificate_verified = ${if bool{$tls_in_certificate_verified}{TRUE}{FALSE}}
+  # * проверка системных списков фильтрации (на основе переменных md_...) => flag_sys_wl, flag_sys_bl, msg_sys_wbl
   warn
     set acl_c_s_wl_f = false
     set acl_c_s_bl_f = false
@@ -317,10 +326,12 @@ rcpt_acl:
 
   # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
   # ** absent && sys_spamtrap => 2xx SST/MBA Mail box does not exist, flag_mb_absent, stop
+  warn
+    set acl_m_mb_absent_f = false
   accept
     condition = $acl_c_s_st_f
     condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
-    set acl_m_u_absent = true
+    set acl_m_mb_absent_f = true
     message = SST/MBA Mail box does not exist
   # ** absent => 5xx Mail box does not exist, stop
   deny
@@ -332,7 +343,7 @@ rcpt_acl:
     condition = $acl_m_u_nombxchk_f
     # existing
     ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
-    set acl_m_u_absent = true
+    set acl_m_mb_absent_f = true
     message = UNMBC,SST/MBA Mail box does not exist
   # ** (expired || not_found) && user_nombxchk => 5xx UNMBC/ Mail box does not exist, stop
   deny
@@ -419,17 +430,82 @@ dkim_acl:
   accept
     condition = ${if ! eq{$dkim_verify_status}{pass}}
     #logwrite = DEBUG: DKIM: skip bad sig: $dkim_verify_status ($dkim_verify_reason)
+
   # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
+  # * загружаем заголовки X-AdvancedFiltering-MessageData-* => via_recipients, md_..., flag_spf, flag_spam
+  warn
+    set acl_m_md_via_recipients = 
   warn
     # inlisti - кто-то может поправить регистр, сигнатура не сломается
-    condition = ${if inlisti{X-AdvancedFiltering-Via-Recipients}{$dkim_headernames}}
-    # Header Via-Recipients
-    set acl_m_h_via_recipients = $header_X-AdvancedFiltering-Via-Recipients:
-  # * проверка Via-Recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
-  deny
-    condition = ${if bool_lax{$acl_m_h_via_recipients}}
-    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_h_via_recipients $acl_m_recipient}{true}{false}}
-    message = Message loop detected ($value)
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-ViaRecipients}{$dkim_headernames}}
+    # MessageData ...
+    set acl_m_md_via_recipients = $header_X-AdvancedFiltering-MessageData-ViaRecipients:
+
+  warn
+    set acl_m_md_sender_mail_address = 
+    set acl_m_md_sender_host_address = 
+    set acl_m_md_sender_host_name = 
+    set acl_m_md_sender_certificate_subject = 
+    set acl_m_md_sender_certificate_verified = false
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderMailAddress}{$dkim_headernames}}
+    set acl_m_md_sender_mail_address = $header_X-AdvancedFiltering-MessageData-SenderMailAddress:
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderHostAddress}{$dkim_headernames}}
+    set acl_m_md_sender_host_address = $header_X-AdvancedFiltering-MessageData-SenderHostAddress:
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderHostName}{$dkim_headernames}}
+    set acl_m_md_sender_host_name = $header_X-AdvancedFiltering-MessageData-SenderHostName:
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderCertificateSubject}{$dkim_headernames}}
+    set acl_m_md_sender_certificate_subject = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}{$value}fail}
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderCertificateVerified}{$dkim_headernames}}
+    set acl_m_md_sender_certificate_verified = ${if bool{$header_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}}
+
+  warn
+    set acl_m_spf_f = false
+    set acl_m_spf_m = 
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SPFStatus}{$dkim_headernames}}
+    set acl_m_spf_f = ${if bool{$header_X-AdvancedFiltering-MessageData-SPFStatus:}}
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SPFDescription}{$dkim_headernames}}
+    set acl_m_spf_m = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SPFDescription:}{$value}fail}
+
+  warn
+    set acl_m_md_spam_status = 
+    set acl_m_md_spam_description = 
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SpamStatus}{$dkim_headernames}}
+    set acl_m_md_spam_status = ${if bool{$header_X-AdvancedFiltering-MessageData-SpamStatus:}}
+  warn
+    condition = ${if inlisti{X-AdvancedFiltering-MessageData-SpamDescription}{$dkim_headernames}}
+    set acl_m_md_spam_description = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SpamDescription:}{$value}fail}
+
+  # * проверка системных списков фильтрации (на основе переменных md_... если есть заголовки) => flag_sys_wl, flag_sys_bl, msg_sys_wbl (message data: ...)
+  warn
+    condition = ${if bool_lax{$acl_m_md_sender_mail_address}}
+    condition = ${if bool_lax{$acl_m_md_sender_host_address}}
+    set acl_c_s_wl_f = false
+    set acl_c_s_bl_f = false
+    set acl_c_bwl_ldap_dn = S_SMTP_LDAP_DN
+    acl = bwl_acl
+    set acl_c_s_wl_f = $acl_c_wl_f
+    set acl_c_s_bl_f = $acl_c_bl_f
+    set acl_c_s_bwl_m = message data: system policy: $acl_c_bwl_m
+
+  # * проверка пользовательских списков фильтрации (на основе переменных md_... если есть заголовки) => flag_user_wl, flag_user_bl, msg_user_wbl (message data: ...)
+  warn
+    condition = ${if bool_lax{$acl_m_md_sender_mail_address}}
+    condition = ${if bool_lax{$acl_m_md_sender_host_address}}
+    set acl_m_u_wl_f = false
+    set acl_m_u_bl_f = false
+    acl = bwl_rcpt_acl
+    set acl_m_u_wl_f = $acl_c_wl_f
+    set acl_m_u_bl_f = $acl_c_bl_f
+    set acl_m_u_bwl_m = message data: $acl_m_bwl_rcpt_m: $acl_c_bwl_m
+
   # * ok
   accept
 
@@ -456,17 +532,31 @@ U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=s
 # User SDB Message Outgoing
 U_SDB_MO_sender_L = ${map{U_MO_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:$item},U_SDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}}}
 
+# * message_size >= sys_maxmessagesize => 5xx ...
+# проверится до вызова data_acl
+
 data_acl:
   # * flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap
   accept
-    condition = ${if bool_lax{$acl_m_u_absent}}
+    condition = $acl_m_mb_absent_f
     set acl_m_spamtrap_f = true
     control = fakereject/MBA/ST Mail box does not exist. id=$message_exim_id
+
+  # * проверка via_recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
+  deny
+    condition = ${if bool_lax{$acl_m_md_via_recipients}}
+    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_md_via_recipients $acl_m_recipient}{true}{false}}
+    message = Message loop detected ($value)
 
   # * flag_user_wl => 2xx UWL/ ($msg_user_wbl) id=..., stop
   accept
     condition = $acl_m_u_wl_f
     message = UWL/ ($acl_m_u_bwl_m) id=$message_exim_id
+
+  # * flag_user_bl => 5xx UBL/ ($msg_user_wbl) id=..., stop
+  deny
+    condition = $acl_m_u_bl_f
+    message = UBL/ ($acl_m_u_bwl_m) id=$message_exim_id
 
   # * flag_sys_wl => 2xx SWL/ ($msg_sys_wbl) id=..., stop
   accept
@@ -503,6 +593,21 @@ data_acl:
     set acl_m_spam_f = true
     control = fakereject/SPF/ST,S (SPF: $acl_m_spf_m) id=$message_exim_id
 
+  # * md_spam_status && user_spt => 2xx USPT/S (message data: md_spam_description) id=..., stop, flag_spam
+  accept
+    condition = ${if bool_lax{$acl_m_md_spam_status}}
+    condition = $acl_m_u_spt_f
+    set acl_m_spam_f = true
+    message = USPT/S (message data: $acl_m_md_spam_description) id=$message_exim_id
+  # * md_spam_status => 5xx Spam (message data: md_spam_description) id=..., stop
+  deny
+    condition = ${if bool_lax{$acl_m_md_spam_status}}
+    message = Spam (message data: $acl_m_md_spam_description) id=$message_exim_id
+  # * md_spam_status == false => 2xx Ham (message data) id=..., stop
+  accept
+    condition = ${if eqi{$acl_m_md_spam_status}{false}}
+    message = Ham (message data)  id=$message_exim_id
+
   # * проверка Message-Id в afMessageIncoming
   # ** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header) id=..., stop, flag_spam
   accept
@@ -514,16 +619,22 @@ data_acl:
   deny
     ! condition = ${if bool_lax{U_MI_H_D}}
     message = Malformed (No Message-ID header) id=$message_exim_id
-  # ** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription) id=..., stop, flag_spam
+  # ** ok, afIsSpam && user_spt => 2xx USPT/S (afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_spam_D}}
     condition = $acl_m_u_spt_f
     set acl_m_spam_f = true
+    set acl_m_md_spam_status = true
+    set acl_m_md_spam_description = U_SMTPDB_MI_spam_D
     message = USPT/S (U_SMTPDB_MI_spam_D) id=$message_exim_id
-  # ** ok, afIsSpam => 5xx Spam ($afSpamDescription) id=..., stop
+  # ** ok, afIsSpam => 5xx Spam (afSpamDescription) id=..., stop
   deny
     condition = ${if bool_lax{U_SMTPDB_MI_spam_D}}
     message = Spam (U_SMTPDB_MI_spam_D) id=$message_exim_id
+  # ** md_spam_status = false
+  warn
+    condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
+    set acl_m_md_spam_status = false
   # ** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
@@ -547,12 +658,13 @@ data_acl:
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
     message = Bad sender (Several senders for the same message) id=$message_exim_id
-  # ** ok => ok, stop
+  # ** ok => 2xx Ham id=xxx, stop
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
+    message = Ham id=$message_exim_id
 
   # * проверка In-Reply-To, References в afMessageOutgoing
-  # ** ok => 2xx /HT id=..., stop, flag_hamtrap
+  # ** ok => 2xx /HT (Reply) id=..., stop, flag_hamtrap
   accept
     condition = ${if bool_lax{U_MO_H_D}}
     #logwrite = DEBUG: realm: $acl_m_u_realm
@@ -561,7 +673,7 @@ data_acl:
     #logwrite = DEBUG: recipient: $acl_m_recipient
     condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$acl_m_recipient}}}
     set acl_m_hamtrap_f = true
-    message = /HT id=$message_exim_id
+    message = /HT (Reply) id=$message_exim_id
 
   # * message_size >= sys_trustedmessagesize
   # ** ok => 2xx TMS/ id=..., stop
@@ -585,11 +697,11 @@ R_C_REALM = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:R_CLIENT},S_LDAP_
 # Router Address_Data Realm LDAP Query (needed for service_* routers and submission_* routers)
 R_AD_R_LDAP_Q = afSHostRealm=${quote_ldap_dn:${extract {realm} {$address_data} }}
 # Router Address_Data Realm Flag
-R_AD_R_F = ${extract {realm} {$address_data} }
+R_AD_R_F = ${extract{realm}{$address_data}{true}{false}}
 # Router System Realm LDAP Query
 R_SYS_R_LDAP_Q = ${reduce {S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:$item})} }
 # Router Services Realm LDAP Q
-R_S_R_LDAP_Q = ${if bool_lax{R_AD_R_F} {R_AD_R_LDAP_Q} {R_SYS_R_LDAP_Q} }
+R_S_R_LDAP_Q = ${if bool{R_AD_R_F}{R_AD_R_LDAP_Q}{R_SYS_R_LDAP_Q}}
 
 # errors_to addresses need to be verified
 service_verify_router:
@@ -663,7 +775,7 @@ spamtrap_router:
 
 # * absent :blackhole: [flag_mb_absent] {stop} => error
 absent_router:
-  condition = $acl_m_u_absent
+  condition = $acl_m_mb_absent_f
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
@@ -671,7 +783,7 @@ absent_router:
 # * spam :blackhole: [flag_spam && !user_spt] {stop} => error
 spam_router:
   condition = $acl_m_spam_f
-  condition = ${if ! bool_lax{$acl_m_u_spt_f}}
+  condition = ${if ! bool{$acl_m_u_spt_f}}
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net
@@ -755,7 +867,7 @@ R_CS_D == $local_part@$domain
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_rcpt_router:
-  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if ! bool{$acl_m_spam_f}}
   # prevent address_data update
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
@@ -765,7 +877,7 @@ backup_rcpt_router:
   redirect_router = submission_router
   unseen = true
 backup_rcpt_pass_router:
-  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if ! bool{$acl_m_spam_f}}
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = $local_part@$domain
@@ -778,7 +890,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_domain_router:
-  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if ! bool{$acl_m_spam_f}}
   # prevent address_data update
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
@@ -788,7 +900,7 @@ backup_domain_router:
   redirect_router = submission_router
   unseen = true
 backup_domain_pass_router:
-  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if ! bool{$acl_m_spam_f}}
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = $local_part@$domain
@@ -801,7 +913,7 @@ R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPBackupMailAddress?base}}
 backup_client_router:
-  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if ! bool{$acl_m_spam_f}}
   # prevent address_data update
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
@@ -811,7 +923,7 @@ backup_client_router:
   redirect_router = submission_router
   unseen = true
 backup_client_pass_router:
-  condition = ${if ! bool_lax{$acl_m_spam_f}}
+  condition = ${if ! bool{$acl_m_spam_f}}
   condition = ${if bool_lax{R_CT_Lc}}
   driver = redirect
   data = $local_part@$domain
@@ -1084,9 +1196,38 @@ Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:\
 Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:\
 In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
-X-AdvancedFiltering-Via-Recipients
-  headers_remove = X-AdvancedFiltering-Via-Recipients
-  headers_add = X-AdvancedFiltering-Via-Recipients: $acl_m_h_via_recipients $acl_m_recipient
+X-AdvancedFiltering-MessageData-ViaRecipients:\
+X-AdvancedFiltering-MessageData-SenderMailAddress:\
+X-AdvancedFiltering-MessageData-SenderHostAddress:\
+X-AdvancedFiltering-MessageData-SenderHostName:\
+X-AdvancedFiltering-MessageData-SenderCertificateSubject:\
+X-AdvancedFiltering-MessageData-SenderCertificateVerified:\
+X-AdvancedFiltering-MessageData-SPFStatus:\
+X-AdvancedFiltering-MessageData-SPFDescription:\
+X-AdvancedFiltering-MessageData-SpamStatus:\
+X-AdvancedFiltering-MessageData-SpamDescription
+  headers_remove = \
+X-AdvancedFiltering-MessageData-ViaRecipients:\
+X-AdvancedFiltering-MessageData-SenderMailAddress:\
+X-AdvancedFiltering-MessageData-SenderHostAddress:\
+X-AdvancedFiltering-MessageData-SenderHostName:\
+X-AdvancedFiltering-MessageData-SenderCertificateSubject:\
+X-AdvancedFiltering-MessageData-SenderCertificateVerified:\
+X-AdvancedFiltering-MessageData-SPFStatus:\
+X-AdvancedFiltering-MessageData-SPFDescription:\
+X-AdvancedFiltering-MessageData-SpamStatus:\
+X-AdvancedFiltering-MessageData-SpamDescription
+  headers_add = \
+X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_recipient\n\
+X-AdvancedFiltering-MessageData-SenderMailAddress: $acl_m_md_sender_mail_address\n\
+X-AdvancedFiltering-MessageData-SenderHostAddress: $acl_m_md_sender_host_address\n\
+${if bool_lax{$acl_m_md_sender_host_name}{X-AdvancedFiltering-MessageData-SenderHostName: $acl_m_md_sender_host_name\n}{}}\
+${if bool_lax{$acl_m_md_sender_certificate_subject}{X-AdvancedFiltering-MessageData-SenderCertificateSubject: $acl_m_md_sender_certificate_subject\n}{}}\
+${if eq{$acl_m_md_sender_certificate_verified}{}{}{X-AdvancedFiltering-MessageData-SenderCertificateVerified: $acl_m_md_sender_certificate_verified\n}}\
+${if eq{$acl_m_spf_f}{}{}{X-AdvancedFiltering-MessageData-SPFStatus: $acl_m_spf_f\n}}\
+${if bool_lax{$acl_m_spf_m}{X-AdvancedFiltering-MessageData-SPFDescription: $acl_m_spf_m\n}{}}\
+${if eq{$acl_m_md_spam_status}{}{}{X-AdvancedFiltering-MessageData-SpamStatus: $acl_m_md_spam_status\n}}\
+${if bool_lax{$acl_m_md_spam_description}{X-AdvancedFiltering-MessageData-SpamDescription: $acl_m_md_spam_description\n}{}}
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
@@ -1145,9 +1286,38 @@ Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:\
 Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:\
 In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
-X-AdvancedFiltering-Via-Recipients
-  headers_remove = X-AdvancedFiltering-Via-Recipients
-  headers_add = X-AdvancedFiltering-Via-Recipients: $acl_m_h_via_recipients $acl_m_recipient
+X-AdvancedFiltering-MessageData-ViaRecipients:\
+X-AdvancedFiltering-MessageData-SenderMailAddress:\
+X-AdvancedFiltering-MessageData-SenderHostAddress:\
+X-AdvancedFiltering-MessageData-SenderHostName:\
+X-AdvancedFiltering-MessageData-SenderCertificateSubject:\
+X-AdvancedFiltering-MessageData-SenderCertificateVerified:\
+X-AdvancedFiltering-MessageData-SPFStatus:\
+X-AdvancedFiltering-MessageData-SPFDescription:\
+X-AdvancedFiltering-MessageData-SpamStatus:\
+X-AdvancedFiltering-MessageData-SpamDescription
+  headers_remove = \
+X-AdvancedFiltering-MessageData-ViaRecipients:\
+X-AdvancedFiltering-MessageData-SenderMailAddress:\
+X-AdvancedFiltering-MessageData-SenderHostAddress:\
+X-AdvancedFiltering-MessageData-SenderHostName:\
+X-AdvancedFiltering-MessageData-SenderCertificateSubject:\
+X-AdvancedFiltering-MessageData-SenderCertificateVerified:\
+X-AdvancedFiltering-MessageData-SPFStatus:\
+X-AdvancedFiltering-MessageData-SPFDescription:\
+X-AdvancedFiltering-MessageData-SpamStatus:\
+X-AdvancedFiltering-MessageData-SpamDescription
+  headers_add = \
+X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_recipient\n\
+X-AdvancedFiltering-MessageData-SenderMailAddress: $acl_m_md_sender_mail_address\n\
+X-AdvancedFiltering-MessageData-SenderHostAddress: $acl_m_md_sender_host_address\n\
+${if bool_lax{$acl_m_md_sender_host_name}{X-AdvancedFiltering-MessageData-SenderHostName: $acl_m_md_sender_host_name\n}{}}\
+${if bool_lax{$acl_m_md_sender_certificate_subject}{X-AdvancedFiltering-MessageData-SenderCertificateSubject: $acl_m_md_sender_certificate_subject\n}{}}\
+${if eq{$acl_m_md_sender_certificate_verified}{}{}{X-AdvancedFiltering-MessageData-SenderCertificateVerified: $acl_m_md_sender_certificate_verified\n}}\
+${if eq{$acl_m_spf_f}{}{}{X-AdvancedFiltering-MessageData-SPFStatus: $acl_m_spf_f\n}}\
+${if bool_lax{$acl_m_spf_m}{X-AdvancedFiltering-MessageData-SPFDescription: $acl_m_spf_m\n}{}}\
+${if eq{$acl_m_md_spam_status}{}{}{X-AdvancedFiltering-MessageData-SpamStatus: $acl_m_md_spam_status\n}}\
+${if bool_lax{$acl_m_md_spam_description}{X-AdvancedFiltering-MessageData-SpamDescription: $acl_m_md_spam_description\n}{}}
 
 begin retry
 

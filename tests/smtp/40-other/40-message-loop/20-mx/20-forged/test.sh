@@ -19,4 +19,4 @@ wait_file mx2.mime
 dkim_verifier mx2.mime | grep advancedfiltering | grep pass
 stop_server mx
 
-grep ^X-AdvancedFiltering-Via-Recipients: mx2.mime | grep -v -E "mbox@test.com[[:space:]]+mbox@test.com"
+grep ^X-AdvancedFiltering-MessageData-ViaRecipients: mx2.mime | grep -v -E "mbox@test.com[[:space:]]+mbox@test.com"
