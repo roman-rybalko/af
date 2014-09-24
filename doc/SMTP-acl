@@ -27,7 +27,7 @@ helo
 mail
 * проверка spf
 ** fail => flag_spf
-* установка переменных md_...
+* установка переменных md_... (MessageData)
 * проверка системных списков фильтрации (на основе переменных md_...) => flag_sys_wl, flag_sys_bl, msg_sys_wbl
 * ok
 flag_spf
@@ -44,6 +44,7 @@ md_sender_certificate_verified
 # пример: SBL/ST,S /MBA,ST SBL,(SST|USPT)/S
 # флаги: UNMBC - user_nombxchk, MBA - flag_mb_absent, UWL - flag_user_wl, SWL - flag_sys_wl, UBL - flag_user_bl, SBL - flag_sys_bl
 # флаги: USPT - user_spt, SPF - flag_spf, SST - sys_spamtrap, TMS - sys_trustedmessagesize
+# параметры: MD - MessageData, MI - MessageIncoming, MO - MessageOutgoing
 # флаги: ST - flag_spamtrap, S - flag_spam, HT - flag_hamtrap, MP - flag_mailproc
 
 rcpt
@@ -105,7 +106,7 @@ md_spam_description
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
 * flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap
-* проверка via_recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
+* проверка md_via_recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
 * flag_user_wl => 2xx UWL/ ($msg_user_wbl) id=..., stop
 # flag_user_bl может быть установлен после загрузки заголовков MessageData-*
 * flag_user_bl => 5xx UBL/ ($msg_user_wbl) id=..., stop
