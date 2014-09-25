@@ -41,39 +41,42 @@ md_sender_certificate_subject
 md_sender_certificate_verified
 
 # в SMTP-ответе: исходные параметры "/" выставленные параметры
-# пример: SBL/ST,S /MBA,ST SBL,(SST|USPT)/S
-# флаги: UNMBC - user_nombxchk, MBA - flag_mb_absent, UWL - flag_user_wl, SWL - flag_sys_wl, UBL - flag_user_bl, SBL - flag_sys_bl
-# флаги: USPT - user_spt, SPF - flag_spf, SST - sys_spamtrap, TMS - sys_trustedmessagesize
-# параметры: MD - MessageData, MI - MessageIncoming, MO - MessageOutgoing
+# кодирование флага/параметра: <категория>[:подкатегория]
+# пример: S:BL/ST,S /MBA,ST S:BL,(S:ST|U:SPT)/S
+# флаги: U:MBC - user_nombxchk, MBA - flag_mb_absent, U:WL - flag_user_wl, S:WL - flag_sys_wl, U:BL - flag_user_bl, S:BL - flag_sys_bl
+# флаги: U:SPT - user_spt, SPF - flag_spf, S:ST - sys_spamtrap, S:TMS - sys_trustedmessagesize
+# параметры: MD:VR - MessageData/ViaRecipients, MD:SP - MessageData/Spam
+# параметры: MI - MessageIncoming, MI:MID - MessageIncoming/MessageId, MI:SP - MessageIncoming/Spam, MI:SND - MessageIncoming/Sender
+# параметры: MO - MessageOutgoing, RC - recipients_count, R:D - realm/domain, R:O - other realm, D - domain
+# параметры: MB:A - afMailBox/afIsAbsent, MB:(E|NF) - afMailBox/expired/notfound
 # флаги: ST - flag_spamtrap, S - flag_spam, HT - flag_hamtrap, MP - flag_mailproc
 
 rcpt
-* recipients_count > 0 => 4xx / Mail box is temporarily unavailable, please try again later
-recipients_count - параметр exim, количество ответов 2xx на RCPT
+# recipients_count - параметр exim, количество ответов 2xx на RCPT
+* recipients_count > 0 => 4xx RC/ (Mail box is temporarily unavailable, please try again later)
 * проверка realm для домена
-** нет домена => 5xx The domain is not in service, stop
-** чужой realm => 4xx Moved, please try another host, stop
+** нет домена => 5xx R:D/ (The domain is not in service), stop
+** чужой realm => 4xx R:O/ (Moved, please try another host), stop
 * определяем имя домена по синониму
 ** домен => user_domain
 ** синоним => user_domain
-** не найден в ou=user => 4xx Replicating, please try again later
+** не найден в ou=user => 4xx D/ (Replicating, please try again later)
 * получение пользовательской настройки user_nombxchk (NoMailBoxCheck - no auto-add)
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-** absent && sys_spamtrap => 2xx SST/MBA Mail box does not exist, flag_mb_absent, stop
-** absent => 5xx Mail box does not exist, stop
-** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx UNMBC,SST/MBA Mail box does not exist, flag_mb_absent, stop
-** (expired || not_found) && user_nombxchk => 5xx UNMBC/ Mail box does not exist, stop
-** expired || not_found => 4xx Your data is verifying, please try again later, log, stop
-** ok
+** afIsAbsent && sys_spamtrap => 2xx MB:A,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop
+** afIsAbsent => 5xx MB:A/ (Mail box does not exist), stop
+** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx MB:(E|NF),U:MBC,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop
+** (expired || not_found) && user_nombxchk => 5xx MB:(E|NF),U:MBC/ (Mail box does not exist), stop
+** expired || not_found => 4xx MB:(E|NF)/ (Your data is verifying, please try again later), log, stop
 * получение пользовательской настройки user_spt (Spam PassThrough)
 * проверка пользовательских списков фильтрации (на основе переменных md_...) => flag_user_wl, flag_user_bl, msg_user_wbl
-* flag_user_wl => 2xx UWL/ ($msg_user_wbl), stop
-* flag_user_bl => 5xx UBL/ ($msg_user_wbl), stop
-* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl), stop
-* flag_sys_bl && !sys_spamtrap && !user_spt => 5xx SBL/ ($msg_sys_wbl), stop
-* flag_sys_bl => 2xx SBL,(SST|USPT)/ ($msg_sys_wbl), stop
-* flag_spf && !user_spt && !sys_spamtrap => 5xx SPF/ (SPF: ...), stop
-* flag_spf => 2xx SPF,(USPT|SST)/ (SPF: ...), stop
+* flag_user_wl => 2xx U:WL/ ($msg_user_wbl), stop
+* flag_user_bl => 5xx U:BL/ ($msg_user_wbl), stop
+* flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl), stop
+* flag_sys_bl && !sys_spamtrap && !user_spt => 5xx S:BL/ ($msg_sys_wbl), stop
+* flag_sys_bl => 2xx S:BL,(S:ST|U:SPT)/ ($msg_sys_wbl), stop
+* flag_spf && !sys_spamtrap && !user_spt => 5xx SPF/ (SPF: ...), stop
+* flag_spf => 2xx SPF,(S:ST|U:SPT)/ (SPF: ...), stop
 * ok
 flag_mb_absent
 flag_user_bl
@@ -86,7 +89,7 @@ data
 dkim
 # не смотрим на другие сигнатуры
 * dkim_domain != dkim.advancedfiltering.net => ok
-# сигнатура может испортиться при нескольких пересылках, но обязательно где-то рядом будет правильная
+# сигнатура может испортиться при нескольких пересылках, но обязательно рядом будет правильная
 * dkim_verify_status != pass => ok
 # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
 * загружаем заголовки X-AdvancedFiltering-MessageData-* => md_..., flag_spf
@@ -105,36 +108,36 @@ md_spam_description
 
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
-* flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap
-* проверка md_via_recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
-* flag_user_wl => 2xx UWL/ ($msg_user_wbl) id=..., stop
+* flag_mb_absent => fake/5xx MBA/ST (Mail box does not exist) id=..., stop, flag_spamtrap
+* проверка md_via_recipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
+* flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
 # flag_user_bl может быть установлен после загрузки заголовков MessageData-*
-* flag_user_bl => 5xx UBL/ ($msg_user_wbl) id=..., stop
-* flag_sys_wl => 2xx SWL/ ($msg_sys_wbl) id=..., stop
-* flag_sys_bl && user_spt => 2xx SBL,USPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
-* flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
-* flag_spf && user_spt => 2xx SPF,USPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
+* flag_user_bl => 5xx U:BL/ ($msg_user_wbl) id=..., stop
+* flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl) id=..., stop
+* flag_sys_bl && user_spt => 2xx S:BL,U:SPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+* flag_sys_bl => fake/5xx S:BL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+* flag_spf && user_spt => 2xx SPF,U:SPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
 * flag_spf => fake/5xx SPF/ST,S (SPF: ...) id=..., stop, log Message-ID, flag_spamtrap, flag_spam
 # На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
-# * sys_trustedport => 2xx STP/ id=..., stop
-* md_spam_status && user_spt => 2xx USPT/S (message data: md_spam_description) id=..., stop, flag_spam
-* md_spam_status => 5xx Spam (message data: md_spam_description) id=..., stop
-* md_spam_status == false => 2xx Ham (message data) id=..., stop
+# * sys_trustedport => 2xx S:TP/ (Ham) id=..., stop
+* md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: md_spam_description) id=..., stop, flag_spam
+* md_spam_status => 5xx MD:SP/ (Spam: md_spam_description) id=..., stop
+* md_spam_status == "false" => 2xx MD:SP/ (Ham) id=..., stop
 * проверка Message-Id в afMessageIncoming
-** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header) id=..., stop, flag_spam
+** нет MessageId && user_spt => 2xx MI:MID,U:SPT/S (No Message-ID header) id=..., stop, flag_spam
 # нет смысла слать в spamtrap - это и так спам, не нужно лишний раз нагружать базу
-** нет MessageId => 5xx Malformed (No Message-ID header), stop
-** ok, afIsSpam && user_spt => 2xx USPT/S (afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description
-** ok, afIsSpam => 5xx Spam (afSpamDescription) id=..., stop
+** нет MessageId => 5xx MI:MID/ (No Message-ID header), stop
+** ok, afIsSpam && user_spt => 2xx MI:SP,U:SPT/S (Spam: afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description
+** ok, afIsSpam => 5xx MI:SP/ (Spam: afSpamDescription) id=..., stop
 ** md_spam_status = false
-** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
-** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
-** не совпадает sender => 5xx Bad sender (Several senders for the same message) id=..., stop
-** ok => 2xx Ham id=xxx, stop
+** не совпадает sender && user_spt => 2xx MI:SND,U:SPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+** не совпадает sender && sys_spamtrap => fake/5xx MI:SND,S:ST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+** не совпадает sender => 5xx MI:SND/ (Several senders for the same message) id=..., stop
+** ok => 2xx MI/ (Ham) id=..., stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => 2xx /HT (Reply) id=..., stop, flag_hamtrap
-* message_size >= sys_trustedmessagesize => 2xx TMS/ id=..., stop
-* 4xx /MP Your data is verifying, please try again later. id=..., flag_mailproc
+** ok => 2xx MO/HT (Reply) id=..., stop, flag_hamtrap
+* message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop
+* 4xx /MP (Your data is verifying, please try again later) id=..., flag_mailproc
 flag_spam
 flag_spamtrap
 flag_mailproc

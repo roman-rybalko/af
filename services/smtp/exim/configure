@@ -20,7 +20,6 @@ tls_privatekey = /usr/local/advancedfiltering/ssl/smtp.services.advancedfilterin
 tls_verify_certificates = /usr/local/advancedfiltering/ssl/ca
 tls_crl = /usr/local/advancedfiltering/ssl/ca
 acl_smtp_connect = connect_acl
-acl_smtp_helo = helo_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_dkim = dkim_acl
@@ -83,10 +82,6 @@ connect_acl:
   accept
     # smtp_banner
     message = smtp.services.advancedfiltering.net ESMTP${if bool{S_TP_F}{ TP}{}}${if bool{$acl_c_s_st_f}{ ST}{}}${if bool{$acl_c_s_ht_f}{ HT}{}}
-
-helo_acl:
-  accept
-    message = smtp.services.advancedfiltering.net
 
 # General Black/White List
 # accept - match, deny - not match
@@ -253,9 +248,9 @@ domain_rcpt_acl:
     set acl_m_u_domain = ${lookup ldap{LDAP_C/U_SMTP_R_C_LDAP_DN?afUSMTPDomainName?sub?(&(objectClass=afUSMTPDomain)(afUSMTPDomainAliasName=${quote_ldap:$domain}))}}
     condition = ${if bool_lax{$acl_m_u_domain}}
     #logwrite = DEBUG: acl_m_u_domain=$acl_m_u_domain (alias)
-  # ** не найден в ou=user => 4xx Replicating, please try again later
+  # ** не найден в ou=user => 4xx D/ (Replicating, please try again later)
   defer
-    message = Replicating, please try again later
+    message = D/ (Replicating, please try again later)
 
 # Lookup recipient configuration option
 # accept - found, deny - not found
@@ -293,26 +288,26 @@ bwl_rcpt_acl:
 U_SMTP_MB_D = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=S_MBCT_D)}}
 
 rcpt_acl:
-  # * recipients_count > 0 => 4xx Mail box is temporarily unavailable, please try again later
+  # * recipients_count > 0 => 4xx RC/ (Mail box is temporarily unavailable, please try again later)
   defer
     condition = ${if bool_lax{$recipients_count}}
-    message = Mail box is temporarily unavailable, please try again later
+    message = RC/ (Mail box is temporarily unavailable, please try again later)
 
   # * проверка realm для домена
-  # ** нет домена => 5xx The domain is not in service, stop
+  # ** нет домена => 5xx R:D/ (The domain is not in service), stop
   deny
     # User Client (name/id)
     set acl_m_u_client = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$domain},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
     #logwrite = DEBUG: acl_m_u_client=$acl_m_u_client
     ! condition = ${if bool_lax{$acl_m_u_client}}
-    message = The domain is not in service
-  # ** чужой realm => 4xx Moved, try another host, stop
+    message = R:D/ (The domain is not in service)
+  # ** чужой realm => 4xx R:O/ (Moved, please try another host), stop
   defer
     # User Realm
     set acl_m_u_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_u_client},S_LDAP_DN?afSClientRealm?base}}
     #logwrite = DEBUG: acl_m_u_realm=$acl_m_u_realm
     ! condition = ${if inlist{$acl_m_u_realm}{<, S_REALM_Lc}}
-    message = Moved, try another host
+    message = R:O/ (Moved, please try another host)
   # * определяем имя домена по синониму
   require
     acl = domain_rcpt_acl
@@ -325,39 +320,38 @@ rcpt_acl:
     set acl_m_u_nombxchk_f = $acl_m_u_conf_value
 
   # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
-  # ** absent && sys_spamtrap => 2xx SST/MBA Mail box does not exist, flag_mb_absent, stop
   warn
     set acl_m_mb_absent_f = false
+  # ** afIsAbsent && sys_spamtrap => 2xx MB:A,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop
   accept
     condition = $acl_c_s_st_f
     condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
     set acl_m_mb_absent_f = true
-    message = SST/MBA Mail box does not exist
-  # ** absent => 5xx Mail box does not exist, stop
+    message = MB:A,S:ST/MBA (Mail box does not exist)
+  # ** afIsAbsent => 5xx MB:A/ (Mail box does not exist), stop
   deny
     condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
-    message = Mail box does not exist
-  # ** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx UNMBC,SST/MBA Mail box does not exist, flag_mb_absent, stop
+    message = MB:A/ (Mail box does not exist)
+  # ** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx MB:(E|NF),U:MBC,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop
   accept
     condition = $acl_c_s_st_f
     condition = $acl_m_u_nombxchk_f
     # existing
     ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
     set acl_m_mb_absent_f = true
-    message = UNMBC,SST/MBA Mail box does not exist
-  # ** (expired || not_found) && user_nombxchk => 5xx UNMBC/ Mail box does not exist, stop
+    message = MB:(E|NF),U:MBC,S:ST/MBA (Mail box does not exist)
+  # ** (expired || not_found) && user_nombxchk => 5xx MB:(E|NF),U:MBC/ (Mail box does not exist), stop
   deny
     condition = $acl_m_u_nombxchk_f
     # existing
     ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
-    message = UNMBC/ Mail box does not exist
-  # ** expired || not_found => 4xx Your data is verifying, please try again later, log, stop
+    message = MB:(E|NF),U:MBC/ (Mail box does not exist)
+  # ** expired || not_found => 4xx MB:(E|NF)/ (Your data is verifying, please try again later), log, stop
   defer
     # existing
     ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
-    message = Your data is verifying, please try again later
+    message = MB:(E|NF)/ (Your data is verifying, please try again later)
     logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
-  # ** ok
 
   # $recipients не доступен в transports
   warn
@@ -379,44 +373,44 @@ rcpt_acl:
     set acl_m_u_bl_f = $acl_c_bl_f
     set acl_m_u_bwl_m = $acl_m_bwl_rcpt_m: $acl_c_bwl_m
 
-  # * flag_user_wl => 2xx UWL/ ($msg_user_wbl), stop
+  # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl), stop
   accept
     condition = $acl_m_u_wl_f
-    message = UWL/ ($acl_m_u_bwl_m)
+    message = U:WL/ ($acl_m_u_bwl_m)
 
-  # * flag_user_bl => 5xx UBL/ ($msg_user_wbl), stop
+  # * flag_user_bl => 5xx U:BL/ ($msg_user_wbl), stop
   deny
     condition = $acl_m_u_bl_f
-    message = UBL/ ($acl_m_u_bwl_m)
+    message = U:BL/ ($acl_m_u_bwl_m)
 
-  # * flag_sys_wl => 2xx SWL/ ($msg_sys_wbl), stop
+  # * flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl), stop
   accept
     condition = $acl_c_s_wl_f
-    message = SWL/ ($acl_c_s_bwl_m)
+    message = S:WL/ ($acl_c_s_bwl_m)
 
-  # * flag_sys_bl && !sys_spamtrap && !user_spt => 5xx SBL/ ($msg_sys_wbl), stop
+  # * flag_sys_bl && !sys_spamtrap && !user_spt => 5xx S:BL/ ($msg_sys_wbl), stop
   deny
     condition = $acl_c_s_bl_f
     ! condition = $acl_c_s_st_f
     ! condition = $acl_m_u_spt_f
-    message = SBL/ ($acl_c_s_bwl_m)
+    message = S:BL/ ($acl_c_s_bwl_m)
 
-  # * flag_sys_bl => 2xx SBL,(SST|USPT)/ ($msg_sys_wbl), stop
+  # * flag_sys_bl => 2xx S:BL,(S:ST|U:SPT)/ ($msg_sys_wbl), stop
   accept
     condition = $acl_c_s_bl_f
-    message = SBL,(SST|USPT)/ ($acl_c_s_bwl_m)
+    message = S:BL,(S:ST|U:SPT)/ ($acl_c_s_bwl_m)
 
-  # * flag_spf && !user_spt && !sys_spamtrap => 5xx SPF/ (SPF: ...), stop
+  # * flag_spf && !sys_spamtrap && !user_spt => 5xx SPF/ (SPF: ...), stop
   deny
     condition = $acl_m_spf_f
-    ! condition = $acl_m_u_spt_f
     ! condition = $acl_c_s_st_f
+    ! condition = $acl_m_u_spt_f
     message = SPF/ (SPF: $acl_m_spf_m)
 
-  # * flag_spf => 2xx SPF,(USPT|SST)/ (SPF: ...), stop
+  # * flag_spf => 2xx SPF,(S:ST|U:SPT)/ (SPF: ...), stop
   accept
     condition = $acl_m_spf_f
-    message = SPF,(USPT|SST)/ (SPF: $acl_m_spf_m)
+    message = SPF,(S:ST|U:SPT)/ (SPF: $acl_m_spf_m)
 
   # * ok
   accept
@@ -536,55 +530,55 @@ U_SDB_MO_sender_L = ${map{U_MO_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_
 # проверится до вызова data_acl
 
 data_acl:
-  # * flag_mb_absent => fake/5xx MBA/ST Mail box does not exist. id=..., stop, flag_spamtrap
+  # * flag_mb_absent => fake/5xx MBA/ST (Mail box does not exist) id=..., stop, flag_spamtrap
   accept
     condition = $acl_m_mb_absent_f
     set acl_m_spamtrap_f = true
-    control = fakereject/MBA/ST Mail box does not exist. id=$message_exim_id
+    control = fakereject/MBA/ST (Mail box does not exist) id=$message_exim_id
 
-  # * проверка via_recipients (message_loop_detector.pl) => 5xx Message loop detected (stdout)
+  # * проверка md_via_recipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
   deny
     condition = ${if bool_lax{$acl_m_md_via_recipients}}
     condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_md_via_recipients $acl_m_recipient}{true}{false}}
-    message = Message loop detected ($value)
+    message = MD:VR/ (Message loop detected: $value)
 
-  # * flag_user_wl => 2xx UWL/ ($msg_user_wbl) id=..., stop
+  # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
   accept
     condition = $acl_m_u_wl_f
-    message = UWL/ ($acl_m_u_bwl_m) id=$message_exim_id
+    message = U:WL/ ($acl_m_u_bwl_m) id=$message_exim_id
 
-  # * flag_user_bl => 5xx UBL/ ($msg_user_wbl) id=..., stop
+  # * flag_user_bl => 5xx U:BL/ ($msg_user_wbl) id=..., stop
   deny
     condition = $acl_m_u_bl_f
-    message = UBL/ ($acl_m_u_bwl_m) id=$message_exim_id
+    message = U:BL/ ($acl_m_u_bwl_m) id=$message_exim_id
 
-  # * flag_sys_wl => 2xx SWL/ ($msg_sys_wbl) id=..., stop
+  # * flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl) id=..., stop
   accept
     condition = $acl_c_s_wl_f
-    message = SWL/ ($acl_c_s_bwl_m) id=$message_exim_id
+    message = S:WL/ ($acl_c_s_bwl_m) id=$message_exim_id
 
-  # * flag_sys_bl && user_spt => 2xx SBL,USPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+  # * flag_sys_bl && user_spt => 2xx S:BL,U:SPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
   accept
     condition = $acl_c_s_bl_f
     condition = $acl_m_u_spt_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    message = SBL,USPT/ST,S ($acl_c_s_bwl_m) id=$message_exim_id
+    message = S:BL,U:SPT/ST,S ($acl_c_s_bwl_m) id=$message_exim_id
 
-  # * flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+  # * flag_sys_bl => fake/5xx S:BL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
   accept
     condition = $acl_c_s_bl_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    control = fakereject/SBL/ST,S ($acl_c_s_bwl_m) id=$message_exim_id
+    control = fakereject/S:BL/ST,S ($acl_c_s_bwl_m) id=$message_exim_id
 
-  # * flag_spf && user_spt => 2xx SPF,USPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
+  # * flag_spf && user_spt => 2xx SPF,U:SPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
   accept
     condition = $acl_m_spf_f
     condition = $acl_m_u_spt_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    message = SPF,USPT/ST,S (SPF: $acl_m_spf_m) id=$message_exim_id
+    message = SPF,U:SPT/ST,S (SPF: $acl_m_spf_m) id=$message_exim_id
 
   # * flag_spf => fake/5xx SPF/ST,S (SPF: ...) id=..., stop, log Message-ID, flag_spamtrap, flag_spam
   accept
@@ -593,78 +587,78 @@ data_acl:
     set acl_m_spam_f = true
     control = fakereject/SPF/ST,S (SPF: $acl_m_spf_m) id=$message_exim_id
 
-  # * md_spam_status && user_spt => 2xx USPT/S (message data: md_spam_description) id=..., stop, flag_spam
+  # * md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: md_spam_description) id=..., stop, flag_spam
   accept
     condition = ${if bool_lax{$acl_m_md_spam_status}}
     condition = $acl_m_u_spt_f
     set acl_m_spam_f = true
-    message = USPT/S (message data: $acl_m_md_spam_description) id=$message_exim_id
-  # * md_spam_status => 5xx Spam (message data: md_spam_description) id=..., stop
+    message = MD:SP,U:SPT/S (Spam: $acl_m_md_spam_description) id=$message_exim_id
+  # * md_spam_status => 5xx MD:SP/ (Spam: md_spam_description) id=..., stop
   deny
     condition = ${if bool_lax{$acl_m_md_spam_status}}
-    message = Spam (message data: $acl_m_md_spam_description) id=$message_exim_id
-  # * md_spam_status == false => 2xx Ham (message data) id=..., stop
+    message = MD:SP/ (Spam: $acl_m_md_spam_description) id=$message_exim_id
+  # * md_spam_status == "false" => 2xx MD:SP/ (Ham) id=..., stop
   accept
     condition = ${if eqi{$acl_m_md_spam_status}{false}}
-    message = Ham (message data) id=$message_exim_id
+    message = MD:SP/ (Ham) id=$message_exim_id
 
   # * проверка Message-Id в afMessageIncoming
-  # ** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header) id=..., stop, flag_spam
+  # ** нет MessageId && user_spt => 2xx MI:MID,U:SPT/S (No Message-ID header) id=..., stop, flag_spam
   accept
     ! condition = ${if bool_lax{U_MI_H_D}}
     condition = $acl_m_u_spt_f
     set acl_m_spam_f = true
-    message = USPT/S (No Message-ID header) id=$message_exim_id
-  # ** нет MessageId => 5xx Malformed (No Message-ID header) id=..., stop
+    message = MI:MID,U:SPT/S (No Message-ID header) id=$message_exim_id
+  # ** нет MessageId => 5xx MI:MID/ (No Message-ID header), stop
   deny
     ! condition = ${if bool_lax{U_MI_H_D}}
-    message = Malformed (No Message-ID header) id=$message_exim_id
-  # ** ok, afIsSpam && user_spt => 2xx USPT/S (afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description
+    message = MI:MID/ (No Message-ID header) id=$message_exim_id
+  # ** ok, afIsSpam && user_spt => 2xx MI:SP,U:SPT/S (Spam: afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_spam_D}}
     condition = $acl_m_u_spt_f
     set acl_m_spam_f = true
     set acl_m_md_spam_status = true
     set acl_m_md_spam_description = U_SMTPDB_MI_spam_D
-    message = USPT/S (U_SMTPDB_MI_spam_D) id=$message_exim_id
-  # ** ok, afIsSpam => 5xx Spam (afSpamDescription) id=..., stop
+    message = MI:SP,U:SPT/S (Spam: U_SMTPDB_MI_spam_D) id=$message_exim_id
+  # ** ok, afIsSpam => 5xx MI:SP/ (Spam: afSpamDescription) id=..., stop
   deny
     condition = ${if bool_lax{U_SMTPDB_MI_spam_D}}
-    message = Spam (U_SMTPDB_MI_spam_D) id=$message_exim_id
+    message = MI:SP/ (Spam: U_SMTPDB_MI_spam_D) id=$message_exim_id
   # ** md_spam_status = false
   warn
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
     set acl_m_md_spam_status = false
-  # ** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+  # ** не совпадает sender && user_spt => 2xx MI:SND,U:SPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
     condition = ${if ! eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
     condition = $acl_m_u_spt_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    message = USPT/ST,S (Several senders for the same message) id=$message_exim_id
-  # ** не совпадает sender && sys_spamtrap => fake/5xx SST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+    message = MI:SND,U:SPT/ST,S (Several senders for the same message) id=$message_exim_id
+  # ** не совпадает sender && sys_spamtrap => fake/5xx MI:SND,S:ST/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
     condition = ${if ! eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
     condition = $acl_c_s_st_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    control = fakereject/SST/ST,S (Several senders for the same message) id=$message_exim_id
-  # ** не совпадает sender => 5xx Bad sender (Several senders for the same message) id=..., stop
+    control = fakereject/MI:SND,S:ST/ST,S (Several senders for the same message) id=$message_exim_id
+  # ** не совпадает sender => 5xx MI:SND/ (Several senders for the same message) id=..., stop
   deny
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
     condition = ${if ! eqi{U_SMTPDB_MI_sender_D}{$sender_address}}
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
-    message = Bad sender (Several senders for the same message) id=$message_exim_id
-  # ** ok => 2xx Ham id=xxx, stop
+    message = MI:SND/ (Several senders for the same message) id=$message_exim_id
+  # ** ok => 2xx MI/ (Ham) id=..., stop
   accept
     condition = ${if bool_lax{U_SMTPDB_MI_sender_D}}
-    message = Ham id=$message_exim_id
+    message = MI/ (Ham) id=$message_exim_id
 
   # * проверка In-Reply-To, References в afMessageOutgoing
-  # ** ok => 2xx /HT (Reply) id=..., stop, flag_hamtrap
+  # ** ok => 2xx MO/HT (Reply) id=..., stop, flag_hamtrap
   accept
     condition = ${if bool_lax{U_MO_H_D}}
     #logwrite = DEBUG: realm: $acl_m_u_realm
@@ -673,18 +667,17 @@ data_acl:
     #logwrite = DEBUG: recipient: $acl_m_recipient
     condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$acl_m_recipient}}}
     set acl_m_hamtrap_f = true
-    message = /HT (Reply) id=$message_exim_id
+    message = MO/HT (Reply) id=$message_exim_id
 
-  # * message_size >= sys_trustedmessagesize
-  # ** ok => 2xx TMS/ id=..., stop
+  # * message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop
   accept
     condition = ${if >{$message_size}{S_TMS_D}}
-    message = TMS/ id=$message_exim_id
+    message = S:TMS/ (Ham) id=$message_exim_id
 
-  # * 4xx /MP Your data is verifying, please try again later. id=..., flag_mailproc
+  # * 4xx /MP (Your data is verifying, please try again later) id=..., flag_mailproc
   accept
     set acl_m_mailproc_f = true
-    control = fakedefer//MP Your data is verifying, please try again later. id=$message_exim_id
+    control = fakedefer//MP (Your data is verifying, please try again later) id=$message_exim_id
 
 begin routers
 

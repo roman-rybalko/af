@@ -1,1 +1,1 @@
-** не совпадает sender && user_spt => 2xx USPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam
+** не совпадает sender && user_spt => 2xx MI:SND,U:SPT/ST,S (Several senders for the same message) id=..., stop, flag_spamtrap, flag_spam

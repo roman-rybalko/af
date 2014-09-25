@@ -1,1 +1,1 @@
-* flag_spf => fake/5xx SPF/ST,S (SPF: ...), stop, log Message-ID, flag_spamtrap, flag_spam
+* flag_spf => fake/5xx SPF/ST,S (SPF: ...) id=..., stop, log Message-ID, flag_spamtrap, flag_spam

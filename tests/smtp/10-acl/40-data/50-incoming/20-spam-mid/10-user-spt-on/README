@@ -1,1 +1,1 @@
-** ok, afIsSpam && user_spt => 2xx USPT/S ($afSpamDescription) id=..., stop, flag_spam
+** ok, afIsSpam && user_spt => 2xx MI:SP,U:SPT/S (Spam: afSpamDescription) id=..., stop, flag_spam, md_spam_status, md_spam_description

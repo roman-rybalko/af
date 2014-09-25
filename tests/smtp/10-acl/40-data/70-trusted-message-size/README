@@ -1,1 +1,1 @@
-* message_size >= sys_trustedmessagesize => 2xx TMS/, stop
+* message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop

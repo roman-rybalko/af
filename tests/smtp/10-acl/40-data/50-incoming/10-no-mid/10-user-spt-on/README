@@ -1,1 +1,1 @@
-** нет MessageId && user_spt => 2xx USPT/S (No Message-ID header), stop, flag_spam
+** нет MessageId && user_spt => 2xx MI:MID,U:SPT/S (No Message-ID header) id=..., stop, flag_spam

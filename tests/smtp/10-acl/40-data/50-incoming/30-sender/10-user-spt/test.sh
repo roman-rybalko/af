@@ -2,5 +2,5 @@
 
 . "$TESTCONF"
 
-swaks -f test2@tests.advancedfiltering.net -t mbox2@test.com -s $DST_HOST -h-Message-ID test-message-1 | grep -E "2[[:digit:]][[:digit:]].USPT/ST,S \\(Several senders for the same message\\) id="
+swaks -f test2@tests.advancedfiltering.net -t mbox2@test.com -s $DST_HOST -h-Message-ID test-message-1 | grep -E "2[[:digit:]][[:digit:]].MI:SND,U:SPT/ST,S \\(Several senders"
 wait_file server.env

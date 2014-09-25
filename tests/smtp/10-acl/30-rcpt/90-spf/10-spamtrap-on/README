@@ -1,1 +1,1 @@
-* flag_spf => 2xx SPF,(USPT|SST)/ (SPF: ...), stop
+* flag_spf => 2xx SPF,(S:ST|U:SPT)/ (SPF: ...), stop

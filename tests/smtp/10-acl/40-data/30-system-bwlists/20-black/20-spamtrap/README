@@ -1,1 +1,1 @@
-* flag_sys_bl => fake/5xx SBL/ST,S ($msg_sys_wbl), stop, flag_spamtrap, flag_spam
+* flag_sys_bl => fake/5xx S:BL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam

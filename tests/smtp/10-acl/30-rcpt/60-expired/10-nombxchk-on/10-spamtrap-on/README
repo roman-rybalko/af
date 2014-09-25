@@ -1,1 +1,1 @@
-** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx UNMBC,SST/MBA Mail box does not exist, flag_mb_absent, stop
+** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx MB:(E|NF),U:MBC,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop

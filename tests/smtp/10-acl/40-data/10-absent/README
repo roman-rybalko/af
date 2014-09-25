@@ -1,1 +1,1 @@
-* flag_mb_absent => fake/5xx MBA/ST Mail box does not exist, stop, flag_spamtrap
+* flag_mb_absent => fake/5xx MBA/ST (Mail box does not exist) id=..., stop, flag_spamtrap
