@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Mail::DKIM::Signer;
+use Mail::DKIM::TextWrap;
+
+if ($ARGV[0] eq "-h")
+{
+	print "USAGE: $0 <mime> <domain> <selector> <key> <headers>\n";
+	exit 0;
+}
+
+my $mime = $ARGV[0];
+my $domain = $ARGV[1];
+my $selector = $ARGV[2];
+my $key = $ARGV[3];
+my $headers = $ARGV[4];
+
+sub policy
+{
+	my $dkim = shift;
+	$dkim->add_signature(
+		new Mail::DKIM::Signature(
+			Algorithm => "rsa-sha1",
+			Method => "relaxed",
+			Domain => $domain,
+			Selector => $selector,
+			Key => Mail::DKIM::PrivateKey->load(File => $key),
+			Headers => $headers,
+		));
+	return 1;
+}
+
+my $dkim = Mail::DKIM::Signer->new(
+	Policy => \&policy,
+);
+
+my $F;
+open $F, "<", $mime;
+
+$dkim->load($F);
+
+print $dkim->signature->as_string, "\r\n";

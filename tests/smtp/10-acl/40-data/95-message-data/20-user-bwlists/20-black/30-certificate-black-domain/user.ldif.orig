@@ -1,0 +1,4 @@
+
+dn: afSMTPBWListCertificateSubject=/O\3Dadvancedfiltering/OU\3Dhosts/CN\3Dtest-smtp-black,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+afSMTPBWListIsBlack: TRUE
+objectClass: afSMTPCertificateBWListEntry

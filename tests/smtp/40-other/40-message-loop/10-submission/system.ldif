@@ -1,4 +1,0 @@
-
-dn: afSHostServiceName=submission,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-objectClass: afSHostService
-afSHServiceTCPPort: 16025

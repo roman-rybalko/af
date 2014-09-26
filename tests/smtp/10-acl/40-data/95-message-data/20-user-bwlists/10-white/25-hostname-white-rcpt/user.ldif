@@ -1,0 +1,3 @@
+
+dn: afSMTPBWListHostName=mime-test.hosts.advancedfiltering.net,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afSMTPHostNameBWListEntry

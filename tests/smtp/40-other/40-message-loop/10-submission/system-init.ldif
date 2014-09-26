@@ -1,5 +1,0 @@
-
-dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-changetype: modify
-add: afSHostServiceName
-afSHostServiceName: submission

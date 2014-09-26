@@ -1,0 +1,18 @@
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=dkim.advancedfiltering.net; s=smtp;
+	h=X-AdvancedFiltering-MessageData-SPFStatus:X-AdvancedFiltering-MessageData-SenderHostName:X-AdvancedFiltering-MessageData-SenderHostAddress:X-AdvancedFiltering-MessageData-SenderMailAddress:X-AdvancedFiltering-MessageData-ViaRecipients:Message-ID:Subject:From:To:Date; bh=ecGWgWCJeWxJFeM0urOVWP+KOlqqvsQYKOpYUP8nk7I=;
+	b=MjQm9uA187Bi1stkMvdqxpWw5GTIkb7oavKzmNAsmODLMMIhjsBDapIadfNLASVHpt3sf1g8MJVofbdGpjKs8S9N0ZByysSlOHW6lXo7ljlRoOzYqcX1xDDKSAdV8c1GO8szEvmqkiwnJnU4H/fZxk/IejsgD2Leeq867zDhVHs=;
+Received: from test-smtp.hosts.advancedfiltering.net ([10.255.255.121] helo=w01.hosts.advancedfiltering.net) by w01.hosts.advancedfiltering.net with esmtp
+ id 1XXQAV-0006i0-8y (envelope-from <test@tests.advancedfiltering.net>) for mbox@test.com; Fri, 26 Sep 2014 11:42:19 +0400
+Date: Fri, 26 Sep 2014 11:42:19 +0400
+To: mbox@test.com
+From: test@tests.advancedfiltering.net
+Subject: test Fri, 26 Sep 2014 11:42:19 +0400
+X-Mailer: swaks v20130209.0 jetmore.org/john/code/swaks/
+Message-ID: message-1
+X-AdvancedFiltering-MessageData-ViaRecipients: mime-mbox@test.com
+X-AdvancedFiltering-MessageData-SenderMailAddress: mime-test@tests.advancedfiltering.net
+X-AdvancedFiltering-MessageData-SenderHostAddress: 11.12.13.14
+X-AdvancedFiltering-MessageData-SPFStatus: false
+
+This is a test mailing
+

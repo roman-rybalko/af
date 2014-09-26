@@ -1,0 +1,3 @@
+
+dn: afSMTPBWListCertificateSubject=/O\3Dadvancedfiltering/CN\3Dmime-test,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afSMTPCertificateBWListEntry
