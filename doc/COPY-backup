@@ -1,10 +1,8 @@
 Клиентская опция для копирования сообщений на другой адрес.
 * Для бэкапа.
 * Адреса получателей (envelope) заменяются.
-* Добавить заголовок со списком оригинальных адресов получателей.
+* Добавить заголовок с оригинальным адресом получателя.
 * Копировать исходящие сообщения тоже.
-* Пересылать спам на указанный адрес, не отвергать.
-* Перенапрявлять без доставки на MX
 
 Бэкап.
 
@@ -12,15 +10,12 @@
 * sender для domain-бэкапа = domain tech email
 * sender для client-бжкапа = client tech email
 
-Бэкап нужно отправлять отдельно (со совим адресом отправителя),
-т.к. транспорт smtp посылает по нескольку адресов получателей за раз,
-для каждого бэкапа добавляется headers_remove с хешем адреса отправителя,
-на основании: Addresses that end up with different headers_add or headers_remove settings cannot be delivered together in a batch, so a transport is always dealing with a set of addresses that have the same header-processing requirements.
-$address_data
-This variable is set by means of the address_data option in routers. The value then remains with the address while it is processed by subsequent routers and eventually a transport. If the transport is handling multiple addresses, the value from the first address is used.
-
-Хеш адреса отправителя на основе функции base64, терминирующие символы "=" допустимы в имени заголовка.
-Header fields are lines composed of a field name, followed by a colon (":"), followed by a field body, and terminated by CRLF. A field name MUST be composed of printable US-ASCII characters (i.e., characters that have values between 33 and 126, inclusive), except colon. A field body may be composed of any US-ASCII characters, except for CR and LF. However, a field body may contain CRLF when used in header "folding" and "unfolding" as described in section 2.2.3. All field bodies MUST conform to the syntax described in sections 3 and 4 of this standard.
-
 Спам.
 то-же самое как и бэкап
+
+Bounce.
+Обрабатывать не нужно.
+Bounce приходит с пустым адресом отправителя,
+поступит кленту на mx (и клиент узнает о проблеме) и еще раз перенаправится в backup.
+На backup-получателе снова возникнет bounce, который молча отбросится,
+т.к. отсутствует адрес отправителя в этом bounce-backup-сообщении.
