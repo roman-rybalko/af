@@ -1,0 +1,4 @@
+
+dn: afSMTPBWListHostAddress=11.12.13.14,afSServiceName=smtp,ou=system,o=advancedfiltering
+objectClass: afSMTPHostAddressBWListEntry
+afsmtpbwlistisblack: TRUE

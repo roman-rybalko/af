@@ -429,7 +429,7 @@ dkim_acl:
     #logwrite = DEBUG: DKIM: skip bad sig: $dkim_verify_status ($dkim_verify_reason)
 
   # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
-  # * загружаем заголовки X-AdvancedFiltering-MessageData-* => md_..., flag_spf
+  # * загружаем заголовки X-AdvancedFiltering-MessageData-* => md_..., flag_spf (message data: ...)
   warn
     set acl_m_md_via_recipients = 
   warn
@@ -448,23 +448,23 @@ dkim_acl:
     set acl_m_md_sender_certificate_verified = false
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderMailAddress}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SenderMailAddress:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderMailAddress:}{}}
     set acl_m_md_sender_mail_address = $header_X-AdvancedFiltering-MessageData-SenderMailAddress:
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderHostAddress}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SenderHostAddress:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderHostAddress:}{}}
     set acl_m_md_sender_host_address = $header_X-AdvancedFiltering-MessageData-SenderHostAddress:
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderHostName}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SenderHostName:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderHostName:}{}}
     set acl_m_md_sender_host_name = $header_X-AdvancedFiltering-MessageData-SenderHostName:
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderCertificateSubject}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}{}}
     set acl_m_md_sender_certificate_subject = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}{$value}fail}
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderCertificateVerified}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}{}}
     set acl_m_md_sender_certificate_verified = ${if bool{$header_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}}
 
   warn
@@ -472,23 +472,23 @@ dkim_acl:
     set acl_m_spf_m = 
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SPFStatus}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SPFStatus:}}
-    set acl_m_spf_f = ${if bool{$header_X-AdvancedFiltering-MessageData-SPFStatus:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SPFStatus:}{}}
+    set acl_m_spf_f = ${if bool{$header_X-AdvancedFiltering-MessageData-SPFStatus:}{true}{false}}
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SPFDescription}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SPFDescription:}}
-    set acl_m_spf_m = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SPFDescription:}{$value}fail}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SPFDescription:}{}}
+    set acl_m_spf_m = message data: ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SPFDescription:}{$value}fail}
 
   warn
     set acl_m_md_spam_status = 
     set acl_m_md_spam_description = 
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SpamStatus}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SpamStatus:}}
-    set acl_m_md_spam_status = ${if bool{$header_X-AdvancedFiltering-MessageData-SpamStatus:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SpamStatus:}{}}
+    set acl_m_md_spam_status = ${if bool{$header_X-AdvancedFiltering-MessageData-SpamStatus:}{true}{false}}
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SpamDescription}{$dkim_headernames}}
-    condition = ${if bool_lax{$header_X-AdvancedFiltering-MessageData-SpamDescription:}}
+    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SpamDescription:}{}}
     set acl_m_md_spam_description = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SpamDescription:}{$value}fail}
 
   # * проверка системных списков фильтрации (на основе переменных md_... если есть заголовки) => flag_sys_wl, flag_sys_bl, msg_sys_wbl (message data: ...)
@@ -601,16 +601,16 @@ data_acl:
     set acl_m_spam_f = true
     control = fakereject/SPF/ST,S (SPF: $acl_m_spf_m) id=$message_exim_id
 
-  # * md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: md_spam_description) id=..., stop, flag_spam
+  # * md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: message data: md_spam_description) id=..., stop, flag_spam
   accept
     condition = ${if bool_lax{$acl_m_md_spam_status}}
     condition = $acl_m_u_spt_f
     set acl_m_spam_f = true
-    message = MD:SP,U:SPT/S (Spam: $acl_m_md_spam_description) id=$message_exim_id
-  # * md_spam_status => 5xx MD:SP/ (Spam: md_spam_description) id=..., stop
+    message = MD:SP,U:SPT/S (Spam: message data: $acl_m_md_spam_description) id=$message_exim_id
+  # * md_spam_status => 5xx MD:SP/ (Spam: message data: md_spam_description) id=..., stop
   deny
     condition = ${if bool_lax{$acl_m_md_spam_status}}
-    message = MD:SP/ (Spam: $acl_m_md_spam_description) id=$message_exim_id
+    message = MD:SP/ (Spam: message data: $acl_m_md_spam_description) id=$message_exim_id
   # * md_spam_status == "false" => 2xx MD:SP/ (Ham) id=..., stop
   accept
     condition = ${if eqi{$acl_m_md_spam_status}{false}}

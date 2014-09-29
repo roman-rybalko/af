@@ -1,0 +1,1 @@
+* flag_spf && user_spt => 2xx SPF,U:SPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam

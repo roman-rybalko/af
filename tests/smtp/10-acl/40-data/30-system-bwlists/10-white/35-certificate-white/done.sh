@@ -5,4 +5,4 @@
 del_ldif system.ldif
 
 stop_server mx
-rm -f server.env
+rm -f mx.env

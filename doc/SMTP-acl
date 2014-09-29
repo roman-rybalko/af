@@ -92,7 +92,7 @@ dkim
 # сигнатура может испортиться при нескольких пересылках, но обязательно рядом будет правильная
 * dkim_verify_status != pass => ok
 # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
-* загружаем заголовки X-AdvancedFiltering-MessageData-* => md_..., flag_spf
+* загружаем заголовки X-AdvancedFiltering-MessageData-* => md_..., flag_spf (message data: ...)
 * проверка системных списков фильтрации (на основе переменных md_... если есть заголовки) => flag_sys_wl, flag_sys_bl, msg_sys_wbl (message data: ...)
 * проверка пользовательских списков фильтрации (на основе переменных md_... если есть заголовки) => flag_user_wl, flag_user_bl, msg_user_wbl (message data: ...)
 * ok
@@ -120,8 +120,9 @@ data_end
 * flag_spf => fake/5xx SPF/ST,S (SPF: ...) id=..., stop, log Message-ID, flag_spamtrap, flag_spam
 # На trusted port шлют правильные почтовики и именно они рассылают спам, который возможно определить только контентными методами.
 # * sys_trustedport => 2xx S:TP/ (Ham) id=..., stop
-* md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: md_spam_description) id=..., stop, flag_spam
-* md_spam_status => 5xx MD:SP/ (Spam: md_spam_description) id=..., stop
+* md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: message data: md_spam_description) id=..., stop, flag_spam
+# нет смысла слать в spamtrap - это и так спам, не нужно лишний раз нагружать базу
+* md_spam_status => 5xx MD:SP/ (Spam: message data: md_spam_description) id=..., stop
 * md_spam_status == "false" => 2xx MD:SP/ (Ham) id=..., stop
 * проверка Message-Id в afMessageIncoming
 ** нет MessageId && user_spt => 2xx MI:MID,U:SPT/S (No Message-ID header) id=..., stop, flag_spam

@@ -1,0 +1,4 @@
+
+dn: afSMTPBWListSenderMailAddress=mime-test@tests.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+objectClass: afSMTPSenderMailAddressBWListEntry
+afsmtpbwlistisblack: TRUE

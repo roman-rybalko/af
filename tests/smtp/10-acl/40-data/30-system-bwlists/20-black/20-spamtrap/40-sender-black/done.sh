@@ -5,4 +5,4 @@
 del_ldif system.ldif
 
 stop_server spamtrap
-rm -f server.env
+rm -f spamtrap.env

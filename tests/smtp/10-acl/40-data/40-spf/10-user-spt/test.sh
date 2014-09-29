@@ -3,5 +3,5 @@
 . "$TESTCONF"
 
 # spf should fail
-swaks -f test@mcafee.com -t mbox2@test.com -s $DST_HOST | grep -E "2[[:digit:]][[:digit:]].SPF,U:SPT/ST,S \(SPF:"
-wait_file server.env
+swaks -f test@mcafee.com -t mbox2@test.com -s $DST_HOST | grep -E "2[[:digit:]][[:digit:]].SPF,U:SPT/ST,S \\(SPF:"
+wait_file mx.env

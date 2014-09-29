@@ -1,0 +1,4 @@
+
+dn: afSMTPBWListHostName=mime-test.hosts.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+objectClass: afSMTPHostNameBWListEntry
+afsmtpbwlistisblack: TRUE
