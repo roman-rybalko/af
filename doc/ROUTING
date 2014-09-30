@@ -1,2 +1,0 @@
-internet -> smtp -> submission -> internet
-smtp -> mx -> submission

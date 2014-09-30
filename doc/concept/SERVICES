@@ -1,3 +1,43 @@
+Сервисы
+==================
+
+Продукт реализуется посредством сервисов,
+которые взаимодействуют между собой,
+образуя иерархию зависимостей.
+
+
+Аккаунты для сервисов
+================================
+
+Для каждого сервиса создается отдельный аккаунт с префиксом advancedfiltering_.
+Префикс требуется для избежания конфликтов при обновлении операционной системы.
+Пример: advancedfiltering_smtp, advancedfiltering_ldap.
+
+
+Почтове адреса
+==========================
+root@advancedfiltering.net - для логов со всех серверов
+postmaster@advancedfiltering.net
+dnsmaster@advancedfiltering.net
+webmaster@advancedfiltering.net
+
+Admin Email - для организационных сообщений
+Tech Email - для технических автогенерированных сообщений (только адреса в клиентских доменах, т.к. с этих адресов идут бэкапы и спам, иначе нарушаем SPF)
+
+
+Почтовые адреса для сервисов
+=======================================
+
+mailproc@services.advancedfiltering.net
+spamtrap@services.advancedfiltering.net
+bounce@services.advancedfiltering.net
+error@services.advancedfiltering.net
+
+xxx@services.advancedfiltering.net
+
+Аутентификация и авторизация между сервисами
+============================================
+
 Аутентификация (проверка подлинности) 2-мя методами:
 1. TLS сертификаты
 2. Kerberos
