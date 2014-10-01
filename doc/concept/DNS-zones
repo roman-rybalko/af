@@ -12,19 +12,21 @@ clients.advancedfiltering.net (mx .)
 services.advancedfiltering.net (mx .)
 realms.advancedfiltering.net (mx .)
 
+xxx - имя хоста
 xxx.hosts.advancedfiltering.net (все хосты сети)
 
-xxx.clients.advancedfiltering.net
-mx1.xxx.clients.advancedfiltering.net
-mx2.xxx.clients.advancedfiltering.net
-srvmx1.xxx.clients.advancedfiltering.net
-srvmx2.xxx.clients.advancedfiltering.net
-submission1.xxx.clients.advancedfiltering.net
-submission2.xxx.clients.advancedfiltering.net
-webmail.xxx.clients.advancedfiltering.net
-vpn1.xxx.clients.advancedfiltering.net
-vpn2.xxx.clients.advancedfiltering.net
+xxx - логин клиента
+console.xxx.clients.advancedfiltering.net - WEB-панель управления
+smtp.xxx.clients.advancedfiltering.net - прием почты
+smtp2.xxx.clients.advancedfiltering.net - прием почты
+submission.xxx.clients.advancedfiltering.net - отправка почты
+submission2.xxx.clients.advancedfiltering.net - отправка почты
+webmail.xxx.clients.advancedfiltering.net - WEB-интерфейс к клиентскому IMAP (через VPN)
+vpn.xxx.clients.advancedfiltering.net - VPN-сервер
 
 ldap.services.advancedfiltering.net (основной LDAP-сервер) (cname xxx.hosts.advancedfiltering.net.)
+xxx - имя сервиса
+xxx.services.advancedfiltering.net - центральные сервера для сервисов
 
+xxx - имя realm-а
 batv.xxx.realms.advancedfiltering.net (обработка redirect-bounce) (mx xxx.hosts.advancedfiltering.net.)

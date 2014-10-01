@@ -2,12 +2,12 @@
 
 -> - redirect_router
 => - errors_to
-() - defaults
 [] - condition
 {} - unseen
 
-* service [@services] {stop} => error
+* service [@services] {stop} -> service => error
+* hamtrap [!flag_samsender && !flag_trustermessagesize] {continue} -> service => error
 * backup {continue} -> hamtrap => error
-* hamtrap [!flag_samsender] {continue} (-> service) => error
-* spamsender [flag_samsender] {stop} (-> service) => error
+* spamsender [flag_samsender] {stop} -> service => error
+* mx
 * интернет

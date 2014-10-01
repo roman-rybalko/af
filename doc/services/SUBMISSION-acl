@@ -9,46 +9,45 @@ sys_maxmessagesize
 * получить системную настройку периода перепроверки ящика
 sys_mailboxtimeout
 
-* наш hostname
-** наш realm и service=smtp
-** проверен hostname (ptr <-> ip)
-sys_trustedhost
-
 * установить сертификат
 ** sys_trustedhost => наш сертификат
-** client (IP)
+** client (IP) => клиентский сертификат
+** client (TLS SNI) => клиентский сертификат
 
-* идентифицировать клиента
-** sys_trustedhost
-** SMTP AUTH
-** TLS SNI
-** IP
+connect
+* наш hostname && наш realm && service=smtp && проверен hostname (ptr <-> ip) => sys_trustedhost
+sys_trustedhost
 
 mail
-* проверить доступ клиента к домену
-* проверить существование адреса отправителя
-** fail => 4xx Your data is verifying, try again later, log, stop
-** absent => 5xx Sender mail box does not exist, stop
-** ok
-* !sys_trustedhost => проверить настройки аутентификации для пользователя, домена и клиента
-** SMTP AUTH
-** TLS SNI
-** IP
+* идентифицировать клиента
+** sys_trustedhost => ok
+** IP (client) => ok
+** TLS SNI && TLS verified (client) => ok
+** SMTP AUTH (client/domain/rcpt) => ok
+** fail => 5xx Authentication needed, stop
+* проверить существование адреса отправителя (envelope)
+** fail => 5xx Sender mail box does not exist, stop
+* !sys_trustedhost => проверить доступ к адресу отправителя (client/domain/rcpt)
+* загрузить пользовательсике настройки => user_hidereceived, flag_spamsender
 
 rcpt
 * проверить существование домена получателя
 
 data_end
-* проверить адрес отправителя
-** нет домена => 5xx The domain is not in service, stop
-** не наш realm => 4xx Moved, try another host, stop
-** fail => 4xx Your data is verifying, try again later, log, stop
-** ok, absent => 5xx Sender mail box does not exist, stop
+* проверить адрес отправителя (From)
+** нет домена => 5xx "From:" domain (domain:header_from) is not in service, stop
+** не наш realm => 4xx "From:" domain moved, please try another host, stop
+** fail => 5xx "From:" mail box (header_from) does not exist, stop
 ** ok
-* проверить message-id
-(message-id всегда добавляется для этого соединеия)
-** sender в БД => 2xx duplicate prev-queue-id, discard, stop
-** sender в БД но другой => 5xx actual_sender prev-queue-id
+* проверить обратный адрес (Reply-To)
+** нет домена => 5xx "Reply-To:" domain (domain:header_from) is not in service, stop
+** не наш realm => 4xx "Reply-To:" domain moved, please try another host, stop
+** fail => 5xx "Reply-To:" mail box (header_from) does not exist, stop
 ** ok
-* usr_hidereceived => убрать заголовки Received
-* msgsize >= sys_trustedmessagesize => log (trusted size), ok, stop
+# message-id всегда добавляется для этого соединения
+* проверить message-id+получатель
+** в БД => 2xx Duplicate, previous id=prev-queue-id, discard, stop
+** sender в БД но другой => 5xx Duplicate, previous sender=prev-sender
+** ok
+* user_hidereceived => убрать заголовки Received
+* msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), ok, stop
