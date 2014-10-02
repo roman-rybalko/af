@@ -6,8 +6,9 @@
 {} - unseen
 
 * service [@services] {stop} -> service => error
+# бэкап-сообщения должны надежно доставляться - бэкап-адрес перенаправляем на mx
+* backup {continue} -> mx => error
 * hamtrap [!flag_samsender && !flag_trustermessagesize] {continue} -> service => error
-* backup {continue} -> hamtrap => error
-* spamsender [flag_samsender] {stop} -> service => error
-* mx
-* интернет
+* spamsender [flag_samsender] {stop} => error
+* mx {stop} => bounce
+* интернет {stop} => bounce
