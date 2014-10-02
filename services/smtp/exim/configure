@@ -535,7 +535,7 @@ U_MO_H_D = $bheader_In-Reply-To: $bheader_References:
 U_MO_L = ${run{/usr/local/advancedfiltering/smtp/exim/mid_list_encoder.pl U_MO_H_D}{$value}{}}
 
 # User Submission DataBase LDAP DN
-U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=sdb,ou=user,o=advancedfiltering
+U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=submissiondb,ou=user,o=advancedfiltering
 
 # User SDB Message Outgoing
 U_SDB_MO_sender_L = ${map{U_MO_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:$item},U_SDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}}}

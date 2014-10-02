@@ -3,7 +3,7 @@ dn: afUServiceRealm=r3+afUServiceName=smtpdb,ou=user,o=advancedfiltering
 afuservicerealm: r3
 objectClass: afUService
 
-dn: afUServiceRealm=r3+afUServiceName=sdb,ou=user,o=advancedfiltering
+dn: afUServiceRealm=r3+afUServiceName=submissiondb,ou=user,o=advancedfiltering
 afuservicerealm: r3
 objectClass: afUService
 
