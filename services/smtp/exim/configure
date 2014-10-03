@@ -233,7 +233,7 @@ U_SMTP_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_u_client},U_SMTP_R_LDA
 # User SMTP Realm Client Domain DN
 U_SMTP_R_C_D_LDAP_DN = afUSMTPDomainName=${quote_ldap_dn:$acl_m_u_domain},U_SMTP_R_C_LDAP_DN
 # User SMTP Realm Client Domain Mail Box DN
-U_SMTP_R_C_D_MB_LDAP_DN = afUSMTPDMBLocalPart=${quote_ldap_dn:${local_part:$acl_m_recipient}},U_SMTP_R_C_D_LDAP_DN
+U_SMTP_R_C_D_MB_LDAP_DN = afUSMTPDMBLocalPart=${quote_ldap_dn:${local_part:$acl_m_u_recipient}},U_SMTP_R_C_D_LDAP_DN
 
 # * определяем имя домена по синониму
 domain_rcpt_acl:
@@ -317,7 +317,7 @@ rcpt_acl:
   # выполнить после проверки recipients_count > 0
   # нужен для U_SMTP_R_C_D_MB_LDAP_DN
   warn
-    set acl_m_recipient = $local_part@$domain
+    set acl_m_u_recipient = $local_part@$domain
 
   # * получение пользовательской настройки user_nombxchk (NoMailBoxCheck - no auto-add)
   warn
@@ -553,7 +553,7 @@ data_acl:
   # * проверка md_via_recipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
   deny
     condition = ${if bool_lax{$acl_m_md_via_recipients}}
-    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_md_via_recipients $acl_m_recipient}{true}{false}}
+    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_md_via_recipients $acl_m_u_recipient}{true}{false}}
     message = MD:VR/ (Message loop detected: $value)
 
   # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
@@ -678,8 +678,8 @@ data_acl:
     #logwrite = DEBUG: realm: $acl_m_u_realm
     #logwrite = DEBUG: references: U_MO_L
     #logwrite = DEBUG: senders: U_SDB_MO_sender_L
-    #logwrite = DEBUG: recipient: $acl_m_recipient
-    condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$acl_m_recipient}}}
+    #logwrite = DEBUG: recipient: $acl_m_u_recipient
+    condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$acl_m_u_recipient}}}
     set acl_m_hamtrap_f = true
     message = MO/HT (Reply) id=$message_exim_id
 
@@ -1225,7 +1225,7 @@ X-AdvancedFiltering-MessageData-SPFDescription:\
 X-AdvancedFiltering-MessageData-SpamStatus:\
 X-AdvancedFiltering-MessageData-SpamDescription
   headers_add = \
-X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_recipient\n\
+X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_u_recipient\n\
 X-AdvancedFiltering-MessageData-SenderMailAddress: $acl_m_md_sender_mail_address\n\
 X-AdvancedFiltering-MessageData-SenderHostAddress: $acl_m_md_sender_host_address\n\
 ${if bool_lax{$acl_m_md_sender_host_name}{X-AdvancedFiltering-MessageData-SenderHostName: $acl_m_md_sender_host_name\n}{}}\
@@ -1315,7 +1315,7 @@ X-AdvancedFiltering-MessageData-SPFDescription:\
 X-AdvancedFiltering-MessageData-SpamStatus:\
 X-AdvancedFiltering-MessageData-SpamDescription
   headers_add = \
-X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_recipient\n\
+X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_u_recipient\n\
 X-AdvancedFiltering-MessageData-SenderMailAddress: $acl_m_md_sender_mail_address\n\
 X-AdvancedFiltering-MessageData-SenderHostAddress: $acl_m_md_sender_host_address\n\
 ${if bool_lax{$acl_m_md_sender_host_name}{X-AdvancedFiltering-MessageData-SenderHostName: $acl_m_md_sender_host_name\n}{}}\
