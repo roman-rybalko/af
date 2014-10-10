@@ -1,4 +1,7 @@
-* локальные порты 25 587
+* локальные порты 587
+
+* получение системной настройки mailboxtimeout
+sys_mailboxtimeout
 
 * получение системной настройки размера сообщения для отключения проверки спама
 sys_trustedmessagesize
@@ -6,28 +9,28 @@ sys_trustedmessagesize
 * получить системную настройку максимаьного размера сообщения
 sys_maxmessagesize
 
-* получить системную настройку периода перепроверки ящика
-sys_mailboxtimeout
-
 * установить сертификат
-** sys_trustedhost => наш сертификат
-** client (IP) => клиентский сертификат
-** client (TLS SNI) => клиентский сертификат
-
-connect
-* наш hostname && наш realm && service=smtp && проверен hostname (ptr <-> ip) => sys_trustedhost
-sys_trustedhost
+** trusted_host => внутренний сертификат (hostname.crt)
+** client (IP) && задан клиентский сертификат => клиентский сертификат
+** client (IP) => внешний сертификат (submission.services.advancedfiltering.net.crt)
+** client (TLS SNI) && задан клиентский сертификат => клиентский сертификат
+** client (TLS SNI) => внешний сертификат (submission.services.advancedfiltering.net.crt)
 
 mail
 * идентифицировать клиента
-** sys_trustedhost => ok
+# код ошибки 5xx - эту ошибку нужно обнаружить сразу и устранить (smtp отправит boucne на error@services)
+** trusted_host && !certificate_verified => 5xx Trusted host certificate verification failed, stop
+** trusted_host => ok
+# код ошибки 5xx - эту ошибку нужно обнаружить сразу и устранить
+** IP (client) && задан клиентский сертификат && !certificate_verified => 5xx Client (IP) certificate verification failed, stop
 ** IP (client) => ok
-** TLS SNI && TLS verified (client) => ok
+** TLS SNI && задан клиентский сертификат && !certificate_verified => 5xx Client (TLS SNI) certificate verification failed, stop
+** TLS SNI => ok
 ** SMTP AUTH (client/domain/rcpt) => ok
 ** fail => 5xx Authentication needed, stop
 * проверить существование адреса отправителя (envelope)
 ** fail => 5xx Sender mail box does not exist, stop
-* !sys_trustedhost => проверить доступ к адресу отправителя (client/domain/rcpt)
+* !trusted_host => проверить доступ к адресу отправителя (client/domain/rcpt)
 * загрузить пользовательсике настройки => user_hidereceived, flag_spamsender
 
 rcpt

@@ -1,32 +1,63 @@
-exim_user = exim
-exim_group = exim
-log_file_path = /usr/local/advancedfiltering/exim/%slog
-process_log_path = /usr/local/advancedfiltering/exim/exim-process.info
-spool_directory = /usr/local/advancedfiltering/exim
+exim_user = advancedfiltering_submission
+exim_group = advancedfiltering_submission
+log_file_path = /usr/local/advancedfiltering/submission/exim/log/%s.log
+process_log_path = /usr/local/advancedfiltering/submission/exim/exim-process.info
+spool_directory = /usr/local/advancedfiltering/submission/exim/spool
 split_spool_directory = true
 never_users = root
-daemon_smtp_ports = 25 : 587
+daemon_smtp_ports = 587
+# требуется для sys_trustedhost
 host_lookup = *
 rfc1413_hosts = :
 rfc1413_query_timeout = 0s
-smtp_receive_timeout = 5s
+smtp_receive_timeout = 42s
 local_scan_timeout = 15s
 ignore_bounce_errors_after = 2d
 timeout_frozen_after = 7d
-
-# TODO
-tls_advertise_hosts = *
-tls_try_verify_hosts = *
-tls_certificate = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.crt
-tls_privatekey = /usr/local/etc/ssl/smtp.services.advancedfiltering.net.key
-tls_verify_certificates = /usr/local/etc/ssl/ca
-tls_crl = /usr/local/etc/ssl/ca
-
+acl_smtp_connect = connect_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_data = data_acl
 
-# TODO
+# Lightweight Directory Access Protocol Connection
+LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
+# System LDAP DN
+S_LDAP_DN = ou=system,o=advancedfiltering
+# System Submission LDAP DN
+S_Submission_LDAP_DN = afSServiceName=submission,S_LDAP_DN
+# User Submission LDAP DN
+U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
+# System Realm List (separated by coma)
+S_REALM_Lc = ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base}}
+
+# System Trusted Host Flag
+S_TH_F = ${if eq{$sender_host_name}{}{false}{${if forany{<, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$sender_host_name},S_LDAP_DN?afSHostRealm?base}}}{inlist{$item}{<, S_REALM_Lc}}{true}{false}}}}
+
+# User Client Name by IP
+U_CN_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
+# User Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
+U_CN_sni_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients.advancedfiltering.net}{}}
+# User Client Name by SMTP AUTH
+U_CN_login_D = $authenticated_id
+
+# User Client Name
+U_CN_D = ${if eq{U_CN_ip_D}{}{${if eq{U_CN_sni_D}{}{${if eq{U_CN_login_D}{}{}{U_CN_login_D}}}{U_CN_sni_D}}}{U_CN_ip_D}}
+
+# User Client Certificate
+U_C_C_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D.crt}{/usr/local/advancedfiltering/submission/ssl/U_CN_D.crt}{}}
+# User Client Certificate Key
+U_C_CK_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D.key}{/usr/local/advancedfiltering/submission/ssl/U_CN_D.key}{}}
+# User Client Certificate Authority
+U_C_CA_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D-ca}{/usr/local/advancedfiltering/submission/ssl/U_CN_D-ca}{}}
+
+tls_advertise_hosts = *
+tls_try_verify_hosts = *
+tls_certificate = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/$primary_hostname.crt}{${if bool_lax{U_C_C_D}{U_C_C_D}{/usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.crt}}}}
+tls_privatekey = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/$primary_hostname.key}{${if bool_lax{U_C_CK_D}{U_C_CK_D}{/usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.key}}}}
+tls_verify_certificates = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/ca}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{/usr/local/advancedfiltering/ssl/ca}}}}
+tls_crl = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/ca}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{/usr/local/advancedfiltering/ssl/ca}}}}
+
+# TODO - user_hidereceived
 received_header_text = Received:\
   ${if def:sender_rcvhost { from $sender_rcvhost}{ from localhost}} by $primary_hostname\
   ${if def:received_protocol { with $received_protocol}}\
@@ -36,20 +67,26 @@ received_header_text = Received:\
   ${if def:sender_address { (envelope-from <$sender_address>)}}\
   ${if def:received_for { for $received_for}}
 
-# Lightweight Directory Access Protocol Connection
-LDAP_C = ldapi://%2fvar%2frun%2fopenldap%2fldapi
-# System LDAP DN
-S_LDAP_DN = ou=system,o=advancedfiltering
-# System Submission LDAP DN
-S_Submission_LDAP_DN = afSServiceName=submission,S_LDAP_DN
-# User Submission LDAP DN
-U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
-# System Realms
-S_REALMS = ${sg {${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base} }} {,\\s*} {:} }
-
-message_size_limit = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMaxMessageSize?base} }
+message_size_limit = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMaxMessageSize?base}}
 
 begin acl
+
+
+
+
+
+
+# TODO
+
+
+
+
+
+
+
+# User Realm
+U_REALM_D = ${if eq{U_CN_D}{}{}{${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:U_CN_D},S_LDAP_DN?afSClientRealm?base}}}}
+
 
 # System MailBox Timeout Data
 S_MBTO_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMailBoxTimeout?base} }

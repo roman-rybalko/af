@@ -1,5 +1,5 @@
-* убрать проверку expired в smtp
 * поправить mbxchk для smtp и submission
+* поправить ldaprepl - afSHostDataBaseName
 * проверка дубликатов в smtp
 * BATV для redirect (отдельный сервис batv, поправить smtp)
 * поправить mailproc - записывать все MID из Message-ID, если их несколько, с разделителем ":"
