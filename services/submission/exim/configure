@@ -33,6 +33,13 @@ S_REALM_Lc = ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname}
 # System Trusted Host Flag
 S_TH_F = ${if eq{$sender_host_name}{}{false}{${if forany{<, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$sender_host_name},S_LDAP_DN?afSHostRealm?base}}}{inlist{$item}{<, S_REALM_Lc}}{true}{false}}}}
 
+# System Host Certificate
+S_H_C_D = /etc/advancedfiltering_ssl/$primary_hostname.crt
+# System Host Certificate Key
+S_H_CK_D = /etc/advancedfiltering_ssl/$primary_hostname.key
+# System Host Certificate Authority
+S_H_CA_D = /etc/advancedfiltering_ssl/ca
+
 # User Client Name by IP
 U_CN_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
 # User Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
@@ -45,17 +52,20 @@ U_CN_D = ${if eq{U_CN_ip_D}{}{${if eq{U_CN_sni_D}{}{${if eq{U_CN_login_D}{}{}{U_
 
 # User Client Certificate
 U_C_C_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D.crt}{/usr/local/advancedfiltering/submission/ssl/U_CN_D.crt}{}}
-# User Client Certificate Key
 U_C_CK_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D.key}{/usr/local/advancedfiltering/submission/ssl/U_CN_D.key}{}}
-# User Client Certificate Authority
 U_C_CA_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D-ca}{/usr/local/advancedfiltering/submission/ssl/U_CN_D-ca}{}}
+
+# System Service Certificate
+S_S_C_D = /usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.crt
+S_S_CK_D = /usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.key
+S_S_CA_D = /usr/local/advancedfiltering/ssl/ca
 
 tls_advertise_hosts = *
 tls_try_verify_hosts = *
-tls_certificate = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/$primary_hostname.crt}{${if bool_lax{U_C_C_D}{U_C_C_D}{/usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.crt}}}}
-tls_privatekey = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/$primary_hostname.key}{${if bool_lax{U_C_CK_D}{U_C_CK_D}{/usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.key}}}}
-tls_verify_certificates = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/ca}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{/usr/local/advancedfiltering/ssl/ca}}}}
-tls_crl = ${if bool{S_TH_F}{/etc/advancedfiltering_ssl/ca}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{/usr/local/advancedfiltering/ssl/ca}}}}
+tls_certificate = ${if bool{S_TH_F}{S_H_C_D}{${if bool_lax{U_C_C_D}{U_C_C_D}{S_S_C_D}}}}
+tls_privatekey = ${if bool{S_TH_F}{S_H_CK_D}{${if bool_lax{U_C_CK_D}{U_C_CK_D}{S_S_CK_D}}}}
+tls_verify_certificates = ${if bool{S_TH_F}{S_H_CA_D}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{S_S_CA_D}}}}
+tls_crl = ${if bool{S_TH_F}{S_H_CA_D}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{S_S_CA_D}}}}
 
 # TODO - user_hidereceived
 received_header_text = Received:\
