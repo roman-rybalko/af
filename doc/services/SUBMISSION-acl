@@ -28,6 +28,9 @@ mail
 ** TLS SNI => ok
 ** SMTP AUTH (client/domain/rcpt) => ok
 ** fail => 5xx Authentication needed, stop
+* проверить домен отправителя
+** другой realm => 4xx Moved, please try another host, stop
+** нет DMARC (dmarc_verifier.pl "domain") => 4xx DMARC is absent for domain {домен}, please set up DMARC and try again later, stop
 * проверить существование адреса отправителя (envelope)
 ** fail => 5xx Sender mail box does not exist, stop
 * !trusted_host => проверить доступ к адресу отправителя (client/domain/rcpt)
@@ -40,6 +43,8 @@ data_end
 * проверить адрес отправителя (From)
 ** нет домена => 5xx "From:" domain (domain:header_from) is not in service, stop
 ** не наш realm => 4xx "From:" domain moved, please try another host, stop
+# может быть домен, котрый не совпадает с mail from и тоже зарегистрирован в системе (relaxed DMARC или ошибка конфигурации)
+** DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 4xx DMARC failed for "From:" domain {from domain}, please try again later, stop
 ** fail => 5xx "From:" mail box (header_from) does not exist, stop
 ** ok
 * проверить обратный адрес (Reply-To)
