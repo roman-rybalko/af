@@ -1,4 +1,5 @@
 Исходящий роутинг
+=================
 
 -> - redirect_router
 => - errors_to
@@ -12,3 +13,14 @@
 * spamsender [flag_samsender] {stop} => error
 * mx {stop} => bounce
 * интернет {stop} => bounce
+
+
+Транспорт
+=========
+
+spamsender
+* user_hidereceived => убрать заголовки Received, исправить новый заголовок Received
+
+mx, интернет
+* user_hidereceived => убрать заголовки Received, исправить новый заголовок Received
+* подписать пользовательским dkim

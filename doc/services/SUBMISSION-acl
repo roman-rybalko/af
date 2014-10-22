@@ -20,42 +20,37 @@ mail
 * идентифицировать клиента
 # код ошибки 5xx - эту ошибку нужно обнаружить сразу и устранить (smtp отправит boucne на error@services)
 ** trusted_host && !certificate_verified => 5xx Trusted host certificate verification failed, stop
-** trusted_host => ok
+** trusted_host => continue
 # код ошибки 5xx - эту ошибку нужно обнаружить сразу и устранить
 ** IP (client) && задан клиентский сертификат && !certificate_verified => 5xx Client (IP) certificate verification failed, stop
-** IP (client) => ok
+** IP (client) => continue
 ** TLS SNI && задан клиентский сертификат && !certificate_verified => 5xx Client (TLS SNI) certificate verification failed, stop
-** TLS SNI => ok
-** SMTP AUTH (client/domain/rcpt) => ok
-** fail => 5xx Authentication needed, stop
-* проверить домен отправителя
-** другой realm => 4xx Moved, please try another host, stop
-** нет DMARC (dmarc_verifier.pl "domain") => 4xx DMARC is absent for domain {домен}, please set up DMARC and try again later, stop
-* проверить существование адреса отправителя (envelope)
-** fail => 5xx Sender mail box does not exist, stop
-* !trusted_host => проверить доступ к адресу отправителя (client/domain/rcpt)
-* загрузить пользовательсике настройки => user_hidereceived, flag_spamsender
+** TLS SNI => continue
+** SMTP AUTH => continue
+** 5xx Authentication needed, stop
+* домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
+* не наш realm домена => 4xx Moved, please try another host, stop
+* не существует адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
+* !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
+* нет DMARC (dmarc_verifier.pl "domain") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
+* загрузить пользовательсике настройки => user_hidereceived, flag_spamsender, continue
+* user_hidereceived => Удалить заголовки Received, continue
+* Режим submission без исправления From/Sender, continue
 
 rcpt
-* проверить существование домена получателя
+* не существует домен получателя => 5xx Domain {rcpt domain} does not exist, stop
 
 data_end
-* проверить адрес отправителя (From)
-** нет домена => 5xx "From:" domain (domain:header_from) is not in service, stop
-** не наш realm => 4xx "From:" domain moved, please try another host, stop
+* синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender:/From:/Reply-To:/To:/Cc:/Bcc:), stop
+* нет заголовка From: => 5xx "From:" header is absent, stop
+* домен в заголовке From: не зарегистрирован => 5xx "From:" domain {domain:header_from} is not in service, stop
+* не наш realm домена в заголовке From: => 4xx "From:" domain {domain:header_from} moved, please try another host, stop
+* не существует адрес в заголовке From: => 5xx "From:" address {header_from} does not exist, stop
+* !trusted_host && адрес в заголовке From: не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use "From:" address {header_from}, stop
 # может быть домен, котрый не совпадает с mail from и тоже зарегистрирован в системе (relaxed DMARC или ошибка конфигурации)
-** DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 4xx DMARC failed for "From:" domain {from domain}, please try again later, stop
-** fail => 5xx "From:" mail box (header_from) does not exist, stop
-** ok
-* проверить обратный адрес (Reply-To)
-** нет домена => 5xx "Reply-To:" domain (domain:header_from) is not in service, stop
-** не наш realm => 4xx "Reply-To:" domain moved, please try another host, stop
-** fail => 5xx "Reply-To:" mail box (header_from) does not exist, stop
-** ok
+* DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {from domain}, stop
+* домена Reply-To нет в DNS => 5xx "Reply-To:" domain {domain:header_reply-to} does not exist, stop
 # message-id всегда добавляется для этого соединения
-* проверить message-id+получатель
-** в БД => 2xx Duplicate, previous id=prev-queue-id, discard, stop
-** sender в БД но другой => 5xx Duplicate, previous sender=prev-sender
-** ok
-* user_hidereceived => убрать заголовки Received
-* msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), ok, stop
+* message-id+получатель в БД => 2xx Duplicate, previous id=prev-queue-id, discard, stop
+* message-id+получатель в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
+* msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
