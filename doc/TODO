@@ -1,3 +1,8 @@
+* smtp: afUSMTPDomainAlias - убрать дополнительный индекс OpenLDAP
+* smtp: заменить bool_lax на !eq{}{...}
+* smtp: убрать все "(...)" из Received и "for ..." тоже - есть X-Envelope-To
+* smtp: * домен отправителя не задан => 5xx Sender domain is absent, stop
+* smtp: * домен отправителя не существует => 5xx Sender domain does not exist, spamtrap, spam, stop
 * поправить mbxchk для smtp и submission
 * поправить ldaprepl - afSHostDataBaseName
 * проверка дубликатов в smtp

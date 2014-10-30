@@ -16,6 +16,17 @@ sys_maxmessagesize
 ** client (TLS SNI) && задан клиентский сертификат => клиентский сертификат
 ** client (TLS SNI) => внешний сертификат (submission.services.advancedfiltering.net.crt)
 
+* проверка адреса отправителя
+** домен не задан => 5xx Sender domain is absent, stop
+** домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
+** не наш realm домена => 4xx Moved, please try another host, stop
+** домен не принимает почту (verify = sender) => 5xx Sender domain {domain:sender_address} does not accept mail, stop
+** раскрыть синоним, continue
+** не зарегистрирован (или просрочен) и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
+** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
+** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
+** continue
+
 mail
 * идентифицировать клиента
 # код ошибки 5xx - эту ошибку нужно обнаружить сразу и устранить (smtp отправит boucne на error@services)
@@ -28,29 +39,27 @@ mail
 ** TLS SNI => continue
 ** SMTP AUTH => continue
 ** 5xx Authentication needed, stop
-* домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
-* не наш realm домена => 4xx Moved, please try another host, stop
-* не существует адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
-* !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
-* нет DMARC (dmarc_verifier.pl "domain") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
-* загрузить пользовательсике настройки => user_hidereceived, flag_spamsender, continue
+* присутствует адрес отправителя => проверка адреса отправителя (Sender), continue
+* отсутствует адрес отправителя => flag_spamsender, continue
+* загрузить пользовательсике настройки (mbox/domain/client) => user_hidereceived, flag_spamsender, continue
 * user_hidereceived => Удалить заголовки Received, continue
-* Режим submission без исправления From/Sender, continue
+* Режим submission (добавить From если нет, Sender, Date, Message-ID) без проверки From:, continue
+* 2xx, stop
 
 rcpt
-* не существует домен получателя => 5xx Domain {rcpt domain} does not exist, stop
+* домен не принимает почту (verify = recipient) => 5xx Recipient domain {domain} does not accept mail, stop
+* 2xx, stop
 
 data_end
-* синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender:/From:/Reply-To:/To:/Cc:/Bcc:), stop
-* нет заголовка From: => 5xx "From:" header is absent, stop
-* домен в заголовке From: не зарегистрирован => 5xx "From:" domain {domain:header_from} is not in service, stop
-* не наш realm домена в заголовке From: => 4xx "From:" domain {domain:header_from} moved, please try another host, stop
-* не существует адрес в заголовке From: => 5xx "From:" address {header_from} does not exist, stop
-* !trusted_host && адрес в заголовке From: не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use "From:" address {header_from}, stop
+* message_size >= sys_maxmessagesize => 5xx ...
+* синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc), stop
+* заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
+* заголовок "From:" содержит один адрес  => проверка адреса отправителя ("From:"), continue
 # может быть домен, котрый не совпадает с mail from и тоже зарегистрирован в системе (relaxed DMARC или ошибка конфигурации)
-* DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {from domain}, stop
-* домена Reply-To нет в DNS => 5xx "Reply-To:" domain {domain:header_reply-to} does not exist, stop
-# message-id всегда добавляется для этого соединения
-* message-id+получатель в БД => 2xx Duplicate, previous id=prev-queue-id, discard, stop
-* message-id+получатель в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
+* DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {domain:header_from}, stop
+* присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
+* присутствует заголовок "Reply-To:" && домен в заголовке Reply-To: не принимает почту (verify = sender) => 5xx "Reply-To:" domain {domain:header_reply-to} does not accept mail, stop
+# message-id всегда добавляется для этого соединения (режим submission)
+* message-id в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
 * msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
+* 2xx, stop

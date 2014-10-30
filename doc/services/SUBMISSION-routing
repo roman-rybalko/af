@@ -7,6 +7,7 @@
 {} - unseen
 
 * service [@services] {stop} -> service => error
+* интернет verify_only {stop}
 # бэкап-сообщения должны надежно доставляться - бэкап-адрес перенаправляем на mx
 * backup {continue} -> mx => error
 * hamtrap [!flag_samsender && !flag_trustermessagesize] {continue} -> service => error

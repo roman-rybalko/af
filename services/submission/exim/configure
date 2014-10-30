@@ -14,10 +14,11 @@ smtp_receive_timeout = 42s
 local_scan_timeout = 15s
 ignore_bounce_errors_after = 2d
 timeout_frozen_after = 7d
-acl_smtp_connect = connect_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_data = data_acl
+# * Режим submission (добавить From если нет, Sender, Date, Message-ID) без проверки From:, continue
+local_from_check = false
 
 # Lightweight Directory Access Protocol Connection
 LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
@@ -25,13 +26,13 @@ LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
 S_LDAP_DN = ou=system,o=advancedfiltering
 # System Submission LDAP DN
 S_Submission_LDAP_DN = afSServiceName=submission,S_LDAP_DN
-# User Submission LDAP DN
-U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
 # System Realm List (separated by coma)
 S_REALM_Lc = ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base}}
 
+# System Trusted Host Raw Flag
+S_TH_R_F = ${if forany{<, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$sender_host_name},S_LDAP_DN?afSHostRealm?base}}}{inlist{$item}{<, S_REALM_Lc}}{true}{false}}
 # System Trusted Host Flag
-S_TH_F = ${if eq{$sender_host_name}{}{false}{${if forany{<, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$sender_host_name},S_LDAP_DN?afSHostRealm?base}}}{inlist{$item}{<, S_REALM_Lc}}{true}{false}}}}
+S_TH_F = ${if eq{}{$sender_host_name}{false}{S_TH_R_F}}
 
 # System Host Certificate
 S_H_C_D = /etc/advancedfiltering_ssl/$primary_hostname.crt
@@ -40,20 +41,20 @@ S_H_CK_D = /etc/advancedfiltering_ssl/$primary_hostname.key
 # System Host Certificate Authority
 S_H_CA_D = /etc/advancedfiltering_ssl/ca
 
-# User Client Name by IP
-U_CN_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
-# User Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
-U_CN_sni_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients.advancedfiltering.net}{}}
-# User Client Name by SMTP AUTH
-U_CN_login_D = $authenticated_id
+# User Authenticated Client Name by IP
+U_A_CN_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
+# User Authenticated Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
+U_A_CN_sni_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients.advancedfiltering.net}{}}
+# User Authenticated Client Name by SMTP AUTH
+U_A_CN_login_D = $authenticated_id
 
-# User Client Name
-U_CN_D = ${if eq{U_CN_ip_D}{}{${if eq{U_CN_sni_D}{}{${if eq{U_CN_login_D}{}{}{U_CN_login_D}}}{U_CN_sni_D}}}{U_CN_ip_D}}
+# User Authenticated Client Name
+U_A_CN_D = ${if eq{}{U_A_CN_ip_D}{${if eq{}{U_A_CN_sni_D}{${if eq{}{U_A_CN_login_D}{}{U_A_CN_login_D}}}{U_A_CN_sni_D}}}{U_A_CN_ip_D}}
 
 # User Client Certificate
-U_C_C_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D.crt}{/usr/local/advancedfiltering/submission/ssl/U_CN_D.crt}{}}
-U_C_CK_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D.key}{/usr/local/advancedfiltering/submission/ssl/U_CN_D.key}{}}
-U_C_CA_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_CN_D-ca}{/usr/local/advancedfiltering/submission/ssl/U_CN_D-ca}{}}
+U_C_C_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.crt}{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.crt}{}}
+U_C_CK_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.key}{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.key}{}}
+U_C_CA_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D-ca}{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D-ca}{}}
 
 # System Service Certificate
 S_S_C_D = /usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.crt
@@ -67,45 +68,110 @@ tls_privatekey = ${if bool{S_TH_F}{S_H_CK_D}{${if bool_lax{U_C_CK_D}{U_C_CK_D}{S
 tls_verify_certificates = ${if bool{S_TH_F}{S_H_CA_D}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{S_S_CA_D}}}}
 tls_crl = ${if bool{S_TH_F}{S_H_CA_D}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{S_S_CA_D}}}}
 
-# TODO - user_hidereceived
-received_header_text = Received:\
-  ${if def:sender_rcvhost { from $sender_rcvhost}{ from localhost}} by $primary_hostname\
-  ${if def:received_protocol { with $received_protocol}}\
-  ${if def:tls_cipher { ($tls_cipher)}}\
-  ${if def:tls_peerdn { ($tls_peerdn)}}\n \
-  id $message_exim_id\
-  ${if def:sender_address { (envelope-from <$sender_address>)}}\
-  ${if def:received_for { for $received_for}}
+# * user_hidereceived => Удалить заголовки Received, continue
+received_header_text = Received: \
+  ${if bool{$acl_m_u_hr_f}{\
+    from 192.168.0.42 by $primary_hostname \
+  }{\
+    from ${if def:sender_rcvhost { $sender_rcvhost}{ 192.168.0.2}} by $primary_hostname \
+  }\
+  ${if def:received_protocol {with $received_protocol }}\
+  id $message_exim_id
 
+# * message_size >= sys_maxmessagesize => 5xx ...
 message_size_limit = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMaxMessageSize?base}}
 
 begin acl
 
+# * идентифицировать клиента
+# deny => deny, accept => continue, defer => defer
+auth_acl:
 
+  # ** trusted_host && !certificate_verified => 5xx Trusted host certificate verification failed, stop
+  deny
+    condition = S_TH_F
+    ! condition = $tls_in_certificate_verified
+    message = Trusted host certificate verification failed
 
+  # ** trusted_host => continue
+  accept
+    condition = S_TH_F
 
+  # ** IP (client) && задан клиентский сертификат && !certificate_verified => 5xx Client (IP) certificate verification failed, stop
+  deny
+    condition = ${if bool_lax{U_A_CN_ip_D}}
+    condition = ${if bool_lax{U_C_C_D}}
+    ! condition = $tls_in_certificate_verified
+    message = Client (IP) certificate verification failed
 
+  # ** IP (client) => continue
+  accept
+    condition = ${if bool_lax{U_A_CN_ip_D}}
 
-# TODO
+  # ** TLS SNI && задан клиентский сертификат && !certificate_verified => 5xx Client (TLS SNI) certificate verification failed, stop
+  deny
+    condition = ${if bool_lax{U_A_CN_sni_D}}
+    condition = ${if bool_lax{U_C_C_D}}
+    ! condition = $tls_in_certificate_verified
+    message = Client (TLS SNI) certificate verification failed
 
+  # ** TLS SNI => continue
+  accept
+    condition = ${if bool_lax{U_A_CN_sni_D}}
+  
+  # ** SMTP AUTH => continue
+  accept
+    condition = ${if bool_lax{U_A_CN_login_D}}
 
+  # ** 5xx Authentication needed, stop
+  deny
+    message = Authentication needed
 
+# Check user right to use sender address
+# accept => continue, deny => deny
+sender_auth_acl:
 
+  # mbox
+  accept
+    condition = ${if eq{$acl_m_u_sender}{U_A_CN_login_D}}
 
+  # mbox alias
+  accept
+    condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{U_A_CN_login_D}}
 
+  # domain
+  accept
+    condition = ${if eq{${domain:$acl_m_u_sender}}{U_A_CN_login_D}}
 
-# User Realm
-U_REALM_D = ${if eq{U_CN_D}{}{}{${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:U_CN_D},S_LDAP_DN?afSClientRealm?base}}}}
+  # domain alias
+  accept
+    condition = ${if eq{$acl_m_u_domain}{U_A_CN_login_D}}
 
+  # client SMTP AUTH
+  accept
+    condition = ${if eq{$acl_m_u_client}{U_A_CN_login_D}}
+
+  # client TLS SNI
+  accept
+    condition = ${if eq{$acl_m_u_client}{U_A_CN_sni_D}}
+
+  # client IP
+  accept
+    condition = ${if eq{$acl_m_u_client}{U_A_CN_ip_D}}
+
+  # unknown
+  deny
+
+# System SMTP LDAP DN
+S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
 
 # System MailBox Timeout Data
-S_MBTO_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMailBoxTimeout?base} }
-# System Trusted Message Size
-S_TMS_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionTrustedMessageSize?base} }
+S_MBTO_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMailBoxTimeout?base}}
+# System MailBox Cutoff Time Data
+S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
 
-# TODO
-mail_acl:
-  accept
+# User Submission LDAP DN
+U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
 
 # User Submission Realm DN
 U_Submission_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+U_Submission_LDAP_DN
@@ -114,14 +180,201 @@ U_Submission_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_u_client},U_Subm
 # User Submission Realm Client Domain DN
 U_Submission_R_C_D_LDAP_DN = afUSubmissionDomainName=${quote_ldap_dn:$acl_m_u_domain},U_Submission_R_C_LDAP_DN
 # User Submission Realm Client Domain Mail Box DN
-U_Submission_R_C_D_MB_LDAP_DN = afUSubmissionDMBLocalPart=${quote_ldap_dn:$local_part},U_Submission_R_C_D_LDAP_DN
+U_Submission_R_C_D_MB_LDAP_DN = afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:$acl_m_u_sender}},U_Submission_R_C_D_LDAP_DN
 
-# TODO
-rcpt_acl:
+# * проверка адреса отправителя
+# deny => deny, accept => continue, defer => defer
+sneder_acl:
+
+  # ** домен не задан => 5xx Sender domain is absent, stop
+  deny
+    # User Domain
+    set acl_m_u_domain = ${domain:$acl_m_u_sender}
+    condition = ${if eq{}{$acl_m_u_domain}}
+    message = $acl_m_u_sender_desc domain is absent
+
+  # ** домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
+  deny
+    # User Client name/id
+    set acl_m_u_client = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$acl_m_u_domain},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
+    condition = ${if eq{}{$acl_m_u_client}}
+    message = $acl_m_u_sender_desc domain $acl_m_u_domain is not in service
+
+  # ** не наш realm домена => 4xx Moved, please try another host, stop
+  defer
+    # User Realm
+    set acl_m_u_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_u_client},S_LDAP_DN?afSClientRealm?base}}
+    ! condition = ${if inlist{$acl_m_u_realm}{<, S_REALM_Lc}}
+    message = Moved, please try another host
+
+  # ** домен не принимает почту (verify = sender) => 5xx Sender domain {domain:sender_address} does not accept mail, stop
+  deny
+    ! verify = sender=$acl_m_u_sender
+    message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} does not accept mail
+
+  # ** раскрыть синоним, continue
+  warn
+    ! condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    set acl_m_u_domain = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}
+  # блокируем двойной синоним
+  defer
+    ! condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    logwrite = :panic: Double domain alias: sender=$acl_m_u_sender client=$acl_m_u_client realm=$acl_m_u_realm domain=${domain:$acl_m_u_sender} alias=$acl_m_u_domain
+    message = Configuration problem (double domain alias)
+
+  # ** не зарегистрирован (или просрочен) и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
+  deny
+    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated>=S_MBCT_D)}}}}
+    ! condition = ${run{/usr/local/advancedfiltering/submission/mbxchk_vrfy/mbxchk_vrfy-exim.sh $acl_m_u_sender}{true}{false}}
+    message = $acl_m_u_sender_desc address $acl_m_u_sender does not exist
+
+  # ** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
+  deny
+    ! condition = S_TH_F
+    ! acl = sender_auth_acl
+    message = Authenticated user U_A_CN_D may not use sender address $acl_m_u_sender
+
+  # ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
+  deny
+    ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:$acl_m_u_sender}}{true}{false}}
+    message = DMARC is absent for sender domain ${domain:$acl_m_u_sender}
+
+  # ** continue
   accept
 
-# TODO
+# Load user configuration data
+# accept - found, deny - not found
+conf_acl:
+  accept
+    set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?$acl_m_u_conf_name?base}}
+    ! condition = ${if eq{}{$acl_m_u_conf_value}}
+  accept
+    set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?$acl_m_u_conf_name?base}}
+    ! condition = ${if eq{}{$acl_m_u_conf_value}}
+  accept
+    set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_LDAP_DN?$acl_m_u_conf_name?base}}
+    ! condition = ${if eq{}{$acl_m_u_conf_value}}
+  deny
+
+mail_acl:
+
+  # * идентифицировать клиента
+  deny
+    ! acl = auth_acl
+
+  # * присутствует адрес отправителя => проверка адреса отправителя (Sender), continue
+  deny
+    ! condition = ${if eq{}{$sender_address}}
+    set acl_m_u_sender_desc = Sender
+    set acl_m_u_sender = $sender_address
+    ! acl = sender_acl
+
+  # * отсутствует адрес отправителя => flag_spamsender, continue
+  warn
+    # SpamSender
+    set acl_m_u_ss_f = false
+    condition = ${if eq{}{$sender_address}}
+    set acl_m_u_ss_f = true
+
+  # * загрузить пользовательсике настройки (mbox/domain/client) => user_hidereceived, flag_spamsender, continue
+  # afUSubmissionHideReceived
+  warn
+    # User Hide Received flag
+    set acl_m_u_hr_f = false
+    set acl_m_u_conf_name = afUSubmissionHideReceived
+    acl = conf_acl
+    set acl_m_u_hr_f = $acl_m_u_conf_value
+  # afUSubmissionSpamSender
+  warn
+    ! condition = ${if bool{$acl_m_u_ss_f}}
+    set acl_m_u_conf_name = afUSubmissionSpamSender
+    acl = conf_acl
+    set acl_m_u_ss_f = $acl_m_u_conf_value
+
+  # * user_hidereceived => Удалить заголовки Received, continue
+  warn
+    condition = ${if bool{$acl_m_u_hr_f}}
+    remove_header = Received
+
+  # * Режим submission (добавить From если нет, Sender, Date, Message-ID) без проверки From:, continue
+  warn
+    control = submission
+
+  # * 2xx, stop
+  accept
+
+rcpt_acl:
+
+  # * домен не принимает почту (verify = recipient) => 5xx Recipient domain {domain} does not accept mail, stop
+  deny
+    ! verify = recipient
+    message = Recipient domain $domain does not accept mail
+
+  # * 2xx, stop
+  accept
+
+# System Trusted Message Size
+S_TMS_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionTrustedMessageSize?base}}
+
+# User Submission DataBase LDAP DN
+U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+# User Encoded Message ID
+U_EMID_D = ${run{/usr/local/advancedfiltering/submission/exim/mid_list_encoder.pl $bheader_Message-ID:}{$value}{}}
+# User Submission DataBase Sender
+U_SDB_S_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_EMID_D},U_SDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}
+# User Headers Sender
+U_H_S_D = ${if eq{}{$bheader_Reply-To:}{${address:$bheader_From:}}{${address:$bheader_Reply-To:}}}
+
 data_acl:
+
+  # * синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc), stop
+  deny
+    ! verify = header_syntax
+    message = Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc)
+
+  # * заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
+  deny
+    condition = ${if eq{}{${address:$bheader_From:}}}
+    message = Invalid "From:" header
+
+  # * заголовок "From:" содержит один адрес  => проверка адреса отправителя ("From:"), continue
+  deny
+    ! condition = ${if eq{}{${address:$bheader_From:}}}
+    set acl_m_u_sender_desc = "From:"
+    set acl_m_u_sender = ${address:$bheader_From:}
+    ! acl = sender_acl
+
+  # * DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {domain:header_from}, stop
+  deny
+    ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:${address:$bheader_From:}} ${domain:$sender_address} ${domain:${address:$bheader_From:}}}{true}{false}}
+    message = DMARC failed for "From:" domain ${domain:${address:$bheader_From:}}
+
+  # * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
+  deny
+    ! condition = ${if eq{}{$bheader_Reply-To:}}
+    condition = ${if eq{}{${address:$bheader_Reply-To:}}}
+    message = Invalid "Reply-To:" header
+
+  # * присутствует заголовок "Reply-To:" && домен в заголовке Reply-To: не принимает почту (verify = sender) => 5xx "Reply-To:" domain {domain:header_reply-to} does not accept mail, stop
+  deny
+    ! condition = ${if eq{}{$bheader_Reply-To:}}
+    ! verify = sender=${address:$bheader_Reply-To:}
+    message = "Reply-To:" domain ${domain:${address:$bheader_Reply-To:}} does not accept mail
+
+  # * message-id в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
+  deny
+    ! condition = ${if eq{}{U_SDB_S_D}}
+    ! condition = ${if eq{U_H_S_D}{U_SDB_S_D}}
+    message = Duplicate, previous sender=U_H_S_D
+
+  # * msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
+  accept
+    set acl_m_u_tms_f = false
+    condition = ${if >{$message_size}{S_TMS_D}}
+    set acl_m_u_tms_f = true
+    message = Trusted message size
+
+  # * 2xx, stop
   accept
 
 # TODO

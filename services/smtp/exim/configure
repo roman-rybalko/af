@@ -45,6 +45,7 @@ U_SMTP_LDAP_DN = afUServiceName=smtp,ou=user,o=advancedfiltering
 # System Realm List (separated by coma)
 S_REALM_Lc = ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base}}
 
+# * message_size >= sys_maxmessagesize => 5xx ...
 message_size_limit = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMaxMessageSize?base}}
 
 begin acl
