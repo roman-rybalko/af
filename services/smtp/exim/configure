@@ -707,7 +707,7 @@ R_AD_R_LDAP_Q = afSHostRealm=${quote_ldap_dn:${extract {realm} {$address_data} }
 # Router Address_Data Realm Flag
 R_AD_R_F = ${extract{realm}{$address_data}{true}{false}}
 # Router System Realm LDAP Query
-R_SYS_R_LDAP_Q = ${reduce {S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:$item})} }
+R_SYS_R_LDAP_Q = ${reduce {<, S_REALM_Lc} {|} {$value(afSHostRealm=${quote_ldap_dn:$item})} }
 # Router Services Realm LDAP Q
 R_S_R_LDAP_Q = ${if bool{R_AD_R_F}{R_AD_R_LDAP_Q}{R_SYS_R_LDAP_Q}}
 
@@ -869,7 +869,7 @@ spamaddress_client_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = submission_router
 
-# * backup_rcpt [!flag_spam] {continue} -> submission >> redirect => error
+# * backup_rcpt [!flag_spam] {continue} -> submission >> backup_end => error
 R_LDAP_DN == R_CDM_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all backup_ routers
@@ -890,9 +890,9 @@ backup_rcpt_pass_router:
   driver = redirect
   data = $local_part@$domain
   errors_to = error@services.advancedfiltering.net
-  redirect_router = redirect_router
+  redirect_router = backup_end_router
 
-# * backup_domain [!flag_spam] {continue} -> submission >> redirect => error
+# * backup_domain [!flag_spam] {continue} -> submission >> backup_end => error
 R_LDAP_DN == R_CD_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all backup_ routers
@@ -913,9 +913,9 @@ backup_domain_pass_router:
   driver = redirect
   data = $local_part@$domain
   errors_to = error@services.advancedfiltering.net
-  redirect_router = redirect_router
+  redirect_router = backup_end_router
 
-# * backup_client [!flag_spam] {continue} -> submission >> redirect => error
+# * backup_client [!flag_spam] {continue} -> submission >> backup_end => error
 R_LDAP_DN == R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all backup_ routers
@@ -936,10 +936,10 @@ backup_client_pass_router:
   driver = redirect
   data = $local_part@$domain
   errors_to = error@services.advancedfiltering.net
-  redirect_router = redirect_router
+  redirect_router = backup_end_router
 
-# * redirect
-redirect_router:
+# * backup_end
+backup_end_router:
   driver = redirect
   data = ""
 

@@ -19,10 +19,10 @@
 * spamaddress_rcpt [flag_spam] {stop} -> submission => error
 * spamaddress_domain [flag_spam] {stop} -> submission => error
 * spamaddress_client [flag_spam] {stop} -> submission => error
-* backup_rcpt [!flag_spam] {continue} -> submission >> redirect => error
-* backup_domain [!flag_spam] {continue} -> submission >> redirect => error
-* backup_client [!flag_spam] {continue} -> submission >> redirect => error
-* redirect
+* backup_rcpt [!flag_spam] {continue} -> submission >> backup_end => error
+* backup_domain [!flag_spam] {continue} -> submission >> backup_end => error
+* backup_client [!flag_spam] {continue} -> submission >> backup_end => error
+* backup_end
 * redirect_rcpt {stop} -> submission => error
 * redirect_domain {stop} -> submission => error
 * redirect_client {stop} -> submission => error
