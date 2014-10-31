@@ -3,17 +3,24 @@
 
 -> - redirect_router
 => - errors_to
+>> - pass_router
 [] - condition
 {} - unseen
 
-* service [@services] {stop} -> service => error
-* интернет verify_only {stop}
+* service [@services] {stop} => error
+* service_defer [@services] {stop} -> service => error
+* internet_verify {stop} => bounce
+* hamtrap [flag_hamtrap] {continue} -> service => error
 # бэкап-сообщения должны надежно доставляться - бэкап-адрес перенаправляем на mx
-* backup {continue} -> mx => error
-* hamtrap [!flag_samsender && !flag_trustermessagesize] {continue} -> service => error
-* spamsender [flag_samsender] {stop} => error
-* mx {stop} => bounce
-* интернет {stop} => bounce
+* backup_rcpt {continue} -> mx >> backup_end => error
+* backup_domain {continue} -> mx >> backup_end => error
+* backup_client {continue} -> mx >> backup_end => error
+* backup_end
+* spamsender [flag_spamsender] {stop} -> service => error --- ??? если он в @services - для каждого получателя будет отдельная отправка, если он отдельный mx - чем отличается от mx_... ?
+* mx_rcpt {stop} => bounce
+* mx_domain {stop} => bounce
+* mx_client {stop} => bounce
+* internet {stop} => bounce
 
 
 Транспорт
@@ -22,6 +29,6 @@
 spamsender
 * user_hidereceived => убрать заголовки Received, исправить новый заголовок Received
 
-mx, интернет
+mx, internet
 * user_hidereceived => убрать заголовки Received, исправить новый заголовок Received
 * подписать пользовательским dkim

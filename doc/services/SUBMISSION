@@ -150,7 +150,9 @@ Sender нужен в submissiondb для проверки ответа (reply). 
 4. Проверить message-id и sender
 4.1. Нет message-id - добавляем
 4.2. Есть message-id в БД но другой sender - 5xx actual_sender prev-queue-id
-5. Учитывать trusted size (>2M)
+5. Предварительная проверка на спам
+5.1. Учитывать trusted size (>2M)
+5.2. Проверить In-Reply-To, References
 6. Роутинг
 6.1. mailproc
 6.2. backup

@@ -24,6 +24,8 @@ local_from_check = false
 LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
 # System LDAP DN
 S_LDAP_DN = ou=system,o=advancedfiltering
+# System SMTP LDAP DN
+S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
 # System Submission LDAP DN
 S_Submission_LDAP_DN = afSServiceName=submission,S_LDAP_DN
 # System Realm List (separated by coma)
@@ -80,6 +82,18 @@ received_header_text = Received: \
 
 # * message_size >= sys_maxmessagesize => 5xx ...
 message_size_limit = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMaxMessageSize?base}}
+
+# User Submission LDAP DN
+U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
+
+# User Submission Realm DN
+U_Submission_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+U_Submission_LDAP_DN
+# User Submission Realm Client DN
+U_Submission_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_u_client},U_Submission_R_LDAP_DN
+# User Submission Realm Client Domain DN
+U_Submission_R_C_D_LDAP_DN = afUSubmissionDomainName=${quote_ldap_dn:$acl_m_u_domain},U_Submission_R_C_LDAP_DN
+# User Submission Realm Client Domain Mail Box DN
+U_Submission_R_C_D_MB_LDAP_DN = afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:$acl_m_u_sender}},U_Submission_R_C_D_LDAP_DN
 
 begin acl
 
@@ -162,25 +176,10 @@ sender_auth_acl:
   # unknown
   deny
 
-# System SMTP LDAP DN
-S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
-
 # System MailBox Timeout Data
 S_MBTO_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMailBoxTimeout?base}}
 # System MailBox Cutoff Time Data
 S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
-
-# User Submission LDAP DN
-U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
-
-# User Submission Realm DN
-U_Submission_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+U_Submission_LDAP_DN
-# User Submission Realm Client DN
-U_Submission_R_C_LDAP_DN = afUClientName=${quote_ldap_dn:$acl_m_u_client},U_Submission_R_LDAP_DN
-# User Submission Realm Client Domain DN
-U_Submission_R_C_D_LDAP_DN = afUSubmissionDomainName=${quote_ldap_dn:$acl_m_u_domain},U_Submission_R_C_LDAP_DN
-# User Submission Realm Client Domain Mail Box DN
-U_Submission_R_C_D_MB_LDAP_DN = afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:$acl_m_u_sender}},U_Submission_R_C_D_LDAP_DN
 
 # * проверка адреса отправителя
 # deny => deny, accept => continue, defer => defer
@@ -214,11 +213,11 @@ sneder_acl:
 
   # ** раскрыть синоним, continue
   warn
-    ! condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
     set acl_m_u_domain = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}
   # блокируем двойной синоним
   defer
-    ! condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
     logwrite = :panic: Double domain alias: sender=$acl_m_u_sender client=$acl_m_u_client realm=$acl_m_u_realm domain=${domain:$acl_m_u_sender} alias=$acl_m_u_domain
     message = Configuration problem (double domain alias)
 
@@ -247,13 +246,13 @@ sneder_acl:
 conf_acl:
   accept
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?$acl_m_u_conf_name?base}}
-    ! condition = ${if eq{}{$acl_m_u_conf_value}}
+    condition = ${if ! eq{}{$acl_m_u_conf_value}}
   accept
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?$acl_m_u_conf_name?base}}
-    ! condition = ${if eq{}{$acl_m_u_conf_value}}
+    condition = ${if ! eq{}{$acl_m_u_conf_value}}
   accept
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_LDAP_DN?$acl_m_u_conf_name?base}}
-    ! condition = ${if eq{}{$acl_m_u_conf_value}}
+    condition = ${if ! eq{}{$acl_m_u_conf_value}}
   deny
 
 mail_acl:
@@ -264,14 +263,14 @@ mail_acl:
 
   # * присутствует адрес отправителя => проверка адреса отправителя (Sender), continue
   deny
-    ! condition = ${if eq{}{$sender_address}}
+    condition = ${if ! eq{}{$sender_address}}
     set acl_m_u_sender_desc = Sender
     set acl_m_u_sender = $sender_address
     ! acl = sender_acl
 
   # * отсутствует адрес отправителя => flag_spamsender, continue
   warn
-    # SpamSender
+    # User SpamSender flag
     set acl_m_u_ss_f = false
     condition = ${if eq{}{$sender_address}}
     set acl_m_u_ss_f = true
@@ -318,12 +317,19 @@ S_TMS_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionTrustedMessageS
 
 # User Submission DataBase LDAP DN
 U_SDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=submissiondb,ou=user,o=advancedfiltering
-# User Encoded Message ID
-U_EMID_D = ${run{/usr/local/advancedfiltering/submission/exim/mid_list_encoder.pl $bheader_Message-ID:}{$value}{}}
+# User Submission DB Encoded Message ID
+U_SDB_EMID_D = ${run{/usr/local/advancedfiltering/submission/exim/mid_list_encoder.pl $bheader_Message-ID:}{$value}{}}
 # User Submission DataBase Sender
-U_SDB_S_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_EMID_D},U_SDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}
+U_SDB_S_D = ${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:U_SDB_EMID_D},U_SDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}
 # User Headers Sender
 U_H_S_D = ${if eq{}{$bheader_Reply-To:}{${address:$bheader_From:}}{${address:$bheader_Reply-To:}}}
+
+# User SMTP DataBase LDAP DN
+U_SMTPDB_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+afUServiceName=smtpdb,ou=user,o=advancedfiltering
+# User SMTP DB Encoded Message ID
+U_SMTPDB_EMID_L = ${run{/usr/local/advancedfiltering/submission/exim/mid_list_encoder.pl $bheader_In-Reply-To: $bheader_References:}{$value}{}}
+# User SMTP DB Sender list
+U_SMTPDB_S_L = ${map{U_SMTPDB_EMID_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:$item},U_SMTPDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}}}
 
 data_acl:
 
@@ -339,7 +345,7 @@ data_acl:
 
   # * заголовок "From:" содержит один адрес  => проверка адреса отправителя ("From:"), continue
   deny
-    ! condition = ${if eq{}{${address:$bheader_From:}}}
+    condition = ${if ! eq{}{${address:$bheader_From:}}}
     set acl_m_u_sender_desc = "From:"
     set acl_m_u_sender = ${address:$bheader_From:}
     ! acl = sender_acl
@@ -351,21 +357,28 @@ data_acl:
 
   # * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
   deny
-    ! condition = ${if eq{}{$bheader_Reply-To:}}
+    condition = ${if ! eq{}{$bheader_Reply-To:}}
     condition = ${if eq{}{${address:$bheader_Reply-To:}}}
     message = Invalid "Reply-To:" header
 
   # * присутствует заголовок "Reply-To:" && домен в заголовке Reply-To: не принимает почту (verify = sender) => 5xx "Reply-To:" domain {domain:header_reply-to} does not accept mail, stop
   deny
-    ! condition = ${if eq{}{$bheader_Reply-To:}}
+    condition = ${if ! eq{}{$bheader_Reply-To:}}
     ! verify = sender=${address:$bheader_Reply-To:}
     message = "Reply-To:" domain ${domain:${address:$bheader_Reply-To:}} does not accept mail
 
   # * message-id в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
   deny
-    ! condition = ${if eq{}{U_SDB_S_D}}
+    condition = ${if ! eq{}{U_SDB_S_D}}
     ! condition = ${if eq{U_H_S_D}{U_SDB_S_D}}
     message = Duplicate, previous sender=U_H_S_D
+
+  # * in-reply-to, references в БД и sender в recipients => flag_hamtrap, continue
+  warn
+    # User HamTrap flag
+    set acl_m_u_ht_f = false
+    condition = ${if forany{U_SMTPDB_S_L}{inlist{$item}{<, $recipients}}}
+    set acl_m_u_ht_f = true
 
   # * msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
   accept
@@ -377,23 +390,7 @@ data_acl:
   # * 2xx, stop
   accept
 
-# TODO
 begin routers
-
-# Router Client
-R_CLIENT = ${lookup ldap{LDAP_C/afSSubmissionDomainName=${quote_ldap_dn:$domain},S_Submission_LDAP_DN?afSSubmissionDomainClientName?base}}
-# Router Client Realm
-R_C_REALM = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:R_CLIENT},S_LDAP_DN?afSClientRealm?base}}
-
-# (is needed for service_* routers and submission_* routers)
-# Router Address_Data Realm LDAP Query (needed for service_* routers and submission_* routers)
-R_AD_R_LDAP_Q = afSHostRealm=${quote_ldap_dn:${extract {realm} {$address_data} }}
-# Router Address_Data Realm Flag
-R_AD_R_F = ${extract {realm} {$address_data} }
-# Router System Realm LDAP Query
-R_SYS_R_LDAP_Q = ${reduce {S_REALMS} {|} {$value(afSHostRealm=${quote_ldap_dn:$item})} }
-# Router Services Realm LDAP Q
-R_S_R_LDAP_Q = ${if bool_lax{R_AD_R_F} {R_AD_R_LDAP_Q} {R_SYS_R_LDAP_Q} }
 
 # * service
 
@@ -403,22 +400,139 @@ service_verify_router:
   domains = services.advancedfiltering.net
   driver = accept
 
+# Router User Realm LDAP Query
+R_U_R_LDAP_Q = afSHostRealm=${quote_ldap_dn:${extract {realm} {$address_data} }}
+# Router Host Realm LDAP Query
+R_H_R_LDAP_Q = ${reduce{<, S_REALM_Lc}{|}{$value(afSHostRealm=${quote_ldap_dn:$item})}}
+# Router Services Realm LDAP Query
+R_S_R_LDAP_Q = ${if eq{}{$acl_m_u_realm}{R_H_R_LDAP_Q}{R_U_R_LDAP_Q}}
+
+# Routers/Service Router Route Data Hosts List (separated by \n)
+R_SRRD_H_Lnl = ${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_S_R_LDAP_Q)(afSHostServiceName=$local_part))}}
+# Routers/Service Router Route Data Address (uses $item)
+R_SRRD_address_I = ${lookup ldap{LDAP_C/afSHostServiceName=$local_part,afSHostName=${quote_ldap_dn:$item},S_LDAP_DN?afSHServiceHostAddress?base}}
+# Routers/Service Router Route Data Port (uses $item)
+R_SRRD_port_I = ${lookup ldap{LDAP_C/afSHostServiceName=$local_part,afSHostName=${quote_ldap_dn:$item},S_LDAP_DN?afSHServiceTCPPort?base}}
+# Routers/Service Router Route Data List (separated by \n)
+R_SRRD_Lnl = ${map{<\n R_SRRD_H_Lnl}{${if bool_lax{R_SRRD_address_I}{R_SRRD_address_I}{$item}}${if bool_lax{R_SRRD_port_I}{:R_SRRD_port_I}{}}}}
+
+# * service [@services] {stop} => error
 service_router:
   domains = services.advancedfiltering.net
   driver = manualroute
-  debug_print = address_data = $address_data, sys_r = R_SYS_R_LDAP_Q
-  route_data = ${tr {${lookup ldapm{LDAP_C/S_LDAP_DN?afSHostName?sub?(&(R_S_R_LDAP_Q)(afSHostServiceName=$local_part))} }} {\n} {:} }
+  route_data = \"<\n R_SRRD_Lnl\"
   hosts_randomize = true
   transport = service_transport
-  address_data = system_authenticator="true" $address_data
-  errors_to = error@services.advancedfiltering.net
+  # error delivery loop prevention
+  errors_to = ${if eqi{$local_part}{error}{}{error@services.advancedfiltering.net}}
+  self = send
 
+# * service_defer [@services] {stop} -> service => error
 service_defer_router:
   domains = services.advancedfiltering.net
   driver = redirect
   allow_defer = true
   data = :defer:
   errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+
+# * internet_verify {stop} => bounce
+internet_verify_router:
+  verify_only = true
+  driver = dnslookup
+  errors_to = bounce@services.advancedfiltering.net
+  self = send
+  more = false
+
+# * hamtrap [flag_hamtrap] {continue} -> service => error
+hamtrap_router:
+  condition = $acl_m_u_ht_f
+  driver = redirect
+  data = hamtrap@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+  unseen = true
+
+# Router general LDAP DN
+R_LDAP_DN = ""
+
+# Router Copy Target List (separated by coma)
+R_CT_Lc = ""
+
+# Router Copy Sender Data
+R_CS_D = ""
+
+# * backup_rcpt {continue} -> mx >> backup_end => error
+R_LDAP_DN == U_Submission_R_C_D_MB_LDAP_DN
+R_CS_D == $local_part@$domain
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSubmissionBackupMailAddress?base}}
+backup_rcpt_router:
+  # prevent address_data update
+  condition = ${if ! eq{}{R_CT_Lc}}
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D $address_data
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = mx_router
+  unseen = true
+backup_rcpt_pass_router:
+  condition = ${if ! eq{}{R_CT_Lc}}
+  driver = redirect
+  data = $local_part@$domain
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = backup_end_router
+
+# * backup_domain {continue} -> mx >> backup_end => error
+R_LDAP_DN == U_Submission_R_C_D_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSubmissionDomainTechMailAddress?base}}
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSubmissionBackupMailAddress?base}}
+backup_domain_router:
+  # prevent address_data update
+  condition = ${if ! eq{}{R_CT_Lc}}
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D $address_data
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = mx_router
+  unseen = true
+backup_domain_pass_router:
+  condition = ${if ! eq{}{R_CT_Lc}}
+  driver = redirect
+  data = $local_part@$domain
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = backup_end_router
+
+# * backup_client {continue} -> mx >> backup_end => error
+R_LDAP_DN == U_Submission_R_C_LDAP_DN
+R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
+# the same for all backup_ routers
+R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSubmissionBackupMailAddress?base}}
+backup_client_router:
+  # prevent address_data update
+  condition = ${if ! eq{}{R_CT_Lc}}
+  driver = redirect
+  data = R_CT_Lc
+  address_data = sender=R_CS_D $address_data
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = mx_router
+  unseen = true
+backup_client_pass_router:
+  condition = ${if ! eq{}{R_CT_Lc}}
+  driver = redirect
+  data = $local_part@$domain
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = backup_end_router
+
+# * backup_end
+backup_end_router:
+  driver = redirect
+  data = ""
+
+
+
+
 
 begin transports
 
