@@ -16,10 +16,7 @@
 * backup_domain {continue} -> mx >> backup_end => error
 * backup_client {continue} -> mx >> backup_end => error
 * backup_end
-* spamsender [flag_spamsender] {stop} -> service => error --- ??? если он в @services - для каждого получателя будет отдельная отправка, если он отдельный mx - чем отличается от mx_... ?
-* mx_rcpt {stop} => bounce
-* mx_domain {stop} => bounce
-* mx_client {stop} => bounce
+* spamsender [flag_spamsender] {stop} -> service => error
 * internet {stop} => bounce
 
 

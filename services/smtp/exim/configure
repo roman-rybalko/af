@@ -1174,6 +1174,8 @@ submission_transport:
   tls_crl = /etc/advancedfiltering_ssl/ca
   # return path fix (address_data)
   return_path = ${extract {sender} {$address_data} }
+  # for submission to accept
+  headers_remove = X-AdvancedFiltering-MessageData-Submission
   dkim_domain = dkim.advancedfiltering.net
   dkim_selector = smtp
   dkim_private_key = /usr/local/advancedfiltering/smtp/dkim-smtp.key
@@ -1339,7 +1341,6 @@ begin retry
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
 bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m
 
-* rcpt_4xx F,1m,5s; F,15m,1m; F,1h,15m; F,1d,1h
 * * F,15m,1m; F,1h,15m; F,1d,1h
 
 begin authenticators

@@ -53,6 +53,7 @@ rcpt
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
 * синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc), stop
+* есть заголовок X-AdvancedFiltering-MessageData-Submission => 5xx Message loop detected, stop
 * заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
 * заголовок "From:" содержит один адрес  => проверка адреса отправителя ("From:"), continue
 # может быть домен, котрый не совпадает с mail from и тоже зарегистрирован в системе (relaxed DMARC или ошибка конфигурации)

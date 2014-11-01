@@ -332,11 +332,19 @@ U_SMTPDB_EMID_L = ${run{/usr/local/advancedfiltering/submission/exim/mid_list_en
 U_SMTPDB_S_L = ${map{U_SMTPDB_EMID_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_ldap_dn:$item},U_SMTPDB_LDAP_DN?afUSMTPMessageSenderMailAddress?base}}}}
 
 data_acl:
+  # $recipients не доступен в routers
+  warn
+    set acl_m_u_recipients = $recipients
 
   # * синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc), stop
   deny
     ! verify = header_syntax
     message = Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc)
+
+  # * есть заголовок X-AdvancedFiltering-MessageData-Submission => 5xx Message loop detected, stop
+  deny
+    condition = ${if ! eq{}{$rheader_X-AdvancedFiltering-MessageData-Submission:}}
+    message = Message loop detected: $rheader_X-AdvancedFiltering-MessageData-Submission:
 
   # * заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
   deny
@@ -530,9 +538,31 @@ backup_end_router:
   driver = redirect
   data = ""
 
+# Router MessageData Submission Info
+R_MDS_I_D = $acl_m_u_client $sender_address $message_exim_id
+# Router MessageData Submission Key
+R_MDS_K_D = l8JI6T7kctCno3lL44hqNOQ0NnWvjpVZn4WCFvuBxp
+# Router MessageData Submission Header
+R_MDS_H_D = ${str2b64:R_MDS_I_D ${md5:R_MDS_I_D R_MDS_K_D}}
 
+# * spamsender [flag_spamsender] {stop} -> service => error
+spamsender_router:
+  condition = $acl_m_u_ss_f
+  driver = redirect
+  data = spamsender@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+  headers_remove = X-Envelope-From:X-Envelope-To
+  headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipients
+  headers_add = X-AdvancedFiltering-MessageData-Submission: R_MDS_H_D
 
-
+# * internet {stop} => bounce
+internet_router:
+  driver = dnslookup
+  transport = internet_transport
+  errors_to = bounce@services.advancedfiltering.net
+  self = send
+  headers_add = X-AdvancedFiltering-MessageData-Submission: R_MDS_H_D
 
 begin transports
 
@@ -541,13 +571,78 @@ service_transport:
   # mandatory tls
   hosts_require_tls = *
   # system cert, verify
-  tls_certificate = /etc/ssl/$primary_hostname.crt
-  tls_privatekey = /etc/ssl/$primary_hostname.key
-  tls_verify_certificates = /etc/ssl/ca
-  tls_crl = /etc/ssl/ca
-  # no return path fix
+  tls_certificate = S_H_C_D
+  tls_privatekey = S_H_CK_D
+  tls_verify_certificates = S_H_CA_D
+  tls_crl = S_H_CA_D
+
+internet_transport:
+  driver = smtp
+  # public cert, no verify
+  tls_certificate = S_S_C_D
+  tls_privatekey = S_S_CK_D
+  tls_verify_certificates = S_S_CA_D
+  dkim_domain = ${domain:${address:$bheader_From:}}
+  dkim_selector = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainDKIMSelector?base}}
+  dkim_private_key = /usr/local/advancedfiltering/submission/dkim/$acl_m_u_client.key
+  dkim_canon = relaxed
+  dkim_strict = true
 
 begin retry
-^\N[^@]+@test\d+[^\.]*\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+
+# DEBUG
+^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@h02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+
 services.advancedfiltering.net * F,15m,1m; H,7d,15m,2
-* * F,2h,15m; G,16h,1h,1.5; F,4d,6h
+bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m
+
+* rcpt_4xx F,1m,5s; F,15m,1m; F,1h,15m; F,1d,1h
+* * F,15m,1m; F,1h,15m; F,1d,1h
+
+begin authenticators
+
+# Authenticator MailBox Realm
+A_MB_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:${domain:$auth2}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
+# Authenticator Domain Realm
+A_D_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$auth2},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
+# Authenticator Client Realm
+A_C_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$auth2},S_LDAP_DN?afSClientRealm?base}}
+
+# Authenticator Realm
+A_REALM_D = ${if eq{}{A_MB_R_D}{${if eq{}{A_D_R_D}{${if eq{}{A_C_R_D}{}{A_C_R_D}}}{A_D_R_D}}}{A_MB_R_D}}
+
+# Authenticator MailBox Password Raw
+A_MB_P_R_D = ${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:$auth2}},afUSubmissionDomainName=${quote_ldap_dn:${domain:$auth2}},afUClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:{$domain:$auth2}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+# Authenticator MailBox Password (additional check for invalid LDAP query prevention)
+A_MB_P_D = ${if and{{!eq{}{${local_part:$auth2}}}{!eq{}{${domain:$auth2}}}}{A_MB_P_R_D}{}}
+# Authenticator Domain Password
+A_D_P_D = ${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:$auth2},afUClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$auth2},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+# Authenticator Client Password
+A_C_P_D = ${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:$auth2},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+
+# Authenticator server_advertise_condition
+A_SAC_D = ${if ! eq{}{$tls_in_cipher}}
+# Authenticator server_condition Password
+A_SC_P_F = ${if crypteq{$auth3}{A_MB_P_D}{true}{${if crypteq{$auth3}{A_D_P_D}{true}{${if crypteq{$auth3}{A_C_P_D}{true}{false}}}}}}
+# Authenticator server_condition
+A_SC_D = ${if inlist{A_REALM_D}{<, S_REALM_Lc}{A_SC_P_F}{Moved, please try another host}}
+
+login_authenticator:
+  server_advertise_condition = A_SAC_D
+  server_condition = A_SC_D
+  driver = plaintext
+  public_name = LOGIN
+  server_prompts = User Name : Password
+  server_set_id = $auth2
+
+plain_authenticator:
+  server_advertise_condition = A_SAC_D
+  server_condition = A_SC_D
+  driver = plaintext
+  public_name = PLAIN
+  server_prompts = :
+  server_set_id = $auth2
