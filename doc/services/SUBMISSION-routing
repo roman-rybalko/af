@@ -11,6 +11,7 @@
 * service_defer [@services] {stop} -> service => error
 * internet_verify {stop} => bounce
 * hamtrap [flag_hamtrap] {continue} -> service => error
+* mailproc [!flag_trustedmessagesize && !flag_hamtrap] {continue} -> service => error
 # бэкап-сообщения должны надежно доставляться - бэкап-адрес перенаправляем на mx
 * backup_rcpt {continue} -> mx >> backup_end => error
 * backup_domain {continue} -> mx >> backup_end => error

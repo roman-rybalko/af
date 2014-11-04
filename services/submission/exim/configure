@@ -467,6 +467,16 @@ hamtrap_router:
   redirect_router = service_router
   unseen = true
 
+# * mailproc [!flag_trustedmessagesize && !flag_hamtrap] {continue} -> service => error
+mailproc_router:
+  condition = ${if ! bool{$acl_m_u_tms_f}}
+  condition = ${if ! bool{$acl_m_u_ht_f}}
+  driver = redirect
+  data = mailproc@services.advancedfiltering.net
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+  unseen = true
+
 # Router general LDAP DN
 R_LDAP_DN = ""
 
