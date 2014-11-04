@@ -211,15 +211,21 @@ sneder_acl:
     ! verify = sender=$acl_m_u_sender
     message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} does not accept mail
 
-  # ** раскрыть синоним, continue
+  # ** синоним => user_domain, continue
   warn
     condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
     set acl_m_u_domain = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}
-  # блокируем двойной синоним
+
+  # ** двойной синоним => 4xx Configuration problem (double domain alias), panic, stop
   defer
     condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
     logwrite = :panic: Double domain alias: sender=$acl_m_u_sender client=$acl_m_u_client realm=$acl_m_u_realm domain=${domain:$acl_m_u_sender} alias=$acl_m_u_domain
     message = Configuration problem (double domain alias)
+
+  # ** не найден в ou=user => 4xx Replicating, please try again later, stop
+  defer
+    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?objectClass?base}}}}
+    message = Replicating, please try again later
 
   # ** не зарегистрирован (или просрочен) и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
   deny

@@ -21,9 +21,9 @@ sys_maxmessagesize
 ** домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
 ** не наш realm домена => 4xx Moved, please try another host, stop
 ** домен не принимает почту (verify = sender) => 5xx Sender domain {domain:sender_address} does not accept mail, stop
-** синоним => user_domain
-** двойной синоним => 4xx Configuration problem (double domain alias), panic
-** не найден в ou=user => 4xx Replicating, please try again later
+** синоним => user_domain, continue
+** двойной синоним => 4xx Configuration problem (double domain alias), panic, stop
+** не найден в ou=user => 4xx Replicating, please try again later, stop
 ** не зарегистрирован (или просрочен) и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
 ** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
 ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
