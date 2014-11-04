@@ -8,8 +8,8 @@ dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: dst.hosts.advancedfiltering.net
 afshostrealm: r1
 afSHostServiceName: smtp
-afSHDBSyncServiceName: smtpdb
-afSHDBSyncServiceName: sdb
+afSHostDataBaseName: smtpdb
+afSHostDataBaseName: sdb
 objectClass: afSHost
 
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering

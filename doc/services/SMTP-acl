@@ -58,8 +58,8 @@ rcpt
 ** нет домена => 5xx R:D/ (The domain is not in service), stop
 ** чужой realm => 4xx R:O/ (Moved, please try another host), stop
 * определяем имя домена по синониму
-** домен => user_domain
 ** синоним => user_domain
+** двойной синоним => 4xx D/ (Configuration problem: double domain alias)
 ** не найден в ou=user => 4xx D/ (Replicating, please try again later)
 * получение пользовательской настройки user_nombxchk (NoMailBoxCheck - no auto-add)
 * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)

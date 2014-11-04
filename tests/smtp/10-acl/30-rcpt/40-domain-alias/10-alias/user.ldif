@@ -1,0 +1,4 @@
+
+dn: afUSMTPDomainName=test-alias.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+afUSMTPDomainAliasName: test.com
+objectClass: afUSMTPDomainAlias
