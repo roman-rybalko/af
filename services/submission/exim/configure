@@ -242,7 +242,8 @@ sneder_acl:
   # ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
   deny
     ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:$acl_m_u_sender}}{true}{false}}
-    message = DMARC is absent for sender domain ${domain:$acl_m_u_sender}
+    message = DMARC is absent for sender domain ${domain:$acl_m_u_sender} (${if eq{1}{$runrc}{$value}{internal error}})
+    logwrite = ${if eq{1}{$runrc}{}{:panic: }}DMARC: $value
 
   # ** continue
   accept
@@ -367,7 +368,8 @@ data_acl:
   # * DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {domain:header_from}, stop
   deny
     ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:${address:$bheader_From:}} ${domain:$sender_address} ${domain:${address:$bheader_From:}}}{true}{false}}
-    message = DMARC failed for "From:" domain ${domain:${address:$bheader_From:}}
+    message = DMARC failed for "From:" domain ${domain:${address:$bheader_From:}} (${if eq{1}{$runrc}{$value}{internal error}})
+    logwrite = ${if eq{1}{$runrc}{}{:panic: }}DMARC: $value
 
   # * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
   deny
