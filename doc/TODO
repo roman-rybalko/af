@@ -2,15 +2,16 @@
 * smtp: * домен отправителя не задан => 5xx Sender domain is absent, stop
 * smtp: * домен отправителя не существует => 5xx Sender domain does not exist, spamtrap, spam, stop
 * поправить mbxchk для smtp и submission
-* поправить ldaprepl - afSHostDataBaseName
 * проверка дубликатов в smtp
 * проверка DMARC в smtp
 подпись DKIM в сообщении должна быть если DMARC задан
 dkim_acl: dmarc_verifier.pl "from domain" "spf domain" "dkim domain" => OK
 data_acl: dmarc/dkim не прошел => dmarc_verifier.pl "from domain" => policy (none => spam,spamtrap,2xx/quarantine => mailproc,4xx/reject => spamtrap,5xx)
-* заменять заголовок From в smtp при backup/redirect/spam, старый From добавить в X-Original-From, sender_address добавить в X-Original-Envelope-From, дополнить документацию
 * smtp: добавить X-Envelope-From в mx_transport и service_transport
 * smtp: добавить X-Envelope-To во все транспорты
-* BATV для redirect (отдельный сервис batv, поправить smtp)
+* обновление LDAP из логов
+* поправить ldaprepl - afSHostDataBaseName
 * поправить mailproc - записывать все MID из Message-ID, если их несколько, с разделителем ":"
 * отдельный конфиг сервиса smtp для вывода из эксплуатации (отправить все сообщения из очереди на соседний smtp)
+* заменять заголовок From в smtp при backup/redirect/spam, старый From добавить в X-Original-From, sender_address добавить в X-Original-Envelope-From, дополнить документацию
+* BATV для redirect (отдельный сервис batv, поправить smtp)
