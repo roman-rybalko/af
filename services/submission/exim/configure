@@ -176,6 +176,15 @@ sender_auth_acl:
   # unknown
   deny
 
+mbxchk_acl:
+  accept
+    condition = ${run{/usr/local/advancedfiltering/submission/log_exec/log_exec-cli.sh AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender>}{true}{false}}
+    logwrite = AdvancedFiltering/MailBox/Add<$acl_m_u_sender>
+  warn
+    condition = ${if ! eq{1}{$runrc}}
+    logwrite = :panic: AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender>: $value
+  deny
+
 # System MailBox Timeout Data
 S_MBTO_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMailBoxTimeout?base}}
 # System MailBox Cutoff Time Data
@@ -227,11 +236,16 @@ sneder_acl:
     condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?objectClass?base}}}}
     message = Replicating, please try again later
 
-  # ** не зарегистрирован (или просрочен) и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
+  # ** не зарегистрирован и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
   deny
-    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated>=S_MBCT_D)}}}}
-    ! condition = ${run{/usr/local/advancedfiltering/submission/mbxchk_vrfy/mbxchk_vrfy-exim.sh $acl_m_u_sender}{true}{false}}
+    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base}}}}
+    ! acl = mbxchk_acl
     message = $acl_m_u_sender_desc address $acl_m_u_sender does not exist
+
+  # ** просрочен адрес отправителя => записать в лог задание на проверку, continue
+  warn
+    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated>=S_MBCT_D)}}}}
+    logwrite = AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender>
 
   # ** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
   deny
@@ -395,6 +409,7 @@ data_acl:
     set acl_m_u_ht_f = false
     condition = ${if forany{U_SMTPDB_S_L}{inlist{$item}{<, $recipients}}}
     set acl_m_u_ht_f = true
+    logwrite = AdvancedFiltering/MessageID/submissiondb/Add<$acl_m_u_realm><U_SDB_EMID_D><U_H_S_D>
 
   # * msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
   accept
@@ -402,6 +417,7 @@ data_acl:
     condition = ${if >{$message_size}{S_TMS_D}}
     set acl_m_u_tms_f = true
     message = Trusted message size
+    logwrite = AdvancedFiltering/MessageID/submissiondb/Add<$acl_m_u_realm><U_SDB_EMID_D><U_H_S_D>
 
   # * 2xx, stop
   accept
