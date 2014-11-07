@@ -3,11 +3,10 @@ package AdvancedFiltering::TEST;
 use strict;
 use warnings;
 
-use AdvancedFiltering::LDAP;
-use AdvancedFiltering::SMTP;
-
 sub run
 {
+	# return 0 - OK
+	# return !0 - FAIL (description)
 	return shift;
 }
 
