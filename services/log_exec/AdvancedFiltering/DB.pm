@@ -7,7 +7,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(get_my_realms get_service_hosts get_mailbox_submission_info get_mailbox_smtp_info);
 
-use AdvancedFiltering::LDAP qw(get_ldap_value find_ldap_values);
+use AdvancedFiltering::LDAP qw(get_ldap_value find_ldap_value);
 use AdvancedFiltering::Conf qw(get_conf_value);
 
 sub get_my_realms
@@ -20,7 +20,7 @@ sub get_service_hosts
 {
 	my $realm = shift;
 	my $service = shift;
- 	my @hosts = find_ldap_values('ou=system,o=advancedfiltering', {objectClass => 'afSHost', afSHostRealm => $realm, afSHostServiceName => $service}, 'afSHostName');
+ 	my @hosts = find_ldap_value('ou=system,o=advancedfiltering', {objectClass => 'afSHost', afSHostRealm => $realm, afSHostServiceName => $service}, 'afSHostName');
  	@hosts = map {
 		my $value = get_ldap_value("afSHostServiceName=$service,afSHostName=$_,ou=system,o=advancedfiltering", 'afSHServiceTCPPort');
 		$value ? $_ . ":" . $value : $_;
@@ -42,7 +42,7 @@ sub get_mailbox_submission_info
 {
 	my $mailbox = shift;
 	my ($local_part, $domain) = split /\@/, $mailbox;
-	die "mailbox parse failed" unless $local_part && $domain;
+	die "DB: mailbox parse failed" unless $local_part && $domain;
 	my $client = get_domain_client($domain);
 	return undef unless $client;
 	my $realm = get_client_realm($client);
@@ -63,7 +63,7 @@ sub get_mailbox_smtp_info
 {
 	my $mailbox = shift;
 	my ($local_part, $domain) = split /\@/, $mailbox;
-	die "mailbox parse failed" unless $local_part && $domain;
+	die "DB: mailbox parse failed" unless $local_part && $domain;
 	my $client = get_domain_client($domain);
 	return undef unless $client;
 	my $realm = get_client_realm($client);
