@@ -7,12 +7,12 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(get_my_realms get_service_hosts get_mailbox_submission_info get_mailbox_smtp_info);
 
-use AdvancedFiltering::LDAP qw(get_ldap_values get_ldap_value find_ldap_values);
+use AdvancedFiltering::LDAP qw(get_ldap_value find_ldap_values);
 use AdvancedFiltering::Conf qw(get_conf_value);
 
 sub get_my_realms
 {
-	my @realms = get_ldap_values('afSHostName='.get_conf_value('hostname').',ou=system,o=advancedfiltering', 'afSHostRealm');
+	my @realms = get_ldap_value('afSHostName='.get_conf_value('hostname').',ou=system,o=advancedfiltering', 'afSHostRealm');
 	return @realms;
 }
 
