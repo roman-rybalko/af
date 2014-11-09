@@ -2,7 +2,7 @@
 
 dir="`dirname $0`"
 cmd="$@"
-res="`echo $cmd | $dir/log_exec.pl`"
+res="`echo $cmd | $dir/logexec.pl`"
 case "$res" in
 	OK*)
 		exit 0
