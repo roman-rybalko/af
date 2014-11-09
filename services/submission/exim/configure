@@ -179,7 +179,7 @@ sender_auth_acl:
 mbxchk_acl:
   accept
     condition = ${run{/usr/local/advancedfiltering/submission/logexec/logexec-cli.sh AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender>}{true}{false}}
-    logwrite = AdvancedFiltering/MailBox/Add<$acl_m_u_sender>
+    logwrite = AdvancedFiltering/MailBox/submission/Add<$acl_m_u_sender>
   warn
     condition = ${if ! eq{1}{$runrc}}
     logwrite = :panic: AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender>: $value
