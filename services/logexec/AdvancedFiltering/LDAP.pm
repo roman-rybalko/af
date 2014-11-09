@@ -5,7 +5,7 @@ use warnings;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(get_ldap_value find_ldap_value);
+our @EXPORT_OK = qw(get_ldap_value find_ldap_value add_ldap_object update_ldap_object);
 
 use Net::LDAP;
 use AdvancedFiltering::Conf qw(get_conf_value);
@@ -115,6 +115,29 @@ sub find_ldap_value
 	{
 		return map { my @data = $_->get_value($attrs); } @entries if wantarray;
 		return $entries[0]->get_value($attrs);
+	}
+}
+
+sub add_ldap_object
+{
+	my $dn = shift;
+	my $attrs = shift;
+	init_ldap unless $ldap;
+	my $ldap_msg = $ldap->add($dn, attr => [%$attrs]);
+	if ($ldap_msg->is_error)
+	{
+		$ldap_msg = $ldap->search(
+			base => $dn,
+			scope => 'base',
+			filter => '(objectClass=*)',
+			attrs => [%$attrs],
+		);
+		die "LDAP: add/search failed: " . $ldap_msg->error_text if $ldap_msg->is_error;
+		return "already exists";
+	}
+	else
+	{
+		return 0;
 	}
 }
 

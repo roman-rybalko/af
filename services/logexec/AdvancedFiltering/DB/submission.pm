@@ -9,7 +9,7 @@ our @EXPORT_OK = qw(get_mailbox_data add_mailbox);
 
 use AdvancedFiltering::DB qw(get_client_realm);
 use AdvancedFiltering::DB::smtp qw(get_domain_client);
-use AdvancedFiltering::LDAP qw(get_ldap_value);
+use AdvancedFiltering::LDAP qw(get_ldap_value add_ldap_object);
 
 sub get_mailbox_data
 {
@@ -35,7 +35,8 @@ sub get_mailbox_data
 sub add_mailbox
 {
 	my $data = shift;
-	
+	return add_ldap_object("afUSubmissionDMBLocalPart=$data->{local_part},afUSubmissionDomainName=$data->{domain},afUClientName=$data->{client},afUServiceName=submission+afUServiceRealm=$data->realm,ou=user,o=advancedfiltering",
+		{objectClass => 'afUSubmissionDMailBox', afUSubmissionDMBTimeUpdated => $data->update_time});
 }
 
 1;
