@@ -245,7 +245,7 @@ sneder_acl:
   # ** просрочен адрес отправителя => записать в лог задание на проверку, continue
   warn
     condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated>=S_MBCT_D)}}}}
-    logwrite = AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender>
+    logwrite = AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender> ? AdvancedFiltering/MailBox/submission/Update<$acl_m_u_sender> : AdvancedFiltering/MailBox/submission/Delete<$acl_m_u_sender>
 
   # ** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
   deny

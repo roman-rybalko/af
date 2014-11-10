@@ -23,6 +23,10 @@ sub init_conf
 	$conf{ldap_tls_key} = $conf{private_tls_key};
 	$conf{ldap_tls_ca} = $conf{private_tls_ca};
 	$conf{ldap_tls_crl} = $conf{private_tls_crl};
+	$conf{ldap2_tls_cert} = $conf{private_tls_cert};
+	$conf{ldap2_tls_key} = $conf{private_tls_key};
+	$conf{ldap2_tls_ca} = $conf{private_tls_ca};
+	$conf{ldap2_tls_crl} = $conf{private_tls_crl};
 
 	# init from env
 	foreach my $key (keys %ENV)

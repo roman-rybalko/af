@@ -5,7 +5,7 @@ use warnings;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(get_ldap_value find_ldap_value add_ldap_object update_ldap_object);
+our @EXPORT_OK = qw(get_ldap_value find_ldap_value add_ldap_object update_ldap_object delete_ldap_object);
 
 use Net::LDAP;
 use AdvancedFiltering::Conf qw(get_conf_value);
@@ -27,14 +27,14 @@ sub init_ldap
 			capath => get_conf_value('ldap_tls_ca'),
 			checkcrl => 1
 				if get_conf_value('ldap_tls_ca');
-		my $ldap_msg = $ldap->start_tls(@options);
-		die "LDAP: start_tls failed: " . $ldap_msg->error_text if $ldap_msg->is_error;
+		my $msg = $ldap->start_tls(@options);
+		die "LDAP: start_tls failed: " . $msg->error_text if $msg->is_error;
 	}
 	if (get_conf_value('ldap_bind_dn'))
 	{
 		die "LDAP: ldap_bind_pw conf.option is required" unless get_conf_value('ldap_bind_pw');
-		my $ldap_msg = $ldap->bind(get_conf_value('ldap_bind_dn'), password => get_conf_value('ldap_bind_pw'));
-		die "LDAP: bind failed: " . $ldap_msg->error_text if $ldap_msg->is_error;
+		my $msg = $ldap->bind(get_conf_value('ldap_bind_dn'), password => get_conf_value('ldap_bind_pw'));
+		die "LDAP: bind failed: " . $msg->error_text if $msg->is_error;
 	}
 }
 
@@ -43,14 +43,14 @@ sub get_ldap_value
 	my $dn = shift;
 	my $attrs = shift;
 	init_ldap unless $ldap;
-	my $ldap_msg = $ldap->search(
+	my $msg = $ldap->search(
 		base => $dn,
 		scope => 'base',
 		filter => '(objectClass=*)',
 		attrs => ref($attrs) ? $attrs : [$attrs],
 	);
-	die "LDAP: search failed: " . $ldap_msg->error_text if $ldap_msg->is_error;
-	my @entries = $ldap_msg->entries;
+	die "LDAP: search failed: " . $msg->error_text if $msg->is_error;
+	my @entries = $msg->entries;
 	return wantarray?():undef unless @entries;
 	my $entry = $entries[0];
 	if (ref $attrs)
@@ -82,14 +82,14 @@ sub find_ldap_value
 	{
 		$filter_str = '(objectClass=*)';
 	}
-	my $ldap_msg = $ldap->search(
+	my $msg = $ldap->search(
 		base => $dn,
 		scope => 'sub',
 		filter => $filter_str,
 		attrs => ref($attrs) ? $attrs : [$attrs],
 	);
-	die "LDAP: search failed: " . $ldap_msg->error_text if $ldap_msg->is_error;
-	my @entries = $ldap_msg->entries;
+	die "LDAP: search failed: " . $msg->error_text if $msg->is_error;
+	my @entries = $msg->entries;
 	return wantarray?():undef unless @entries;
 	if (ref $attrs)
 	{
@@ -123,22 +123,63 @@ sub add_ldap_object
 	my $dn = shift;
 	my $attrs = shift;
 	init_ldap unless $ldap;
-	my $ldap_msg = $ldap->add($dn, attr => [%$attrs]);
-	if ($ldap_msg->is_error)
+	my $msg = $ldap->add($dn, attr => [%$attrs]);
+	if ($msg->is_error)
 	{
-		$ldap_msg = $ldap->search(
+		$msg = $ldap->search(
 			base => $dn,
 			scope => 'base',
 			filter => '(objectClass=*)',
 			attrs => [%$attrs],
 		);
-		die "LDAP: add/search failed: " . $ldap_msg->error_text if $ldap_msg->is_error;
+		die "LDAP: add/search failed: " . $msg->error_text if $msg->is_error;
 		return "already exists";
 	}
 	else
 	{
 		return 0;
 	}
+}
+
+sub update_ldap_object
+{
+	my $dn = shift;
+	my $attrs = shift;
+	init_ldap unless $ldap;
+	my $msg = $ldap->search(
+		base => $dn,
+		scope => 'base',
+		filter => '(objectClass=*)',
+		attrs => [%$attrs],
+	);
+	die "LDAP: update/search failed: " . $msg->error_text if $msg->is_error;
+	my @entries = $msg->entries;
+	return "not found" unless @entries;
+	my $entry = $entries[0];
+	$entry->replace(%$attrs);
+	$msg = $entry->update($ldap);
+	die "LDAP: update/update failed: " . $msg->error_text if $msg->is_error;
+	return 0;
+}
+
+sub delete_ldap_object
+{
+	my $dn = shift;
+	init_ldap unless $ldap;
+	my $msg = $ldap->search(
+		base => $dn,
+		scope => 'base',
+		filter => '(objectClass=*)',
+		attrs => ['dn'],
+	);
+	die "LDAP: delete/search failed: " . $msg->error_text if $msg->is_error;
+	my @entries = $msg->entries;
+	return "not found" unless @entries;
+	my $entry = $entries[0];
+	$entry->delete;
+	$msg = $entry->update($ldap);
+	die "LDAP: delete/update failed: " . $msg->error_text if $msg->is_error;
+	return 0;
 }
 
 1;
