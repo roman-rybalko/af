@@ -1,0 +1,14 @@
+
+dn: afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUService
+
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUClient
+afUClientAdminMailAddress: admin@tests.advancedfiltering.net
+afUClientTechMailAddress: admin@tests.advancedfiltering.net
+
+dn: afUSubmissionDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUSubmissionDomain
+afUSubmissionDomainAdminMailAddress: admin@tests.advancedfiltering.net
+afUSubmissionDomainTechMailAddress: admin@tests.advancedfiltering.net
+afUSubmissionDomainDKIMSelector: test

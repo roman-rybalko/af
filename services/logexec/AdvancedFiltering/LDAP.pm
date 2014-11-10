@@ -14,7 +14,7 @@ my $ldap;
 sub init_ldap
 {
 	die 'LDAP: ldap_url conf.option is required' unless get_conf_value('ldap_url');
-	$ldap = Net::LDAP->new($opts{U}) or die "LDAP connection error";
+	$ldap = Net::LDAP->new(get_conf_value('ldap_url')) or die "LDAP connection error";
 	if (get_conf_value('ldap_tls_cert'))
 	{
 		die 'LDAP: ldap_tls_key conf.option option is required' unless get_conf_value('ldap_tls_key');
@@ -49,7 +49,6 @@ sub get_ldap_value
 		filter => '(objectClass=*)',
 		attrs => ref($attrs) ? $attrs : [$attrs],
 	);
-	die "LDAP: search failed: " . $msg->error_text if $msg->is_error;
 	my @entries = $msg->entries;
 	return wantarray?():undef unless @entries;
 	my $entry = $entries[0];
@@ -88,7 +87,6 @@ sub find_ldap_value
 		filter => $filter_str,
 		attrs => ref($attrs) ? $attrs : [$attrs],
 	);
-	die "LDAP: search failed: " . $msg->error_text if $msg->is_error;
 	my @entries = $msg->entries;
 	return wantarray?():undef unless @entries;
 	if (ref $attrs)
@@ -126,13 +124,13 @@ sub add_ldap_object
 	my $msg = $ldap->add($dn, attr => [%$attrs]);
 	if ($msg->is_error)
 	{
-		$msg = $ldap->search(
+		my $msg2 = $ldap->search(
 			base => $dn,
 			scope => 'base',
 			filter => '(objectClass=*)',
 			attrs => [%$attrs],
 		);
-		die "LDAP: add/search failed: " . $msg->error_text if $msg->is_error;
+		die "LDAP: add failed: " . $msg->error_text . "; search failed: " . $msg2->error_text if $msg2->is_error;
 		return "already exists";
 	}
 	else
@@ -152,7 +150,6 @@ sub update_ldap_object
 		filter => '(objectClass=*)',
 		attrs => [%$attrs],
 	);
-	die "LDAP: update/search failed: " . $msg->error_text if $msg->is_error;
 	my @entries = $msg->entries;
 	return "not found" unless @entries;
 	my $entry = $entries[0];
@@ -172,7 +169,6 @@ sub delete_ldap_object
 		filter => '(objectClass=*)',
 		attrs => ['dn'],
 	);
-	die "LDAP: delete/search failed: " . $msg->error_text if $msg->is_error;
 	my @entries = $msg->entries;
 	return "not found" unless @entries;
 	my $entry = $entries[0];

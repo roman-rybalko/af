@@ -7,7 +7,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(get_domain_client get_mailbox_data);
 
-use AdvancedFiltering::DB qw(get_client_realm);
+use AdvancedFiltering::DB qw(get_my_realms get_client_realm);
 use AdvancedFiltering::LDAP qw(get_ldap_value);
 
 sub get_domain_client

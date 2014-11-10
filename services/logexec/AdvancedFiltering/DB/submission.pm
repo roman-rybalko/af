@@ -7,7 +7,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(get_mailbox_data add_mailbox update_mailbox delete_mailbox);
 
-use AdvancedFiltering::DB qw(get_client_realm);
+use AdvancedFiltering::DB qw(get_my_realms get_client_realm);
 use AdvancedFiltering::DB::smtp qw(get_domain_client);
 use AdvancedFiltering::LDAP qw(get_ldap_value add_ldap_object update_ldap_object delete_ldap_object);
 
@@ -36,14 +36,14 @@ sub add_mailbox
 {
 	my $data = shift;
 	return add_ldap_object("afUSubmissionDMBLocalPart=$data->{local_part},afUSubmissionDomainName=$data->{domain},afUClientName=$data->{client},afUServiceName=submission+afUServiceRealm=$data->{realm},ou=user,o=advancedfiltering",
-		{objectClass => 'afUSubmissionDMailBox', afUSubmissionDMBTimeUpdated => $data->update_time});
+		{objectClass => 'afUSubmissionDMailBox', afUSubmissionDMBTimeUpdated => $data->{update_time}});
 }
 
 sub update_mailbox
 {
 	my $data = shift;
 	return update_ldap_object("afUSubmissionDMBLocalPart=$data->{local_part},afUSubmissionDomainName=$data->{domain},afUClientName=$data->{client},afUServiceName=submission+afUServiceRealm=$data->{realm},ou=user,o=advancedfiltering",
-		{afUSubmissionDMBTimeUpdated => $data->update_time});
+		{afUSubmissionDMBTimeUpdated => $data->{update_time}});
 }
 
 sub delete_mailbox

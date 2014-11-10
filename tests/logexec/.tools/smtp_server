@@ -1,0 +1,149 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use IO::Socket::INET '1.18'; # autoflush
+use IO::Socket::SSL '1.84'; # SSL_verify_callback
+use Getopt::Std;
+
+my %opts;
+getopts('hp:m:e:s:c:k:C:R:P:r:a', \%opts);
+
+if ($opts{h})
+{
+	print "USAGE: $0 [options]\n",
+		"OPTIONS:\n",
+		"\t-h\tThis help screen\n",
+		"\t-p port\tListen port, 25 by default\n",
+		"\t-m file\tSave messages to file, discard by default\n",
+		"\t-e file\tSave envelope to file, discard by default\n",
+		"\t-s cnt\tAccept cnt sessions then exit, 7777777 by default\n",
+		"\t-c cert\tSSL certificate file\n",
+		"\t-k key\tSSL key file\n",
+		"\t-C cert\tSSL Root certificate file\n",
+		"\t-R re\tReject SSL certificate subject that contains regexp re\n",
+		"\t-P file\tWrite self PID to file\n",
+		"\t-r re\tReject client command that contains regexp re\n",
+		"\t-a\tOffer AUTH extension\n",
+		"";
+	exit 0;
+}
+$opts{p} = 25 unless $opts{p};
+$opts{s} = 7777777 unless $opts{s};
+
+my @mime;
+my @env;
+
+sub session
+{
+	my $s = shift;
+	my $data = 0;
+	print $s "220 ESMTP test server\r\n";
+	while(<$s>)
+	{
+		s/\s+$//;
+
+		if ($data)
+		{
+			if (/^\.$/)
+			{
+				print $s "250 OK", $opts{m} ? " file=".$opts{m} : "", " linescnt=$#mime", "\r\n";
+				$data = 0;
+			}
+			else
+			{
+				push @mime => "$_\n";
+			}
+			next;
+		}
+
+		push @env => "$_\n";
+
+		if ($opts{r} && /$opts{r}/)
+		{
+			print $s "550 Rejected\r\n";
+			next;
+		}
+
+		my ($cmd) = /^(\w+)/;
+		$cmd = lc $cmd;
+		if ($cmd eq "ehlo")
+		{
+			print $s "250-ESMTP test server\r\n";
+			print $s "250-STARTTLS\r\n" if $opts{c} && $opts{k};
+			print $s "250-AUTH PLAIN\n" if $opts{a};
+			print $s "250 OK\r\n";
+		}
+		elsif ($cmd eq "starttls")
+		{
+			print $s "220 OK\r\n";
+			my @args;
+			push @args => SSL_ca_file => $opts{C},
+				SSL_verify_mode => 0x01,
+				SSL_verify_callback => sub {
+					print "SSL error: ",$_[3],"\n" if $_[3];
+					return 0 if $opts{R} && $_[2]=~/$opts{R}/;
+					return 1;
+				} if $opts{C};
+			IO::Socket::SSL->start_SSL($s, SSL_server => 1, SSL_cert_file => $opts{c}, SSL_key_file => $opts{k}, @args);
+			if (UNIVERSAL::isa($s, 'IO::Socket::SSL'))
+			{
+				push @env => "Peer certificate subject: ".$s->peer_certificate('subject')."\n" if $s->peer_certificate;
+			}
+			else
+			{
+				push @env => "SSL error:" , IO::Socket::SSL::errstr;
+				print $s "450 FAIL\r\n";
+			}
+		}
+		elsif ($cmd eq "quit")
+		{
+			print $s "221 OK\r\n";
+			last;
+		}
+		elsif ($cmd eq "data")
+		{
+			print $s "354 OK\r\n";
+			$data = 1;
+		}
+		else
+		{
+			print $s "250 OK\r\n";
+		}
+	}
+}
+
+my $s = IO::Socket::INET->new(Proto => 'tcp', LocalAddr => '0.0.0.0:'.$opts{p}, ReuseAddr => 1, Listen => 10);
+die "Open tcp socket on port ".$opts{p}." failed" unless $s;
+
+if ($opts{P})
+{
+	my $f;
+	open $f, ">", $opts{P} or die "Unable to open file ".$opts{P};
+	print $f $$;
+}
+
+while($opts{s})
+{
+	session($s->accept);
+	--$opts{s};
+}
+
+if ($opts{m})
+{
+	my $f;
+	open $f, ">", $opts{m} or die "Unable to open file ".$opts{m};
+	print $f @mime;
+}
+
+if ($opts{e})
+{
+	my $f;
+	open $f, ">", $opts{e} or die "Unable to open file ".$opts{e};
+	print $f @env;
+}
+
+if ($opts{P})
+{
+	unlink $opts{P};
+}

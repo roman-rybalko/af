@@ -1,0 +1,3 @@
+TLS_CERT tests.crt
+TLS_KEY tests.key
+TLS_REQCERT allow

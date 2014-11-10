@@ -14,6 +14,7 @@ use AdvancedFiltering::Conf qw(get_conf_value);
 sub run
 {
 	my $mailbox = shift;
+	die "USAGE: <mailbox>" unless $mailbox;
 	my $data = get_mailbox_data($mailbox);
 	return "mailbox data is not found" unless $data;
 	my @hosts = get_service_hosts($data->{realm}, 'smtp');

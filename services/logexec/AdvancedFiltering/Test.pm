@@ -1,4 +1,4 @@
-package AdvancedFiltering::TEST;
+package AdvancedFiltering::Test;
 
 use strict;
 use warnings;

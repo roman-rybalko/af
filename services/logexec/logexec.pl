@@ -24,7 +24,7 @@ sub msg_fatal
 sub run_expr
 {
 	my $expr = shift;
-	my ($module) = $expr =~ /(.+)</;
+	my ($module) = $expr =~ /(.+?)</;
 	$module =~ s~/~::~g;
 	my @args = $expr =~ /<(.*?)>/g;
 	my $result = eval "use $module; ${module}::run(" . join(',', map {"\'$_\'"} @args) . ");";
@@ -34,7 +34,7 @@ sub run_expr
 
 while (<>)
 {
-	my $expr_pattern = '(?:\w+\/)+\w+(?:<[^>]*>)+';
+	my $expr_pattern = '(?:\w+/)+\w+(?:<[^>]*>)+';
 	if (my ($expr_test, $expr_true, $expr_false) = /^\s*($expr_pattern)\s*\?\s*($expr_pattern)\s*\:\s*($expr_pattern)\s*$/)
 	{
 		my $result = eval { run_expr($expr_test); };

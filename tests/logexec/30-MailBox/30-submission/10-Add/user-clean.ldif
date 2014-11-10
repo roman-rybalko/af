@@ -1,0 +1,4 @@
+
+dn: afUSubmissionDMBLocalPart=absent,afUSubmissionDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+afUSubmissionDMBTimeUpdated: 1234567890
+objectClass: afUSubmissionDMailBox
