@@ -30,14 +30,7 @@ sub check_mailbox_vrfy
 	if ($params{tls_cert} && $params{tls_key})
 	{
 		my @options = (SSL_cert_file => $params{tls_cert}, SSL_key_file => $params{tls_key});
-		if ($params{tls_ca})
-		{
-			push @options => SSL_ca_path => $params{tls_ca}, SSL_check_crl => 1, SSL_verify_mode => 0x01;
-		}
-		else
-		{
-			push @options => SSL_verify_mode => 0x00;
-		}
+		push @options => $params{tls_ca} ? (SSL_ca_path => $params{tls_ca}, SSL_check_crl => 1, SSL_verify_mode => 0x01) : (SSL_verify_mode => 0x00);
 		$smtp->starttls(@options) or die "STARTTLS failed (", IO::Socket::SSL::errstr, ")";
 	}
 	my $result = $smtp->verify($params{mailbox}) ? 0 : $smtp->message;
