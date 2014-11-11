@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# WatchDog Cron wrapper
+
 L=/tmp/mpupdate.lock
 if [ -e $L ] && kill -0 `cat $L`; then
 	exit 0
