@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+$| = 1;
 
 use FindBin;
 use lib ($FindBin::Bin);
