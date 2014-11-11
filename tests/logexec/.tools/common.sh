@@ -36,6 +36,18 @@ match_ldif()
 	rm .match_tmp.ldif
 }
 
+get_ldif()
+{
+	local dn re ldif
+	dn="$1"
+	re="$2"
+	ldif="$3"
+	[ -n "$dn" ]
+	[ -n "$re" ]
+	[ -n "$ldif" ]
+	ldapget.sh "$dn" | ldif_nl.pl | grep -iE "$re" > $ldif
+}
+
 wait_file()
 {
 	local c f

@@ -4,7 +4,7 @@
 "$TESTDIR"/.target/logexec-cli.sh 'AdvancedFiltering/Test<>'
 "$TESTDIR"/.target/logexec-cli.sh 'AdvancedFiltering/Test<><1>'
 "$TESTDIR"/.target/logexec-cli.sh 'AdvancedFiltering/Test<0>'
-"$TESTDIR"/.target/logexec-cli.sh 'AdvancedFiltering/Test<0><>'
+"$TESTDIR"/.target/logexec-cli.sh 'AdvancedFiltering/Test<0><><><><><1><2>'
 "$TESTDIR"/.target/logexec-cli.sh '   AdvancedFiltering/Test<>'
 "$TESTDIR"/.target/logexec-cli.sh 'AdvancedFiltering/Test<>   '
 "$TESTDIR"/.target/logexec-cli.sh '     AdvancedFiltering/Test<>       '

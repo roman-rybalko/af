@@ -20,10 +20,6 @@ sub init_defaults
 	$conf{private_tls_crl} = $conf{private_tls_ca};
 	$conf{public_tls_ca} = '/usr/local/advancedfiltering/ssl/ca';
 	$conf{public_tls_crl} = $conf{public_tls_ca};
-	$conf{ldap_tls_cert} = $conf{private_tls_cert};
-	$conf{ldap_tls_key} = $conf{private_tls_key};
-	$conf{ldap_tls_ca} = $conf{private_tls_ca};
-	$conf{ldap_tls_crl} = $conf{private_tls_crl};
 }
 sub init_from_file
 {
