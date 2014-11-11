@@ -7,7 +7,7 @@ add_ldif()
 
 	cat $* \
 		| ldif_nl.pl \
-		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/src2.hosts.advancedfiltering.net/$SRC2_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
+		| sed "s/dst2.hosts.advancedfiltering.net/$DST2_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
 		| sed "s/1234567890/$CUR_TIME/g;s/0987654321/$YSTD_TIME/g;" \
 		| ldapadd.sh
 }
@@ -17,7 +17,7 @@ del_ldif()
 	cat $* \
 		| ldif_nl.pl \
 		| ldif_dn.pl \
-		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/src2.hosts.advancedfiltering.net/$SRC2_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
+		| sed "s/dst2.hosts.advancedfiltering.net/$DST2_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
 		| sed "s/1234567890/$CUR_TIME/g;s/0987654321/$YSTD_TIME/g;" \
 		| ldapdel.sh
 }

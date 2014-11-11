@@ -1,0 +1,4 @@
+
+dn: afSHostServiceName=smtp,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 2525
+objectClass: afSHostService

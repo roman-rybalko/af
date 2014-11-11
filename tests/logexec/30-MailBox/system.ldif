@@ -13,8 +13,6 @@ afSHostDataBaseName: sdb
 objectClass: afSHost
 
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering
-afsservicename: smtp
-afssmtpdnsbldomainname: bl.spamcop.net
 afssmtpmaxmessagesize: 30000000
 afSSMTPSpamTrapProbabilityDenominator: 100
 afSSMTPSpamTrapProbabilityNumerator: 0

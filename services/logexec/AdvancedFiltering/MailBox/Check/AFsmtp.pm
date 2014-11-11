@@ -9,7 +9,7 @@ use AdvancedFiltering::MailBox::Check qw(check_mailbox_vrfy);
 use AdvancedFiltering::Conf qw(get_conf_value);
 
 # ENV
-# AF_VRFY_TIMEOUT
+# AF_vrfy_timeout
 
 sub run
 {
@@ -18,7 +18,6 @@ sub run
 	my $data = get_mailbox_data($mailbox);
 	return "mailbox data is not found" unless $data;
 	my @hosts = get_service_hosts($data->{realm}, 'smtp');
-	my $service_cert = get_conf_value("");
 	foreach my $host (@hosts)
 	{
 		my $result = eval {
@@ -34,7 +33,7 @@ sub run
 		next if $@;
 		return $result;
 	}
-	return "no smtp hosts available";
+	die "no smtp hosts available";
 }
 
 1;
