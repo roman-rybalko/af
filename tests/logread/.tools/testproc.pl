@@ -18,11 +18,14 @@ sub reset_counters
 }
 
 my $L;
-open $L, ">", "testproc.log" or die "Unable to open log";
+if ($ENV{TESTPROC_LOG})
+{
+	open $L, ">", $ENV{TESTPROC_LOG} or die "Unable to open log";
+}
 
 while (<>)
 {
-	print $L $_;
+	print $L $_ if $L;
 	reset_counters unless $total;
 	if ($ok)
 	{
