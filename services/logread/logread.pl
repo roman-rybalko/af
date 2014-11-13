@@ -184,16 +184,19 @@ sub process_log
 
 parse_opts;
 
+my $state = load_state;
+
 $SIG{USR1} = sub { save_state($state); };
 $SIG{USR2} = sub { $log_count = 0; $process_count = 0; };
 $SIG{INT} = $SIG{TERM} = sub { $signal_flag = 1; };
 
-my $state = load_state;
 eval { process_log($state); };
 if ($@)
 {
 	$state->{last_error}->{str} = $@;
 	$state->{last_error}->{time} = time;
 }
+
 save_state($state);
+
 stop_processor if $processor_pid;
