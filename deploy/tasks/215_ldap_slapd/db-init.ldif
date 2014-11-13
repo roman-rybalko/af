@@ -10,7 +10,7 @@ olcDbCheckpoint: 102400 1
 olcDbNoSync: TRUE
 olcDbIndex: objectClass eq
 olcDbIndex: entryCSN,entryUUID eq
-olcDbMaxSize: 2147483648
+olcDbMaxSize: 1073741824
 olcAccess: to * by * none
 olcLimits: * size=unlimited time=unlimited
 olcRootDN: cn=deploy,cn=config
@@ -26,7 +26,7 @@ olcDbCheckpoint: 102400 1
 olcDbNoSync: TRUE
 olcDbIndex: objectClass eq
 olcDbIndex: entryCSN,entryUUID eq
-olcDbMaxSize: 4294967296
+olcDbMaxSize: 2147483648
 olcAccess: to * by * none
 olcLimits: * size=unlimited time=unlimited
 olcRootDN: cn=deploy,cn=config
@@ -58,7 +58,7 @@ olcDbCheckpoint: 102400 1
 olcDbNoSync: TRUE
 olcDbIndex: entryCSN eq
 olcDbIndex: reqStart,reqEnd eq
-olcDbMaxSize: 1073741824
+olcDbMaxSize: 8589934592
 olcAccess: to * by * none
 olcLimits: * size=unlimited time=unlimited
 olcRootDN: cn=deploy,cn=config
