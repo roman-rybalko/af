@@ -5,13 +5,15 @@ use warnings;
 
 use Getopt::Std;
 use Data::Dumper qw(Dumper);
+$Data::Dumper::Purity = 1;
 use Fcntl qw(SEEK_SET);
 use IPC::Open2 qw(open2);
+use Time::HiRes qw(usleep);
 
 my %opts;
 sub parse_opts
 {
-	getopts('hl:b:s:p:r:m:v:', \%opts);
+	getopts('hl:b:s:p:r:m:M:t:v:', \%opts);
 	if ($opts{h})
 	{
 		print "USAGE: $0 [options]\n",
@@ -22,7 +24,9 @@ sub parse_opts
 			"\t-s statefile\tState file\n",
 			"\t-p processor\tCmd to feed the data to it's stdin and check the result on stdout (OK/FAIL/FATAL)\n",
 			"\t-r regexp\tLog filter regexp\n",
-			"\t-m max\tMax log lines to process for a single processor (-p) launch\n",
+			"\t-m max\tMax processed lines for a single processor (-p) run\n",
+			"\t-M max\tMax log lines to read before exit\n",
+			"\t-t msec\tMilliseconds between log file polls\n",
 			"\t-v level\tLog verbosity level\n",
 			"";
 		exit 0;
@@ -31,6 +35,8 @@ sub parse_opts
 	$opts{v} = 0 unless $opts{v};
 	$opts{r} = "" unless $opts{r};
 	$opts{m} = 1000 unless $opts{m};
+	$opts{M} = 10000 unless $opts{M};
+	$opts{t} = 100 unless $opts{t};
 }
 
 sub load_state
@@ -41,7 +47,9 @@ sub load_state
 	{
 		my @lines = <$F>;
 		my $data = join "", @lines;
+		no strict;
 		$state = eval $data;
+		use strict;
 	}
 	$state = {} unless $state;
 	return $state;
@@ -58,53 +66,108 @@ sub save_state
 my $processor_stdin;
 my $processor_stdout;
 my $processor_pid;
-sub relaunch_processor
+sub stop_processor
 {
-	close $processor_stdin if $processor_pid;
+	warn "Terminating processor $processor_pid" if $opts{v} > 1;
+	close $processor_stdin;
+	waitpid $processor_pid, 0;
+	$processor_pid = $processor_stdin = $processor_stdout = undef;
+}
+sub restart_processor
+{
+	stop_processor if $processor_pid;
 	$processor_pid = open2($processor_stdout, $processor_stdin, $opts{p});
 }
 
-my $count = 1;
+my $process_count = 0;
 sub process_line
 {
 	my $line = shift;
-	relaunch_processor unless $processor_pid;
-	relaunch_processor if $count > $opts{m};
+	restart_processor unless $processor_pid;
+	if ($process_count >= $opts{m})
+	{
+		warn "Max processed lines $opts{m} reached, restarting processor" if $opts{v} > 1;
+		restart_processor;
+		$process_count = 0;
+	}
 	print $processor_stdin $line, "\n";
 	my $reply = <$processor_stdout>;
 	warn "Processed: $line -> $reply" if $opts{v} > 1;
 	warn "$line -> $reply" unless $reply =~ /^OK/;
 	die "$line -> $reply" if $reply =~ /^FATAL/;
-	++$count;
+	++$process_count;
 }
 
+my $log_count = 0;
 sub process_log
 {
 	my $state = shift;
 	my $F;
-	my $fpath = $opts{l};
-	if ($state->{ofs}->{$opts{l}})
+	if ($state->{file})
 	{
-		if (-s $opts{l} < $state->{ofs}->{$opts{l}})
+		my $fsize = -s $state->{file} || 0;
+		if ($fsize < $state->{size})
 		{
-			warn "Log rotation $fpath -> $opts{b}" if $opts{v};
-			$fpath = $opts{b};
+			if ($state->{file} ne $opts{l})
+			{
+				delete $state->{file};
+				delete $state->{size};
+				delete $state->{ofs};
+				die "Log backup ($opts{b}) rotated, data lost";
+			}
+			else
+			{
+				warn "Log rotated: $opts{l} -> $opts{b}" if $opts{v};
+				$state->{file} = $opts{b};
+			}
+		}
+		else
+		{
+			$state->{size} = $fsize;
 		}
 	}
-	open $F, "<", $fpath or die "Unable to open log file $fpath for reading";
-	seek $F, $state->{ofs}->{$fpath}, SEEK_SET if $state->{ofs}->{$fpath};
-	warn "Opened $fpath at $state->{ofs}->{$fpath}" if $state->{ofs}->{$fpath} && $opts{v};
-	while (<$F>)
+	else
 	{
-		chomp;
-		process_line($opts{r} =~ /\(/ ? $1 : $_) if /$opts{r}/;
-		$state->{ofs}->{$fpath} = tell $F;
+		$state->{file} = $opts{l};
+		$state->{size} = -s $opts{l};
+		$state->{ofs} = 0;
+		warn "New log file: $state->{file}; size: $state->{size}" if $opts{v};
 	}
-	if ($fpath ne $opts{l})  # finished backup
+	open $F, "<", $state->{file} or die "Unable to open log file $state->{file} for reading";
+	if ($state->{ofs})
+	{
+		seek $F, $state->{ofs}, SEEK_SET;
+		warn "Opened $state->{file} at $state->{ofs}" if $opts{v};
+	}
+	while ($log_count < $opts{M})
+	{
+		while (<$F>)
+		{
+			chomp;
+			process_line($opts{r} =~ /\(/ ? $1 : $_) if /$opts{r}/;
+			$state->{ofs} = tell $F;
+			++$log_count;
+			if ($log_count >= $opts{M})
+			{
+				warn "Max log lines $opts{M} reached, exiting at " . tell $F if $opts{v} > 1;
+				last;
+			}
+		}
+		my $fsize = -s $state->{file} || 0;
+		if ($log_count < $opts{M} && $fsize < $state->{size})
+		{
+			warn "Log ($state->{file}) rotated" if $opts{v};
+			last;
+		}
+		last if $state->{file} ne $opts{l};
+		usleep($opts{t} * 1000) if $log_count < $opts{M};
+	}
+	if ($state->{file} ne $opts{l} && $log_count < $opts{M})  # finished backup
 	{
 		warn "Finished backup" if $opts{v};
-		$state->{ofs}->{$opts{l}} = 0;
-		delete $state->{ofs}->{$opts{b}};
+		delete $state->{file};
+		delete $state->{size};
+		delete $state->{ofs};
 	}
 }
 
@@ -120,3 +183,4 @@ if ($@)
 	$state->{last_error}->{time} = time;
 }
 save_state($state);
+stop_processor if $processor_pid;

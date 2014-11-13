@@ -20,31 +20,35 @@ sub reset_counters
 my $L;
 if ($ENV{TESTPROC_LOG})
 {
-	open $L, ">", $ENV{TESTPROC_LOG} or die "Unable to open log";
+	open $L, ">>", $ENV{TESTPROC_LOG} or die "Unable to open log";
 }
 
 while (<>)
 {
-	print $L $_ if $L;
+	chomp;
 	reset_counters unless $total;
 	if ($ok)
 	{
 		print "OK\n";
+		print $L "$_ -> OK\n" if $L;
 		--$ok;
 	}
 	elsif ($fail)
 	{
 		print "FAIL: $fail\n";
+		print $L "$_ -> FAIL: $fail\n" if $L;
 		--$fail;
 	}
 	elsif ($fatal)
 	{
 		print "FATAL: $fatal\n";
+		print $L "$_ -> FATAL: $fatal\n" if $L;
 		--$fatal;
 	}
 	else
 	{
 		print "TOTAL: $total\n";
+		print $L "$_ -> TOTAL: $total\n" if $L;
 	}
 	--$total;
 }
