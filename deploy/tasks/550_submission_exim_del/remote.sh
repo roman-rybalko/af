@@ -3,11 +3,11 @@
 . ./pkgdep.sh
 
 # check group members
-[ -z "`pw groupshow advancedfiltering_submission | awk 'BEGIN{FS=":"}{print $4}'`" ]
+[ -z "`pw groupshow af_submission | awk 'BEGIN{FS=":"}{print $4}'`" ]
 
 service advancedfiltering_submission_exim stop || true
 rm -Rvf /usr/local/etc/rc.d/advancedfiltering_submission_exim /etc/rc.conf.d/advancedfiltering_submission_exim /usr/local/advancedfiltering/submission
-rmuser -yv advancedfiltering_submission || true
+rmuser -yv af_submission || true
 
 ./db-mod.sh || true
 

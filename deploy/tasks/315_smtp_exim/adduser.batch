@@ -1,1 +1,1 @@
-advancedfiltering_smtp::::::AdvancedFiltering smtp Service:/usr/local/advancedfiltering/smtp:/usr/sbin/nologin:
+af_smtp::::::AdvancedFiltering smtp Service:/usr/local/advancedfiltering/smtp:/usr/sbin/nologin:

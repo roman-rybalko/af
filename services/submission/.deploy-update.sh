@@ -6,7 +6,7 @@ tar -xvf ../../../deploy/tasks/560_submission_exim/submission.tgz
 rm -vf etc/rc.d/*
 cp -vf ../exim/advancedfiltering_submission_exim etc/rc.d/
 
-chmod -Rv u+w advancedfiltering/submission/exim/*
+chmod -Rv u+w advancedfiltering/submission/exim
 cp -vf ../exim/configure advancedfiltering/submission/exim/
 cp -vf ../../smtp/exim/mid_list_encoder.pl advancedfiltering/submission/exim/
 cp -vf ../exim/dmarc_verifier.pl ../exim/dmarc_verifier_*.dat advancedfiltering/submission/exim/

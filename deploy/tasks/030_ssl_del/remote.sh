@@ -2,7 +2,7 @@
 . ./remote.conf
 
 # check group members
-[ -z "`pw groupshow advancedfiltering_ssl | awk 'BEGIN{FS=":"}{print $4}'`" ]
+[ -z "`pw groupshow af_ssl | awk 'BEGIN{FS=":"}{print $4}'`" ]
 
 rm -Rvf /usr/local/advancedfiltering/ssl /etc/advancedfiltering_ssl
-pw groupdel advancedfiltering_ssl || true
+pw groupdel af_ssl || true

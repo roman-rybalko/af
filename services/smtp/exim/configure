@@ -1,7 +1,7 @@
-exim_user = advancedfiltering_smtp
-exim_group = advancedfiltering_smtp
+exim_user = af_smtp
+exim_group = af_smtp
 log_file_path = /usr/local/advancedfiltering/smtp/exim/log/%s.log
-process_log_path = /usr/local/advancedfiltering/smtp/exim/exim-process.info
+process_log_path = /usr/local/advancedfiltering/smtp/exim/spool/exim-process.info
 spool_directory = /usr/local/advancedfiltering/smtp/exim/spool
 split_spool_directory = true
 never_users = root

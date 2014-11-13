@@ -1,5 +1,5 @@
-exim_user = advancedfiltering_submission
-exim_group = advancedfiltering_submission
+exim_user = af_submission
+exim_group = af_submission
 log_file_path = /usr/local/advancedfiltering/submission/exim/log/%s.log
 process_log_path = /usr/local/advancedfiltering/submission/exim/spool/exim-process.info
 spool_directory = /usr/local/advancedfiltering/submission/exim/spool
