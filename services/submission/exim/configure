@@ -504,7 +504,7 @@ R_CT_Lc = ""
 # Router Copy Sender Data
 R_CS_D = ""
 
-# * backup_rcpt {continue} -> mx >> backup_end => error
+# * backup_rcpt {continue} -> internet >> backup_end => error
 R_LDAP_DN == U_Submission_R_C_D_MB_LDAP_DN
 R_CS_D == $local_part@$domain
 # the same for all backup_ routers
@@ -516,7 +516,7 @@ backup_rcpt_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D $address_data
   errors_to = error@services.advancedfiltering.net
-  redirect_router = mx_router
+  redirect_router = internet_router
   unseen = true
 backup_rcpt_pass_router:
   condition = ${if ! eq{}{R_CT_Lc}}
@@ -525,7 +525,7 @@ backup_rcpt_pass_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = backup_end_router
 
-# * backup_domain {continue} -> mx >> backup_end => error
+# * backup_client {continue} -> internet >> backup_end => error
 R_LDAP_DN == U_Submission_R_C_D_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSubmissionDomainTechMailAddress?base}}
 # the same for all backup_ routers
@@ -537,7 +537,7 @@ backup_domain_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D $address_data
   errors_to = error@services.advancedfiltering.net
-  redirect_router = mx_router
+  redirect_router = internet_router
   unseen = true
 backup_domain_pass_router:
   condition = ${if ! eq{}{R_CT_Lc}}
@@ -546,7 +546,7 @@ backup_domain_pass_router:
   errors_to = error@services.advancedfiltering.net
   redirect_router = backup_end_router
 
-# * backup_client {continue} -> mx >> backup_end => error
+# * backup_client {continue} -> internet >> backup_end => error
 R_LDAP_DN == U_Submission_R_C_LDAP_DN
 R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all backup_ routers
@@ -558,7 +558,7 @@ backup_client_router:
   data = R_CT_Lc
   address_data = sender=R_CS_D $address_data
   errors_to = error@services.advancedfiltering.net
-  redirect_router = mx_router
+  redirect_router = internet_router
   unseen = true
 backup_client_pass_router:
   condition = ${if ! eq{}{R_CT_Lc}}

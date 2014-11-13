@@ -12,10 +12,10 @@
 * internet_verify {stop} => bounce
 * hamtrap [flag_hamtrap] {continue} -> service => error
 * mailproc [!flag_trustedmessagesize && !flag_hamtrap] {continue} -> service => error
-# бэкап-сообщения должны надежно доставляться - бэкап-адрес перенаправляем на mx
-* backup_rcpt {continue} -> mx >> backup_end => error
-* backup_domain {continue} -> mx >> backup_end => error
-* backup_client {continue} -> mx >> backup_end => error
+# бэкап-сообщения должны надежно доставляться - бэкап-адрес перенаправляем на internet
+* backup_rcpt {continue} -> internet >> backup_end => error
+* backup_domain {continue} -> internet >> backup_end => error
+* backup_client {continue} -> internet >> backup_end => error
 * backup_end
 * spamsender [flag_spamsender] {stop} -> service => error
 * internet {stop} => bounce
