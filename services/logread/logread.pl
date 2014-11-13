@@ -28,6 +28,11 @@ sub parse_opts
 			"\t-M max\tMax log lines to read before exit\n",
 			"\t-t msec\tMilliseconds between log file polls\n",
 			"\t-v level\tLog verbosity level\n",
+			"SIGNALS:\n",
+			"\tUSR1\tSave state\n",
+			"\tUSR2\tReset line counters\n",
+			"\tTERM\tSave state & exit\n",
+			"\tINT\tSave state & exit\n",
 			"";
 		exit 0;
 	}
@@ -98,6 +103,8 @@ sub process_line
 	++$process_count;
 }
 
+my $signal_flag = 0;
+
 my $log_count = 0;
 sub process_log
 {
@@ -152,6 +159,7 @@ sub process_log
 				warn "Max log lines $opts{M} reached, exiting at " . tell $F if $opts{v} > 1;
 				last;
 			}
+			die "Exit by signal" if $signal_flag;
 		}
 		my $fsize = -s $state->{file} || 0;
 		if ($log_count < $opts{M} && $fsize < $state->{size})
@@ -160,6 +168,7 @@ sub process_log
 			last;
 		}
 		last if $state->{file} ne $opts{l};
+		die "Exit by signal" if $signal_flag;
 		usleep($opts{t} * 1000) if $log_count < $opts{M};
 	}
 	if ($state->{file} ne $opts{l} && $log_count < $opts{M})  # finished backup
@@ -174,6 +183,10 @@ sub process_log
 ######################################################################
 
 parse_opts;
+
+$SIG{USR1} = sub { save_state($state); };
+$SIG{USR2} = sub { $log_count = 0; $process_count = 0; };
+$SIG{INT} = $SIG{TERM} = sub { $signal_flag = 1; };
 
 my $state = load_state;
 eval { process_log($state); };
