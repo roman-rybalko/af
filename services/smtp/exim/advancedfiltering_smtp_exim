@@ -37,6 +37,6 @@ stop_postcmd()
 load_rc_config $name
 
 : ${advancedfiltering_smtp_exim_enable="NO"}
-: ${advancedfiltering_smtp_exim_flags="-bd -q30m -C /usr/local/advancedfiltering/smtp/exim/configure -oP /usr/local/advancedfiltering/smtp/exim/exim.pid"}
+: ${advancedfiltering_smtp_exim_flags="-bd -q1m -C /usr/local/advancedfiltering/smtp/exim/configure -oP /usr/local/advancedfiltering/smtp/exim/exim.pid"}
 
 run_rc_command "$1"

@@ -1,0 +1,6 @@
+
+dn: cn=submission,ou=auth
+cn: submission
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+userpassword: {SSHA}FuDTuWcCB/McJQ4va2swGsN3Z3A/PdUy

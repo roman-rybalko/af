@@ -1,5 +1,8 @@
 #!/bin/sh -ex
 . ./remote.conf
+. ./pkgdep.sh
+
+pkgdep_install smtp_exim exim
 
 adduser -f adduser.batch -M 0750 -w no -G "advancedfiltering_ssl advancedfiltering_ldap"
 

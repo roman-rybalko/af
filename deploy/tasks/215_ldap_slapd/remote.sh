@@ -1,5 +1,8 @@
 #!/bin/sh -ex
 . ./remote.conf
+. ./pkgdep.sh
+
+pkgdep_install ldap_slapd openldap-server
 
 adduser -f adduser.batch -M 0750 -w no -G "advancedfiltering_ssl"
 
