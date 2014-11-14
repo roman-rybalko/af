@@ -22,9 +22,10 @@
 name=advancedfiltering_submission_exim
 rcvar=advancedfiltering_submission_exim_enable
 command=/usr/local/sbin/exim
-pidfile=/usr/local/advancedfiltering/submission/exim/exim.pid
+pidfile=/usr/local/advancedfiltering/submission/exim/spool/exim.pid
 required_dirs="/usr/local/advancedfiltering/submission/exim/log /usr/local/advancedfiltering/submission/exim/spool"
-required_files=/usr/local/advancedfiltering/submission/exim/configure
+advancedfiltering_conffile=/usr/local/advancedfiltering/submission/exim/configure
+required_files="$advancedfiltering_conffile"
 stop_postcmd=stop_postcmd
 extra_commands="reload"
 
@@ -37,6 +38,6 @@ stop_postcmd()
 load_rc_config $name
 
 : ${advancedfiltering_submission_exim_enable="NO"}
-: ${advancedfiltering_submission_exim_flags="-bd -q1m -C /usr/local/advancedfiltering/submission/exim/configure -oP /usr/local/advancedfiltering/submission/exim/exim.pid"}
+: ${advancedfiltering_submission_exim_flags="-bd -q1m -C $advancedfiltering_conffile -oP $pidfile"}
 
 run_rc_command "$1"
