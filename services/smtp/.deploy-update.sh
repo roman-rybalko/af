@@ -5,7 +5,7 @@ cd .tmp
 tar -xvf ../../../deploy/tasks/315_smtp_exim/smtp.tgz
 
 rm -vf etc/rc.d/*
-cp -vf ../exim/advancedfiltering_smtp_exim etc/rc.d/
+cp -vf ../advancedfiltering_smtp_exim etc/rc.d/
 
 chmod -Rv u+w advancedfiltering/smtp/exim
 cp -vf ../exim/configure advancedfiltering/smtp/exim/
