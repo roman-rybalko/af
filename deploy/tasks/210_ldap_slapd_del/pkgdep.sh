@@ -8,6 +8,7 @@ pkgdep_install()
 		mkdir -vp /usr/local/advancedfiltering/pkgdep/$pkg
 		touch /usr/local/advancedfiltering/pkgdep/$pkg/$service
 	done
+	chmod u=rwx,g=rx,o= /usr/local/advancedfiltering/pkgdep
 }
 
 pkgdep_uninstall()
