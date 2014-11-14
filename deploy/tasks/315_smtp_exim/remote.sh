@@ -12,6 +12,9 @@ sed "s/template.hosts.advancedfiltering.net/`hostname`/" rc.conf > /etc/rc.conf.
 
 chown -R af_smtp:af_smtp /usr/local/advancedfiltering/smtp
 chown root:wheel /usr/local/etc/rc.d/advancedfiltering_smtp_exim /etc/rc.conf.d/advancedfiltering_smtp_exim
-chown root /usr/local/advancedfiltering/smtp/exim/configure
+for f in /usr/local/advancedfiltering/smtp/exim/*; do
+	[ ! -f $f ] || chown root $f
+done
+chown root /usr/local/advancedfiltering/smtp/exim
 
 service advancedfiltering_smtp_exim start
