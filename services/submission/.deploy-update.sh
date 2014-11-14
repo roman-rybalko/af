@@ -4,7 +4,7 @@ cd .tmp
 tar -xvf ../../../deploy/tasks/560_submission_exim/submission.tgz
 
 rm -vf etc/rc.d/*
-cp -vf ../exim/advancedfiltering_submission_exim etc/rc.d/
+cp -vf ../advancedfiltering_submission_exim etc/rc.d/
 
 chmod -Rv u+w advancedfiltering/submission/exim
 cp -vf ../exim/configure advancedfiltering/submission/exim/
