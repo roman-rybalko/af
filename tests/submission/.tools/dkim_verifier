@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# verify a message
+use Mail::DKIM::Verifier;
+
+if ($ARGV[0] eq "-h")
+{
+	print "USAGE: $0 <mime>\n";
+	exit 0;
+}
+
+# create a verifier object
+my $dkim = Mail::DKIM::Verifier->new();
+
+# read an email, pass it into the verifier
+while (<>)
+{
+	s/\s+$//;
+	$dkim->PRINT("$_\r\n");
+}
+$dkim->CLOSE;
+
+# there might be multiple signatures, what is the result per signature?
+foreach my $signature ($dkim->signatures)
+{
+	print "signature identity: ", $signature->identity, ", verify result: ", $signature->result_detail, "\n";
+}
