@@ -14,11 +14,13 @@ smtp_receive_timeout = 42s
 local_scan_timeout = 15s
 ignore_bounce_errors_after = 2d
 timeout_frozen_after = 7d
+acl_smtp_helo = helo_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_data = data_acl
 # * Режим submission (добавить From если нет, Sender, Date, Message-ID) без проверки From:, continue
 local_from_check = false
+smtp_banner = submission.services.advancedfiltering.net ESMTP
 
 # Lightweight Directory Access Protocol Connection
 LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
@@ -96,6 +98,12 @@ U_Submission_R_C_D_LDAP_DN = afUSubmissionDomainName=${quote_ldap_dn:$acl_m_u_do
 U_Submission_R_C_D_MB_LDAP_DN = afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:$acl_m_u_sender}},U_Submission_R_C_D_LDAP_DN
 
 begin acl
+
+helo_acl:
+
+  # ** вывести логин клиента
+  accept
+    message = submission.services.advancedfiltering.net Hello U_A_CN_D ${if eq{}{U_A_CN_ip_D}{${if eq{}{U_A_CN_sni_D}{${if eq{}{U_A_CN_login_D}{}{SMTP AUTH}}}{TLS SNI}}}{IP}}
 
 # * идентифицировать клиента
 # deny => deny, accept => continue, defer => defer
