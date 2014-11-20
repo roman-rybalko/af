@@ -1,0 +1,21 @@
+commit 1c7dd2624ce13b6bc6444673cf882e9e94181b9d
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Thu Nov 20 19:17:51 2014 +0300
+
+    switch SSL context fix backport
+
+diff --git src/tls-openssl.c src/tls-openssl.c
+index 191af69..14109ba 100644
+--- src/tls-openssl.c
++++ src/tls-openssl.c
+@@ -752,8 +752,8 @@ OCSP information. */
+ rc = tls_expand_session_files(server_sni, cbinfo);
+ if (rc != OK) return SSL_TLSEXT_ERR_NOACK;
+ 
+-rc = init_dh(server_sni, cbinfo->dhparam, NULL);
+-if (rc != OK) return SSL_TLSEXT_ERR_NOACK;
++if (!init_dh(server_sni, cbinfo->dhparam, NULL))
++  return SSL_TLSEXT_ERR_NOACK;
+ 
+ DEBUG(D_tls) debug_printf("Switching SSL context.\n");
+ SSL_set_SSL_CTX(s, server_sni);
