@@ -1,0 +1,18 @@
+commit 35d5df41508d3f333bec297d01b64f184144caa5
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Thu Nov 20 16:09:26 2014 +0300
+
+    cbinfo->server_cipher_list fix backport (TLS SNI fault)
+
+diff --git src/tls-openssl.c src/tls-openssl.c
+index 1e52b89..191af69 100644
+--- src/tls-openssl.c
++++ src/tls-openssl.c
+@@ -980,6 +980,7 @@ else
+   cbinfo->u_ocsp.client.verify_store = NULL;
+ #endif
+ cbinfo->dhparam = dhparam;
++cbinfo->server_cipher_list = NULL;
+ cbinfo->host = host;
+ 
+ SSL_load_error_strings();          /* basic set up */
