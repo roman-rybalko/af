@@ -656,29 +656,32 @@ bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m
 
 begin authenticators
 
+A_LOGIN_D = ${if eq{}{$auth1}{$auth2}{$auth1}}
+A_PASSWORD_D = ${if eq{}{$auth1}{$auth3}{$auth2}}
+
 # Authenticator MailBox Realm
-A_MB_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:${domain:$auth2}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
+A_MB_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:${domain:A_LOGIN_D}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
 # Authenticator Domain Realm
-A_D_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$auth2},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
+A_D_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:A_LOGIN_D},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
 # Authenticator Client Realm
-A_C_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$auth2},S_LDAP_DN?afSClientRealm?base}}
+A_C_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:A_LOGIN_D},S_LDAP_DN?afSClientRealm?base}}
 
 # Authenticator Realm
 A_REALM_D = ${if eq{}{A_MB_R_D}{${if eq{}{A_D_R_D}{${if eq{}{A_C_R_D}{}{A_C_R_D}}}{A_D_R_D}}}{A_MB_R_D}}
 
 # Authenticator MailBox Password Raw
-A_MB_P_R_D = ${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:$auth2}},afUSubmissionDomainName=${quote_ldap_dn:${domain:$auth2}},afUClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:{$domain:$auth2}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+A_MB_P_R_D = ${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:A_LOGIN_D}},afUSubmissionDomainName=${quote_ldap_dn:${domain:A_LOGIN_D}},afUClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:${domain:A_LOGIN_D}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
 # Authenticator MailBox Password (additional check for invalid LDAP query prevention)
-A_MB_P_D = ${if and{{!eq{}{${local_part:$auth2}}}{!eq{}{${domain:$auth2}}}}{A_MB_P_R_D}{}}
+A_MB_P_D = ${if and{{!eq{}{${local_part:A_LOGIN_D}}}{!eq{}{${domain:A_LOGIN_D}}}}{A_MB_P_R_D}{}}
 # Authenticator Domain Password
-A_D_P_D = ${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:$auth2},afUClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$auth2},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+A_D_P_D = ${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_LOGIN_D},afUClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:A_LOGIN_D},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
 # Authenticator Client Password
-A_C_P_D = ${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:$auth2},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+A_C_P_D = ${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:A_LOGIN_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
 
 # Authenticator server_advertise_condition
 A_SAC_D = ${if ! eq{}{$tls_in_cipher}}
 # Authenticator server_condition Password
-A_SC_P_F = ${if crypteq{$auth3}{A_MB_P_D}{true}{${if crypteq{$auth3}{A_D_P_D}{true}{${if crypteq{$auth3}{A_C_P_D}{true}{false}}}}}}
+A_SC_P_F = ${if crypteq{A_PASSWORD_D}{A_MB_P_D}{true}{${if crypteq{A_PASSWORD_D}{A_D_P_D}{true}{${if crypteq{A_PASSWORD_D}{A_C_P_D}{true}{false}}}}}}
 # Authenticator server_condition
 A_SC_D = ${if inlist{A_REALM_D}{<, S_REALM_Lc}{A_SC_P_F}{Moved, please try another host}}
 
@@ -688,7 +691,7 @@ login_authenticator:
   driver = plaintext
   public_name = LOGIN
   server_prompts = User Name : Password
-  server_set_id = $auth2
+  server_set_id = A_LOGIN_D
 
 plain_authenticator:
   server_advertise_condition = A_SAC_D
@@ -696,4 +699,4 @@ plain_authenticator:
   driver = plaintext
   public_name = PLAIN
   server_prompts = :
-  server_set_id = $auth2
+  server_set_id = A_LOGIN_D

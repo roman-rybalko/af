@@ -1,0 +1,10 @@
+
+dn: afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUService
+
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUClient
+afUClientAdminMailAddress: client-admin@tests.advancedfiltering.net
+afUClientTechMailAddress: client-tech@tests.advancedfiltering.net
+objectClass: afUSubmissionSettings
+afUSubmissionAuthPassword: {MD5}Yvj3avIq515wtZUQoedpeg==
