@@ -1,5 +1,5 @@
 
-dn: afSClientName=cli1,ou=system,o=advancedfiltering
+dn: afSClientName=submission-test,ou=system,o=advancedfiltering
 afSClientRealm: r1
 objectClass: afSClient
 

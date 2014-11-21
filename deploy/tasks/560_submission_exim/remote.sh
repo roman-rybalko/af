@@ -2,7 +2,7 @@
 . ./remote.conf
 . ./pkgdep.sh
 
-pkgdep_install submission_exim exim p5-perl-ldap
+pkgdep_install submission_exim exim p5-perl-ldap p5-Net-DNS
 
 adduser -f adduser.batch -M 0750 -w no -G "af_ssl af_ldap"
 

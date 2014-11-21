@@ -1,5 +1,6 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-cp -Rf *.crt *.key /usr/local/advancedfiltering/ssl/
-chown root:af_ssl /usr/local/advancedfiltering/ssl/*.crt /usr/local/advancedfiltering/ssl/*.key
+cp -v smtp.services.advancedfiltering.net.* /usr/local/advancedfiltering/ssl/
+chown -v root:af_ssl /usr/local/advancedfiltering/ssl/smtp.services.advancedfiltering.net.*
+chmod -v ug=r,o= /usr/local/advancedfiltering/ssl/smtp.services.advancedfiltering.net.*

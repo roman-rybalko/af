@@ -11,4 +11,4 @@ rm -Rvf /usr/local/etc/rc.d/advancedfiltering_submission_exim /etc/rc.conf.d/adv
 
 ./db-mod.sh || true
 
-pkgdep_uninstall submission_exim exim p5-perl-ldap
+pkgdep_uninstall submission_exim exim p5-perl-ldap p5-Net-DNS

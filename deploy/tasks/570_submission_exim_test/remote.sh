@@ -4,8 +4,12 @@
 
 pkgdep_install submission_exim_test p5-IO-Socket-SSL p5-Mail-DKIM
 
-cp -Rvf ssl/tests-submission* /usr/local/advancedfiltering/submission/ssl/
-cp -Rvf dkim/tests-submission* /usr/local/advancedfiltering/submission/dkim/
+cp -Rvf ssl/submission-test.* /usr/local/advancedfiltering/submission/ssl/
+cd ssl
+./mkca.sh submission-test.ca
+mv -vf submission-test.ca /usr/local/advancedfiltering/submission/ssl/
+cd ..
+cp -Rvf dkim/submission-test* /usr/local/advancedfiltering/submission/dkim/
 
-chown -R af_submission:af_submission /usr/local/advancedfiltering/submission/ssl/tests-submission*
-chown -R af_submission:af_submission /usr/local/advancedfiltering/submission/dkim/tests-submission*
+chown -Rv af_submission:af_submission /usr/local/advancedfiltering/submission/ssl/submission-test*
+chown -Rv af_submission:af_submission /usr/local/advancedfiltering/submission/dkim/submission-test*

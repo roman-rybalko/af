@@ -24,12 +24,18 @@ smtp_banner = submission.services.advancedfiltering.net ESMTP
 
 # Lightweight Directory Access Protocol Connection
 LDAP_C = ldapi://%2fusr%2flocal%2fadvancedfiltering%2fldap%2fldapi
+
 # System LDAP DN
 S_LDAP_DN = ou=system,o=advancedfiltering
+
 # System SMTP LDAP DN
 S_SMTP_LDAP_DN = afSServiceName=smtp,S_LDAP_DN
 # System Submission LDAP DN
 S_Submission_LDAP_DN = afSServiceName=submission,S_LDAP_DN
+
+# User Submission LDAP DN
+U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
+
 # System Realm List (separated by coma)
 S_REALM_Lc = ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$primary_hostname},S_LDAP_DN?afSHostRealm?base}}
 
@@ -38,6 +44,25 @@ S_TH_R_F = ${if forany{<, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$send
 # System Trusted Host Flag
 S_TH_F = ${if eq{}{$sender_host_name}{false}{S_TH_R_F}}
 
+# User Authenticated Client Name by SMTP AUTH
+U_CLIENT_login_D = $authenticated_id
+# User Authenticated Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
+U_CLIENT_sni_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients.advancedfiltering.net}{}}
+# User Authenticated Client Name by IP
+U_CLIENT_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
+
+# User login
+U_CLIENT_D = ${if eq{}{U_CLIENT_login_D}{${if eq{}{U_CLIENT_sni_D}{${if eq{}{U_CLIENT_ip_D}{}{U_CLIENT_ip_D}}}{U_CLIENT_sni_D}}}{U_CLIENT_login_D}}
+
+# User Realm
+U_REALM_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:U_CLIENT_D},S_LDAP_DN?afSClientRealm?base}}
+
+# User Client Certificate Raw Flag
+U_C_C_R_F = ${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:U_CLIENT_D},afUServiceRealm=${quote_ldap_dn:U_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthHaveCertificate?base}}
+# User Client Certificate
+# проверяем, определился ли логин клиента, т.к. при SMTP AUTH логин до STARTTLS не известен
+U_C_C_F = ${if eq{}{U_CLIENT_D}{}{U_C_C_R_F}}
+
 # System Host Certificate
 S_H_C_D = /etc/advancedfiltering_ssl/$primary_hostname.crt
 # System Host Certificate Key
@@ -45,20 +70,10 @@ S_H_CK_D = /etc/advancedfiltering_ssl/$primary_hostname.key
 # System Host Certificate Authority
 S_H_CA_D = /etc/advancedfiltering_ssl/ca
 
-# User Authenticated Client Name by IP
-U_A_CN_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
-# User Authenticated Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
-U_A_CN_sni_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients.advancedfiltering.net}{}}
-# User Authenticated Client Name by SMTP AUTH
-U_A_CN_login_D = $authenticated_id
-
-# User Authenticated Client Name
-U_A_CN_D = ${if eq{}{U_A_CN_ip_D}{${if eq{}{U_A_CN_sni_D}{${if eq{}{U_A_CN_login_D}{}{U_A_CN_login_D}}}{U_A_CN_sni_D}}}{U_A_CN_ip_D}}
-
 # User Client Certificate
-U_C_C_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.crt}{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.crt}{}}
-U_C_CK_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.key}{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D.key}{}}
-U_C_CA_D = ${if exists{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D-ca}{/usr/local/advancedfiltering/submission/ssl/U_A_CN_D-ca}{}}
+U_C_C_D = /usr/local/advancedfiltering/submission/ssl/U_CLIENT_D.crt
+U_C_CK_D = /usr/local/advancedfiltering/submission/ssl/U_CLIENT_D.key
+U_C_CA_D = /usr/local/advancedfiltering/submission/ssl/U_CLIENT_D.ca
 
 # System Service Certificate
 S_S_C_D = /usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.crt
@@ -67,10 +82,11 @@ S_S_CA_D = /usr/local/advancedfiltering/ssl/ca
 
 tls_advertise_hosts = *
 tls_try_verify_hosts = *
-tls_certificate = ${if bool{S_TH_F}{S_H_C_D}{${if bool_lax{U_C_C_D}{U_C_C_D}{S_S_C_D}}}}
-tls_privatekey = ${if bool{S_TH_F}{S_H_CK_D}{${if bool_lax{U_C_CK_D}{U_C_CK_D}{S_S_CK_D}}}}
-tls_verify_certificates = ${if bool{S_TH_F}{S_H_CA_D}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{S_S_CA_D}}}}
-tls_crl = ${if bool{S_TH_F}{S_H_CA_D}{${if bool_lax{U_C_CA_D}{U_C_CA_D}{S_S_CA_D}}}}
+# * установить сертификат
+tls_certificate = ${if bool{S_TH_F}{S_H_C_D}{${if bool{U_C_C_F}{U_C_C_D}{S_S_C_D}}}}
+tls_privatekey = ${if bool{S_TH_F}{S_H_CK_D}{${if bool{U_C_C_F}{U_C_CK_D}{S_S_CK_D}}}}
+tls_verify_certificates = ${if bool{S_TH_F}{S_H_CA_D}{${if bool{U_C_C_F}{U_C_CA_D}{S_S_CA_D}}}}
+tls_crl = ${if bool{S_TH_F}{S_H_CA_D}{${if bool{U_C_C_F}{U_C_CA_D}{S_S_CA_D}}}}
 
 # * user_hidereceived => Удалить заголовки Received, continue
 received_header_text = Received: \
@@ -84,9 +100,6 @@ received_header_text = Received: \
 
 # * message_size >= sys_maxmessagesize => 5xx ...
 message_size_limit = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMaxMessageSize?base}}
-
-# User Submission LDAP DN
-U_Submission_LDAP_DN = afUServiceName=submission,ou=user,o=advancedfiltering
 
 # User Submission Realm DN
 U_Submission_R_LDAP_DN = afUServiceRealm=${quote_ldap_dn:$acl_m_u_realm}+U_Submission_LDAP_DN
@@ -103,7 +116,18 @@ helo_acl:
 
   # ** вывести логин клиента
   accept
-    message = submission.services.advancedfiltering.net Hello U_A_CN_D ${if eq{}{U_A_CN_ip_D}{${if eq{}{U_A_CN_sni_D}{${if eq{}{U_A_CN_login_D}{}{SMTP AUTH}}}{TLS SNI}}}{IP}}
+    condition = ${if ! eq{}{U_CLIENT_login_D}}
+    message = submission.services.advancedfiltering.net Hallo U_CLIENT_login_D SMTP AUTH
+  accept
+    condition = ${if ! eq{}{U_CLIENT_sni_D}}
+    condition = ${if bool{U_C_C_F}}
+    condition = $tls_in_certificate_verified
+    message = submission.services.advancedfiltering.net Hallo U_CLIENT_sni_D TLS SNI
+  accept
+    condition = ${if ! eq{}{U_CLIENT_ip_D}}
+    message = submission.services.advancedfiltering.net Hallo U_CLIENT_ip_D IP
+  accept
+    message = submission.services.advancedfiltering.net
 
 # * идентифицировать клиента
 # deny => deny, accept => continue, defer => defer
@@ -119,31 +143,16 @@ auth_acl:
   accept
     condition = S_TH_F
 
-  # ** IP (client) && задан клиентский сертификат && !certificate_verified => 5xx Client (IP) certificate verification failed, stop
+  # ** логин определился && задан клиентский сертификат && !certificate_verified => 5xx Client certificate verification failed, stop
   deny
-    condition = ${if bool_lax{U_A_CN_ip_D}}
-    condition = ${if bool_lax{U_C_C_D}}
+    condition = ${if ! eq{}{U_CLIENT_D}}
+    condition = ${if bool{U_C_C_F}}
     ! condition = $tls_in_certificate_verified
-    message = Client (IP) certificate verification failed
+    message = Client certificate verification failed
 
-  # ** IP (client) => continue
+  # ** логин определился => continue
   accept
-    condition = ${if bool_lax{U_A_CN_ip_D}}
-
-  # ** TLS SNI && задан клиентский сертификат && !certificate_verified => 5xx Client (TLS SNI) certificate verification failed, stop
-  deny
-    condition = ${if bool_lax{U_A_CN_sni_D}}
-    condition = ${if bool_lax{U_C_C_D}}
-    ! condition = $tls_in_certificate_verified
-    message = Client (TLS SNI) certificate verification failed
-
-  # ** TLS SNI => continue
-  accept
-    condition = ${if bool_lax{U_A_CN_sni_D}}
-  
-  # ** SMTP AUTH => continue
-  accept
-    condition = ${if bool_lax{U_A_CN_login_D}}
+    condition = ${if ! eq{}{U_CLIENT_D}}
 
   # ** 5xx Authentication needed, stop
   deny
@@ -155,31 +164,31 @@ sender_auth_acl:
 
   # mbox
   accept
-    condition = ${if eq{$acl_m_u_sender}{U_A_CN_login_D}}
+    condition = ${if eq{$acl_m_u_sender}{U_CLIENT_login_D}}
 
   # mbox alias
   accept
-    condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{U_A_CN_login_D}}
+    condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{U_CLIENT_login_D}}
 
   # domain
   accept
-    condition = ${if eq{${domain:$acl_m_u_sender}}{U_A_CN_login_D}}
+    condition = ${if eq{${domain:$acl_m_u_sender}}{U_CLIENT_login_D}}
 
   # domain alias
   accept
-    condition = ${if eq{$acl_m_u_domain}{U_A_CN_login_D}}
+    condition = ${if eq{$acl_m_u_domain}{U_CLIENT_login_D}}
 
   # client SMTP AUTH
   accept
-    condition = ${if eq{$acl_m_u_client}{U_A_CN_login_D}}
+    condition = ${if eq{$acl_m_u_client}{U_CLIENT_login_D}}
 
   # client TLS SNI
   accept
-    condition = ${if eq{$acl_m_u_client}{U_A_CN_sni_D}}
+    condition = ${if eq{$acl_m_u_client}{U_CLIENT_sni_D}}
 
   # client IP
   accept
-    condition = ${if eq{$acl_m_u_client}{U_A_CN_ip_D}}
+    condition = ${if eq{$acl_m_u_client}{U_CLIENT_ip_D}}
 
   # unknown
   deny
@@ -259,7 +268,7 @@ sneder_acl:
   deny
     ! condition = S_TH_F
     ! acl = sender_auth_acl
-    message = Authenticated user U_A_CN_D may not use sender address $acl_m_u_sender
+    message = Authenticated user U_CLIENT_D may not use sender address $acl_m_u_sender
 
   # ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
   deny
