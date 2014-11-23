@@ -25,6 +25,8 @@ webmail.xxx.clients.advancedfiltering.net - WEB-интерфейс к клиен
 vpn.xxx.clients.advancedfiltering.net - VPN-сервер
 
 ldap.services.advancedfiltering.net (основной LDAP-сервер) (cname xxx.hosts.advancedfiltering.net.)
+dns.services.advancedfiltering.net (основной DNS-сервер)
+deploy.services.advancedfiltering.net
 xxx - имя сервиса
 xxx.services.advancedfiltering.net - центральные сервера для сервисов
 
