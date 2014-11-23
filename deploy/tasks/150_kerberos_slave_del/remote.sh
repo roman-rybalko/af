@@ -1,8 +1,8 @@
 #!/bin/sh -ex
 . ./remote.conf
 
-service kerberos stop
-grep -v kerberos5_server_enable /etc/rc.conf > /etc/rc.conf.new
+service kdc stop
+grep -v kdc_enable /etc/rc.conf > /etc/rc.conf.new
 mv -f /etc/rc.conf.new /etc/rc.conf
 
 service inetd stop

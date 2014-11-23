@@ -71,6 +71,6 @@ fi
 $sshprefix ssh $sshopt $sshuser@$host test -d $remotetaskdir
 $sshprefix scp $sshopt -r $localtaskdir/* remoterun.sh $sshuser@$host:$remotetaskdir
 # errors to stdout, then to host log (see remoterun.sh)
-$sshprefix ssh $sshopt $sshuser@$host $remotetaskdir/remoterun.sh $tasks >>$hostpath.log && mv $hostpath.log $hostpath.ok || mv $hostpath.log $hostpath.fail
+$sshprefix ssh $sshopt -tt $sshuser@$host nohup $remotetaskdir/remoterun.sh $tasks >>$hostpath.log && mv $hostpath.log $hostpath.ok || mv $hostpath.log $hostpath.fail
 $sshprefix ssh $sshopt $sshuser@$host rm -R $remotetaskdir
 rm -R $localtaskdir
