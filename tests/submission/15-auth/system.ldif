@@ -1,0 +1,30 @@
+
+dn: afSClientName=cli1,ou=system,o=advancedfiltering
+afSClientRealm: r1
+objectClass: afSClient
+
+dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: submission
+objectClass: afSHost
+
+dn: afSServiceName=submission,ou=system,o=advancedfiltering
+afSSubmissionMaxMessageSize: 30000000
+afSSubmissionTrustedMessageSize: 2000000
+afSSubmissionMailBoxTimeout: 86400
+objectClass: afSSubmissionService
+
+dn: afSServiceName=smtp,ou=system,o=advancedfiltering
+afSSMTPMaxMessageSize: 30000000
+afSSMTPSpamTrapProbabilityDenominator: 100
+afSSMTPSpamTrapProbabilityNumerator: 0
+afSSMTPHamTrapProbabilityDenominator: 100
+afSSMTPHamTrapProbabilityNumerator: 0
+afSSMTPTrustedMessageSize: 2000000
+afSSMTPTrustedPort: 445
+afSSMTPMailBoxTimeout: 14400
+objectClass: afSSMTPService
+
+dn: afSSMTPDomainName=test.com,afSServiceName=smtp,ou=system,o=advancedfiltering
+afSSMTPDomainClientName: cli1
+objectClass: afSSMTPDomain
