@@ -1,4 +1,0 @@
-
-dn: afUSubmissionDomainName=test2.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
-objectClass: afUSubmissionDomainAlias
-afUSubmissionDomainAliasName: test.com

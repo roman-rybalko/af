@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-add_ldif user.ldif
+add_ldif system.ldif
