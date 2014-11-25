@@ -1,0 +1,5 @@
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: test
+objectClass: afSHost

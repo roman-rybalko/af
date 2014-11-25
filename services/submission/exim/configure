@@ -114,7 +114,10 @@ begin acl
 
 helo_acl:
 
-  # ** вывести логин клиента
+  # ** вывести аутентификационную информацию
+  accept
+    condition = S_TH_F
+    message = submission.services.advancedfiltering.net Hallo TH
   accept
     condition = ${if ! eq{}{U_CLIENT_login_D}}
     message = submission.services.advancedfiltering.net Hallo U_CLIENT_login_D SMTP AUTH
