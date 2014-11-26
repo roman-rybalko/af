@@ -1,0 +1,1 @@
+** trusted_host && !certificate_verified => 5xx Trusted host certificate verification failed, stop

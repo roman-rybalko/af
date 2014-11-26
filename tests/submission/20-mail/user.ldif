@@ -1,0 +1,3 @@
+
+dn: afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUService

@@ -1,0 +1,2 @@
+# клиентский сертификат будет использован только если клиент определился по IP или TLS SNI
+** использован клиентский сертификат && !certificate_verified => 5xx Client certificate verification failed, stop

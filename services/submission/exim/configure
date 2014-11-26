@@ -63,6 +63,7 @@ U_C_C_R_F = ${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:U_CLIENT_D},afUSe
 # проверяем, определился ли логин клиента, т.к. при SMTP AUTH логин до STARTTLS не известен
 U_C_C_F = ${if eq{}{U_CLIENT_D}{}{U_C_C_R_F}}
 
+# ** trusted_host => внутренний сертификат (hostname.crt)
 # System Host Certificate
 S_H_C_D = /etc/advancedfiltering_ssl/$primary_hostname.crt
 # System Host Certificate Key
@@ -70,11 +71,13 @@ S_H_CK_D = /etc/advancedfiltering_ssl/$primary_hostname.key
 # System Host Certificate Authority
 S_H_CA_D = /etc/advancedfiltering_ssl/ca
 
+# ** задан клиентский сертификат => клиентский сертификат
 # User Client Certificate
 U_C_C_D = /usr/local/advancedfiltering/submission/ssl/U_CLIENT_D.crt
 U_C_CK_D = /usr/local/advancedfiltering/submission/ssl/U_CLIENT_D.key
 U_C_CA_D = /usr/local/advancedfiltering/submission/ssl/U_CLIENT_D.ca
 
+# ** не задан клиентский сертификат => внешний сертификат (submission.services.advancedfiltering.net.crt)
 # System Service Certificate
 S_S_C_D = /usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.crt
 S_S_CK_D = /usr/local/advancedfiltering/ssl/submission.services.advancedfiltering.net.key
@@ -146,9 +149,9 @@ auth_acl:
   accept
     condition = S_TH_F
 
-  # ** логин определился && задан клиентский сертификат && !certificate_verified => 5xx Client certificate verification failed, stop
+  # ** использован клиентский сертификат && !certificate_verified => 5xx Client certificate verification failed, stop
   deny
-    condition = ${if ! eq{}{U_CLIENT_D}}
+    condition = ${if and{{eq{}{U_CLIENT_login_D}}{! eq{}{U_CLIENT_D}}}}
     condition = ${if bool{U_C_C_F}}
     ! condition = $tls_in_certificate_verified
     message = Client certificate verification failed
@@ -212,7 +215,7 @@ S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
 
 # * проверка адреса отправителя
 # deny => deny, accept => continue, defer => defer
-sneder_acl:
+sender_acl:
 
   # ** домен не задан => 5xx Sender domain is absent, stop
   deny

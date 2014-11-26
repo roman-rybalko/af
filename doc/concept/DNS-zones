@@ -11,6 +11,7 @@ hosts.advancedfiltering.net (mx .)
 clients.advancedfiltering.net (mx .)
 services.advancedfiltering.net (mx .)
 realms.advancedfiltering.net (mx .)
+test.advancedfiltering.net
 
 xxx - имя хоста
 xxx.hosts.advancedfiltering.net (все хосты сети)

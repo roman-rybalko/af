@@ -1,0 +1,13 @@
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: test
+objectClass: afSHost
+
+dn: afSClientName=cli1,ou=system,o=advancedfiltering
+afSClientRealm: r1
+objectClass: afSClient
+
+dn: afSSMTPDomainName=test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+afSSMTPDomainClientName: cli1
+objectClass: afSSMTPDomain

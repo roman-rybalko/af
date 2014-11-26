@@ -1,0 +1,7 @@
+
+dn: afUClientName=submission-test,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUClient
+afUClientAdminMailAddress: client-admin@tests.advancedfiltering.net
+afUClientTechMailAddress: client-tech@tests.advancedfiltering.net
+objectClass: afUSubmissionSettings
+afUSubmissionAuthHaveCertificate: TRUE

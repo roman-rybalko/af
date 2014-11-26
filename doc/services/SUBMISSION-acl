@@ -37,7 +37,8 @@ mail
 ** trusted_host && !certificate_verified => 5xx Trusted host certificate verification failed, stop
 ** trusted_host => continue
 # код ошибки 5xx - эту ошибку нужно обнаружить сразу и устранить
-** логин определился && задан клиентский сертификат && !certificate_verified => 5xx Client certificate verification failed, stop
+# клиентский сертификат будет использован только если клиент определился по IP или TLS SNI
+** использован клиентский сертификат && !certificate_verified => 5xx Client certificate verification failed, stop
 ** логин определился => continue
 ** 5xx Authentication needed, stop
 * присутствует адрес отправителя => проверка адреса отправителя (Sender), continue
