@@ -153,7 +153,8 @@ sub process_log
 			$state->{ofs} = tell $F;
 			$state->{size} = $state->{ofs} if $state->{size} < $state->{ofs};
 			chomp;
-			process_line($opts{r} =~ /\(/ ? $1 : $_) if /$opts{r}/;
+			my @match = /$opts{r}/;
+			process_line($opts{r} =~ /\(/ ? $match[0] : $_) if @match;
 			++$log_count;
 			if ($log_count >= $opts{M})
 			{
