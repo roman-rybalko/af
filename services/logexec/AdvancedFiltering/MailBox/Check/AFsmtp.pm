@@ -18,6 +18,7 @@ sub run
 	my $data = get_mailbox_data($mailbox);
 	return "mailbox data is not found" unless $data;
 	my @hosts = get_service_hosts($data->{realm}, 'smtp');
+	my @errors;
 	foreach my $host (@hosts)
 	{
 		my $result = eval {
@@ -30,10 +31,14 @@ sub run
 				timeout => get_conf_value('vrfy_timeout') || 10,
 			);
 		};
-		next if $@;
+		if ($@)
+		{
+			push @errors => "$host: $@";
+			next;
+		}
 		return $result;
 	}
-	die "no smtp hosts available";
+	die "no smtp hosts available (" . join(",", @errors) . ")";
 }
 
 1;

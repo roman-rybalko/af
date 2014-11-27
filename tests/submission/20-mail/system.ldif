@@ -2,6 +2,7 @@
 dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afSHostRealm: r1
 afSHostServiceName: submission
+afSHostServiceName: smtp
 objectClass: afSHost
 
 dn: afSServiceName=submission,ou=system,o=advancedfiltering

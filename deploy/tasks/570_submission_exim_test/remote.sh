@@ -2,7 +2,8 @@
 . ./remote.conf
 . ./pkgdep.sh
 
-pkgdep_install submission_exim_test p5-IO-Socket-SSL p5-Mail-DKIM
+pkgdep_install submission_exim_test p5-Mail-DKIM
+# p5-IO-Socket-SSL is installed by p5-perl-ldap
 
 cp -Rvf ssl/submission-test.* /usr/local/advancedfiltering/submission/ssl/
 cd ssl
