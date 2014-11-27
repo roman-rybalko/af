@@ -2,10 +2,11 @@
 
 # WatchDog Cron wrapper
 
-L=/tmp/logread.lock
-if [ -e $L ] && kill -0 `cat $L`; then
+LOCK=/tmp/logread.lock
+LOG=/tmp/logread.log
+if [ -e $LOCK ] && kill -0 `cat $LOCK`; then
 	exit 0
 fi
-echo $$ > $L
-`dirname $0`/logread.sh 2>&1 | tail -n 1000
-rm -f $L
+echo $$ > $LOCK
+`dirname $0`/logread.sh >$LOG 2>&1 || tail -n 1000 $LOG
+rm -f $LOCK $LOG

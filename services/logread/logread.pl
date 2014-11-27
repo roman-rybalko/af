@@ -150,9 +150,9 @@ sub process_log
 	{
 		while (<$F>)
 		{
+			$state->{ofs} = tell $F;
 			chomp;
 			process_line($opts{r} =~ /\(/ ? $1 : $_) if /$opts{r}/;
-			$state->{ofs} = tell $F;
 			++$log_count;
 			if ($log_count >= $opts{M})
 			{
@@ -190,13 +190,18 @@ $SIG{USR1} = sub { save_state($state); };
 $SIG{USR2} = sub { $log_count = 0; $process_count = 0; };
 $SIG{INT} = $SIG{TERM} = sub { $signal_flag = 1; };
 
+my $exitcode = 0;
 eval { process_log($state); };
 if ($@)
 {
 	$state->{last_error}->{str} = $@;
 	$state->{last_error}->{time} = time;
+	$exitcode = 1;
+	warn $state->{last_error}->{str};
 }
 
 save_state($state);
 
 stop_processor if $processor_pid;
+
+exit $exitcode

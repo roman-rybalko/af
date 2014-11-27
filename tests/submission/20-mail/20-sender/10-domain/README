@@ -1,0 +1,4 @@
+** домен не задан => 5xx Sender domain is not set, stop
+
+это обрабатывает exim:
+501 <mbox>: sender address must contain a domain

@@ -15,7 +15,7 @@ sys_maxmessagesize
 ** не задан клиентский сертификат => внешний сертификат (submission.services.advancedfiltering.net.crt)
 
 * проверка адреса отправителя
-** домен не задан => 5xx Sender domain is absent, stop
+** домен не задан => 5xx Sender domain is not set, stop
 ** домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
 ** не наш realm домена => 4xx Moved, please try another host, stop
 ** домен не принимает почту (verify = sender) => 5xx Sender domain {domain:sender_address} does not accept mail, stop

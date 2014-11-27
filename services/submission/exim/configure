@@ -224,12 +224,12 @@ S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
 # deny => deny, accept => continue, defer => defer
 sender_acl:
 
-  # ** домен не задан => 5xx Sender domain is absent, stop
+  # ** домен не задан => 5xx Sender domain is not set, stop
   deny
     # User Domain
     set acl_m_u_domain = ${domain:$acl_m_u_sender}
     condition = ${if eq{}{$acl_m_u_domain}}
-    message = $acl_m_u_sender_desc domain is absent
+    message = $acl_m_u_sender_desc domain is not set
 
   # ** домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
   deny

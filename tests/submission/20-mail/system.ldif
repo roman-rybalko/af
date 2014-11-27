@@ -7,7 +7,7 @@ objectClass: afSHost
 dn: afSServiceName=submission,ou=system,o=advancedfiltering
 afSSubmissionMaxMessageSize: 30000000
 afSSubmissionTrustedMessageSize: 2000000
-afSSubmissionMailBoxTimeout: 86400
+afSSubmissionMailBoxTimeout: 3600
 objectClass: afSSubmissionService
 
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering
