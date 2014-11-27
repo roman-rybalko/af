@@ -1,0 +1,4 @@
+
+dn: afSSubmissionAuthHostAddress=1.2.3.4,afSServiceName=submission,ou=system,o=advancedfiltering
+afSSubmissionAuthClientName: cli1
+objectClass: afSSubmissionAuth

@@ -46,8 +46,15 @@ S_TH_F = ${if eq{}{$sender_host_name}{false}{S_TH_R_F}}
 
 # User Authenticated Client Name by SMTP AUTH
 U_CLIENT_login_D = $authenticated_id
+
 # User Authenticated Client Name by TLS SNI (DNS name: submission.xxx.clients.advancedfiltering.net, submission2.xxx.clients.advancedfiltering.net)
-U_CLIENT_sni_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients.advancedfiltering.net}{}}
+# ... Raw Data
+U_CLIENT_sni_R_D = ${sg{${sg{$tls_in_sni}{submission\\d*\\.}{}}}{\\.clients\\.advancedfiltering\\.net}{}}
+# ... Flag
+U_CLIENT_sni_F = ${if ! bool_lax{${sg{$tls_in_sni}{submission\\d*\\.\\S+\\.clients\\.advancedfiltering\\.net}{}}}}
+# .. Data
+U_CLIENT_sni_D = ${if bool{U_CLIENT_sni_F}{U_CLIENT_sni_R_D}{}}
+
 # User Authenticated Client Name by IP
 U_CLIENT_ip_D = ${lookup ldap{LDAP_C/afSSubmissionAuthHostAddress=${quote_ldap_dn:$sender_host_address},S_Submission_LDAP_DN?afSSubmissionAuthClientName?base}}
 
