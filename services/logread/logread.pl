@@ -151,6 +151,7 @@ sub process_log
 		while (<$F>)
 		{
 			$state->{ofs} = tell $F;
+			$state->{size} = $state->{ofs} if $state->{size} < $state->{ofs};
 			chomp;
 			process_line($opts{r} =~ /\(/ ? $1 : $_) if /$opts{r}/;
 			++$log_count;
