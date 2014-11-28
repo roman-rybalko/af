@@ -1,4 +1,4 @@
 
-dn: afSSMTPDomainName=testauthz.test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+dn: afSSMTPDomainName=nodmarc.test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
 afSSMTPDomainClientName: cli1
 objectClass: afSSMTPDomain

@@ -1,12 +1,12 @@
 
-dn: afUSubmissionDomainName=testauthz.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+dn: afUSubmissionDomainName=nodmarc.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
 objectClass: afUSubmissionDomain
 afUSubmissionDomainAdminMailAddress: domain-admin@tests.advancedfiltering.net
 afUSubmissionDomainTechMailAddress: domain-tech@tests.advancedfiltering.net
 afUSubmissionDomainDKIMSelector: test
 objectClass: afUSubmissionSettings
 
-dn: afUSubmissionDMBLocalPart=mbox,afUSubmissionDomainName=testauthz.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+dn: afUSubmissionDMBLocalPart=mbox,afUSubmissionDomainName=nodmarc.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
 objectClass: afUSubmissionDMailBox
 afUSubmissionDMBTimeUpdated: 1234567890
 objectClass: afUSubmissionSettings

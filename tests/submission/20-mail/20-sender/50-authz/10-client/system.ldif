@@ -3,6 +3,6 @@ dn: afSClientName=cli2,ou=system,o=advancedfiltering
 afSClientRealm: r1
 objectClass: afSClient
 
-dn: afSSMTPDomainName=testauthz.test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+dn: afSSMTPDomainName=nodmarc.test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
 afSSMTPDomainClientName: cli2
 objectClass: afSSMTPDomain

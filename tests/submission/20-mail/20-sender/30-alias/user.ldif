@@ -1,4 +1,4 @@
 
-dn: afUSubmissionDomainName=testalias.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+dn: afUSubmissionDomainName=nodmarc.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
 objectClass: afUSubmissionDomainAlias
 afUSubmissionDomainAliasName: test.advancedfiltering.net
