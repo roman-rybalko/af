@@ -173,30 +173,57 @@ auth_acl:
 
 # Check user right to use sender address
 # accept => continue, deny => deny
-sender_auth_acl:
+sender_authz_acl:
+
+  # trustedhost
+  accept
+    condition = S_TH_F
+    set acl_m_u_authz = trustedhost
 
   # mbox
   accept
+    condition = ${if ! eq{}{${local_part:U_CLIENT_D}}}
+    condition = ${if ! eq{}{${domain:U_CLIENT_D}}}
     condition = ${if eq{$acl_m_u_sender}{U_CLIENT_D}}
+    set acl_m_u_authz = mbox
 
-  # mbox alias
+  # mbox orig or alias auth orig
   accept
+    condition = ${if ! eq{}{${local_part:U_CLIENT_D}}}
+    condition = ${if ! eq{}{${domain:U_CLIENT_D}}}
     condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{U_CLIENT_D}}
+    set acl_m_u_authz = mbox
+
+  # mbox orig or alias auth alias
+  accept
+    condition = ${if ! eq{}{${local_part:U_CLIENT_D}}}
+    condition = ${if ! eq{}{${domain:U_CLIENT_D}}}
+    condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{${local_part:U_CLIENT_D}@${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:${domain:U_CLIENT_D}},U_Submission_R_C_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    set acl_m_u_authz = mbox
 
   # domain
   accept
     condition = ${if eq{${domain:$acl_m_u_sender}}{U_CLIENT_D}}
+    set acl_m_u_authz = domain
 
-  # domain alias
+  # domain orig or alias auth orig
   accept
     condition = ${if eq{$acl_m_u_domain}{U_CLIENT_D}}
+    set acl_m_u_authz = domain
+
+  # domain orig or alias auth alias
+  accept
+    condition = ${if eq{$acl_m_u_domain}{${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:U_CLIENT_D},U_Submission_R_C_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    set acl_m_u_authz = domain
 
   # client
   accept
     condition = ${if eq{$acl_m_u_client}{U_CLIENT_D}}
+    set acl_m_u_authz = client
 
-  # unknown
+  # none
   deny
+    set acl_m_u_authz = none
 
 mbxchk_acl:
   accept
@@ -272,7 +299,7 @@ sender_acl:
   # ** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
   deny
     ! condition = S_TH_F
-    ! acl = sender_auth_acl
+    ! acl = sender_authz_acl
     message = Authenticated user U_CLIENT_D may not use sender address $acl_m_u_sender
 
   # ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
@@ -342,8 +369,9 @@ mail_acl:
   warn
     control = submission
 
-  # * 2xx, stop
+  # * 2xx {local_part:sender_address}@{domain} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop
   accept
+    message = ${local_part:$acl_m_u_sender}@$acl_m_u_domain $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS}{}}${if bool{$acl_m_u_hr_f}{ HR}{}}
 
 rcpt_acl:
 

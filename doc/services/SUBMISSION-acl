@@ -46,7 +46,7 @@ mail
 * загрузить пользовательсике настройки (mbox/domain/client) => user_hidereceived, flag_spamsender, continue
 * user_hidereceived => Удалить заголовки Received, continue
 * Режим submission (добавить From если нет, Sender, Date, Message-ID) без проверки From:, continue
-* 2xx, stop
+* 2xx {local_part:sender_address}@{domain} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop
 
 rcpt
 * домен не принимает почту (verify = recipient) => 5xx Recipient domain {domain} does not accept mail, stop
