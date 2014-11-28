@@ -177,31 +177,23 @@ sender_auth_acl:
 
   # mbox
   accept
-    condition = ${if eq{$acl_m_u_sender}{U_CLIENT_login_D}}
+    condition = ${if eq{$acl_m_u_sender}{U_CLIENT_D}}
 
   # mbox alias
   accept
-    condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{U_CLIENT_login_D}}
+    condition = ${if eq{${local_part:$acl_m_u_sender}@$acl_m_u_domain}{U_CLIENT_D}}
 
   # domain
   accept
-    condition = ${if eq{${domain:$acl_m_u_sender}}{U_CLIENT_login_D}}
+    condition = ${if eq{${domain:$acl_m_u_sender}}{U_CLIENT_D}}
 
   # domain alias
   accept
-    condition = ${if eq{$acl_m_u_domain}{U_CLIENT_login_D}}
+    condition = ${if eq{$acl_m_u_domain}{U_CLIENT_D}}
 
-  # client SMTP AUTH
+  # client
   accept
-    condition = ${if eq{$acl_m_u_client}{U_CLIENT_login_D}}
-
-  # client TLS SNI
-  accept
-    condition = ${if eq{$acl_m_u_client}{U_CLIENT_sni_D}}
-
-  # client IP
-  accept
-    condition = ${if eq{$acl_m_u_client}{U_CLIENT_ip_D}}
+    condition = ${if eq{$acl_m_u_client}{U_CLIENT_D}}
 
   # unknown
   deny
