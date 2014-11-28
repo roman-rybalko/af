@@ -1,0 +1,1 @@
+* 2xx {orig_sender_address} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop

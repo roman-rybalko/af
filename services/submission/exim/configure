@@ -317,12 +317,15 @@ conf_acl:
   accept
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?$acl_m_u_conf_name?base}}
     condition = ${if ! eq{}{$acl_m_u_conf_value}}
+    set acl_m_u_conf_source = mbox
   accept
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?$acl_m_u_conf_name?base}}
     condition = ${if ! eq{}{$acl_m_u_conf_value}}
+    set acl_m_u_conf_source = domain
   accept
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_LDAP_DN?$acl_m_u_conf_name?base}}
     condition = ${if ! eq{}{$acl_m_u_conf_value}}
+    set acl_m_u_conf_source = client
   deny
 
 mail_acl:
@@ -344,6 +347,8 @@ mail_acl:
     set acl_m_u_ss_f = false
     condition = ${if eq{}{$sender_address}}
     set acl_m_u_ss_f = true
+    set acl_m_u_client = U_CLIENT_D
+    set acl_m_u_authz = client
 
   # * загрузить пользовательсике настройки (mbox/domain/client) => user_hidereceived, flag_spamsender, continue
   # afUSubmissionHideReceived
@@ -353,12 +358,16 @@ mail_acl:
     set acl_m_u_conf_name = afUSubmissionHideReceived
     acl = conf_acl
     set acl_m_u_hr_f = $acl_m_u_conf_value
+    # User Hide Received Source
+    set acl_m_u_hr_s_d = $acl_m_u_conf_source
   # afUSubmissionSpamSender
   warn
     ! condition = ${if bool{$acl_m_u_ss_f}}
     set acl_m_u_conf_name = afUSubmissionSpamSender
     acl = conf_acl
     set acl_m_u_ss_f = $acl_m_u_conf_value
+    # User SpamSender Source
+    set acl_m_u_ss_s_d = $acl_m_u_conf_source
 
   # * user_hidereceived => Удалить заголовки Received, continue
   warn
@@ -371,7 +380,7 @@ mail_acl:
 
   # * 2xx {orig_sender_address} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop
   accept
-    message = ${local_part:$acl_m_u_sender}@$acl_m_u_domain $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS}{}}${if bool{$acl_m_u_hr_f}{ HR}{}}
+    message = ${if eq{}{$acl_m_u_sender}{none}{${local_part:$acl_m_u_sender}@$acl_m_u_domain}} $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS:$acl_m_u_ss_s_d}{}}${if bool{$acl_m_u_hr_f}{ HR:$acl_m_u_hr_s_d}{}}
 
 rcpt_acl:
 

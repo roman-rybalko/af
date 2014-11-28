@@ -1,0 +1,4 @@
+
+dn: afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+changetype: modify
+delete: afUSubmissionSpamSender

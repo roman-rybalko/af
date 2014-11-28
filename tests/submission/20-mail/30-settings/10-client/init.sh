@@ -1,4 +1,5 @@
 #!/bin/sh -ex
+
 . "$TESTCONF"
-# TODO
-exit 1
+
+add_ldif user-init.ldif
