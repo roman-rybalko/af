@@ -98,8 +98,8 @@ sub process_line
 	print $processor_stdin $line, "\n";
 	my $reply = <$processor_stdout>;
 	warn "Processed: $line -> $reply" if $opts{v} > 1;
-	warn "$line -> $reply" unless $reply =~ /^OK/;
 	die "$line -> $reply" if $reply =~ /^FATAL/;
+	warn "$line -> $reply" unless $reply =~ /^OK/;
 	++$process_count;
 }
 
@@ -150,11 +150,11 @@ sub process_log
 	{
 		while (<$F>)
 		{
-			$state->{ofs} = tell $F;
-			$state->{size} = $state->{ofs} if $state->{size} < $state->{ofs};
 			chomp;
 			my @match = /$opts{r}/;
 			process_line($opts{r} =~ /\(/ ? $match[0] : $_) if @match;
+			$state->{ofs} = tell $F;
+			$state->{size} = $state->{ofs} if $state->{size} < $state->{ofs};
 			++$log_count;
 			if ($log_count >= $opts{M})
 			{
