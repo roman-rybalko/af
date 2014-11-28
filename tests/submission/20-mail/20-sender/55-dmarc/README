@@ -1,0 +1,1 @@
+** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
