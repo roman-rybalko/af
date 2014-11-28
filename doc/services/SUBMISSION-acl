@@ -24,7 +24,8 @@ sys_maxmessagesize
 ** не найден в ou=user => 4xx Replicating, please try again later, stop
 ** не зарегистрирован и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
 ** просрочен адрес отправителя => записать в лог задание на проверку, continue
-** !trusted_host && адрес отправителя не принадлежит аутентифицированному client/domain/rcpt => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
+** авторизация адреса отправителя => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
+*** authz = trustedhost/mbox/domain/client/none
 ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
 ** continue
 
@@ -46,7 +47,7 @@ mail
 * загрузить пользовательсике настройки (mbox/domain/client) => user_hidereceived, flag_spamsender, continue
 * user_hidereceived => Удалить заголовки Received, continue
 * Режим submission (добавить From если нет, Sender, Date, Message-ID) без проверки From:, continue
-* 2xx {local_part:sender_address}@{domain} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop
+* 2xx {orig_sender_address} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop
 
 rcpt
 * домен не принимает почту (verify = recipient) => 5xx Recipient domain {domain} does not accept mail, stop
