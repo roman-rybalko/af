@@ -1,0 +1,1 @@
+* домен не принимает почту (verify = recipient) => 5xx Recipient domain {domain} does not accept mail, stop
