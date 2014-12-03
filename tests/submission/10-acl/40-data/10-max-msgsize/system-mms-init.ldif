@@ -1,0 +1,5 @@
+
+dn: afSServiceName=submission,ou=system,o=advancedfiltering
+changetype: modify
+replace: afSSubmissionMaxMessageSize
+afSSubmissionMaxMessageSize: 128

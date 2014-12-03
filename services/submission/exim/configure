@@ -532,6 +532,7 @@ internet_verify_router:
   verify_only = true
   driver = dnslookup
   errors_to = bounce@services.advancedfiltering.net
+  check_srv = smtp
   self = send
   more = false
 
@@ -654,6 +655,7 @@ internet_router:
   driver = dnslookup
   transport = internet_transport
   errors_to = bounce@services.advancedfiltering.net
+  check_srv = smtp
   self = send
   headers_add = X-AdvancedFiltering-MessageData-Submission: R_MDS_H_D
 
