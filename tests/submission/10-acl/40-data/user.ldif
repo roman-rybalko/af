@@ -7,6 +7,8 @@ objectClass: afUClient
 afUClientAdminMailAddress: client-admin@tests.advancedfiltering.net
 afUClientTechMailAddress: client-tech@tests.advancedfiltering.net
 objectClass: afUSubmissionSettings
+afUSubmissionAuthPassword: {SHA1}jKYU6KAAXbNmFageeH3xxc+UR/o=
+afUSubmissionSpamSender: TRUE
 
 dn: afUSubmissionDomainName=test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
 objectClass: afUSubmissionDomain
@@ -14,8 +16,10 @@ afUSubmissionDomainAdminMailAddress: domain-admin@tests.advancedfiltering.net
 afUSubmissionDomainTechMailAddress: domain-tech@tests.advancedfiltering.net
 afUSubmissionDomainDKIMSelector: test
 objectClass: afUSubmissionSettings
+afUSubmissionAuthPassword: {SHA1}LIpwBY0gU8gxmCIJI353uhpy86o=
 
 dn: afUSubmissionDMBLocalPart=mbox,afUSubmissionDomainName=test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
 objectClass: afUSubmissionDMailBox
 afUSubmissionDMBTimeUpdated: 1234567890
 objectClass: afUSubmissionSettings
+afUSubmissionAuthPassword: {SHA1}x82A5TT0iRxWE5gAez6rU2cOzDE=

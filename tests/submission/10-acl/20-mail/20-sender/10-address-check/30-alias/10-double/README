@@ -1,0 +1,1 @@
+** двойной синоним => 4xx {user_sender_descr} domain {domain:user_sender_address} (alias to {user_domain}) has configuration problem (double domain alias), panic, stop

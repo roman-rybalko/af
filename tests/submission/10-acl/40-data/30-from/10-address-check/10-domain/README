@@ -1,0 +1,4 @@
+** домен не задан => 5xx {user_sender_descr} address {user_sender_address} does not have a domain, stop
+
+это обрабатывает проверка синтаксиса заголовоков:
+5xx Invalid message headers ...

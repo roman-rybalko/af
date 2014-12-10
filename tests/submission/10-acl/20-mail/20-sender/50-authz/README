@@ -1,2 +1,0 @@
-** авторизация адреса отправителя => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
-*** authz = trustedhost/mbox/domain/client/none

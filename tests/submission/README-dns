@@ -1,6 +1,6 @@
 test.advancedfiltering.net. 60  IN      MX      10 nodmarc.test.advancedfiltering.net.
 _dmarc.test.advancedfiltering.net. 60 IN TXT    "v=DMARC1\;p=none\;"
 _dmarc.dmarc.test.advancedfiltering.net. 60 IN TXT "v=DMARC1\;p=none\;"
-_smtp._tcp.dmarc.test.advancedfiltering.net. 60 IN SRV 10 1 2525 nodmarc.test.advancedfiltering.net.
+_smtp._tcp.dmarc.test.advancedfiltering.net. 60 IN SRV 10 100 2525 nodmarc.test.advancedfiltering.net.
 nodmarc.test.advancedfiltering.net. 60 IN A     127.0.0.1
 nomail.test.advancedfiltering.net. 60 IN MX     10 .

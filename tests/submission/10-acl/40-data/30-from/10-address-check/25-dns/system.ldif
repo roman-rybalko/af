@@ -1,0 +1,4 @@
+
+dn: afSSMTPDomainName=nomail.test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
+afSSMTPDomainClientName: cli1
+objectClass: afSSMTPDomain

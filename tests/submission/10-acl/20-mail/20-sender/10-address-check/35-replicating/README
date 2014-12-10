@@ -1,0 +1,1 @@
+** не найден в ou=user => 4xx {user_sender_descr} domain {domain:user_sender_address} {синоним?(alias to {user_domain}):""} is replicating, please try again later, stop

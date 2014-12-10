@@ -1,0 +1,1 @@
+* синтаксис заголовоков некорректен (verify = header_syntax) => 5xx Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc), stop

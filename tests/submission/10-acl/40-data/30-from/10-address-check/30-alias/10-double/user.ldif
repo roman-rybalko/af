@@ -1,0 +1,4 @@
+
+dn: afUSubmissionDomainName=dmarc.test.advancedfiltering.net,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUSubmissionDomainAlias
+afUSubmissionDomainAliasName: nodmarc.test.advancedfiltering.net

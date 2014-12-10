@@ -103,9 +103,9 @@ received_header_text = Received: \
   ${if bool{$acl_m_u_hr_f}{\
     from 192.168.0.42 by $primary_hostname \
   }{\
-    from ${if def:sender_rcvhost { $sender_rcvhost}{ 192.168.0.2}} by $primary_hostname \
-  }\
-  ${if def:received_protocol {with $received_protocol }}\
+    from ${if def:sender_rcvhost {$sender_rcvhost}{192.168.0.2}} by $primary_hostname \
+  }}\
+  ${if def:received_protocol {with $received_protocol }{}}\
   id $message_exim_id
 
 # * message_size >= sys_maxmessagesize => 5xx ...
@@ -240,72 +240,75 @@ S_MBTO_D = ${lookup ldap{LDAP_C/S_Submission_LDAP_DN?afSSubmissionMailBoxTimeout
 # System MailBox Cutoff Time Data
 S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
 
-# * проверка адреса отправителя
+# * проверка адреса отправителя (user_sender_address)
 # deny => deny, accept => continue, defer => defer
 sender_acl:
 
-  # ** домен не задан => 5xx Sender domain is not set, stop
+  # ** домен не задан => 5xx {user_sender_descr} address {user_sender_address} does not have a domain, stop
   deny
     # User Domain
     set acl_m_u_domain = ${domain:$acl_m_u_sender}
     condition = ${if eq{}{$acl_m_u_domain}}
-    message = $acl_m_u_sender_desc domain is not set
+    message = $acl_m_u_sender_desc address $acl_m_u_sender does not have a domain
 
-  # ** домен не зарегистрирован => 5xx Sender domain {domain:sender_address} is not in service, stop
+  # ** домен не зарегистрирован => 5xx {user_sender_descr} domain {domain:user_sender_address} is not in service, stop
   deny
     # User Client name/id
     set acl_m_u_client = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:$acl_m_u_domain},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
     condition = ${if eq{}{$acl_m_u_client}}
     message = $acl_m_u_sender_desc domain $acl_m_u_domain is not in service
 
-  # ** не наш realm домена => 4xx Moved, please try another host, stop
+  # ** не наш realm домена => 4xx {user_sender_descr} domain {domain:user_sender_address} is moved, please try another host, stop
   defer
     # User Realm
     set acl_m_u_realm = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:$acl_m_u_client},S_LDAP_DN?afSClientRealm?base}}
     ! condition = ${if inlist{$acl_m_u_realm}{<, S_REALM_Lc}}
-    message = Moved, please try another host
+    message = $acl_m_u_sender_desc domain $acl_m_u_domain is moved, please try another host
+    logwrite = Moved: address=$acl_m_u_sender domain=$acl_m_u_domain client=$acl_m_u_client realm=$acl_m_u_realm realm_list=S_REALM_Lc
 
-  # ** домен не принимает почту (verify = sender) => 5xx Sender domain {domain:sender_address} does not accept mail, stop
+  # ** домен не принимает почту (verify = sender) => 5xx {user_sender_descr} domain {domain:user_sender_address} does not accept mail, stop
   deny
     ! verify = sender=$acl_m_u_sender
-    message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} does not accept mail
+    message = $acl_m_u_sender_desc domain $acl_m_u_domain does not accept mail
 
   # ** синоним => user_domain, continue
   warn
     condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
     set acl_m_u_domain = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}
 
-  # ** двойной синоним => 4xx Configuration problem (double domain alias), panic, stop
+  # ** двойной синоним => 4xx {user_sender_descr} domain {domain:user_sender_address} (alias to {user_domain}) has configuration problem (double domain alias), panic, stop
   defer
     condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} (alias to $acl_m_u_domain) has configuration problem (double domain alias)
     logwrite = :panic: Double domain alias: sender=$acl_m_u_sender client=$acl_m_u_client realm=$acl_m_u_realm domain=${domain:$acl_m_u_sender} alias=$acl_m_u_domain
-    message = Configuration problem (double domain alias)
 
-  # ** не найден в ou=user => 4xx Replicating, please try again later, stop
+  # ** не найден в ou=user => 4xx {user_sender_descr} domain {domain:user_sender_address} {синоним?(alias to {user_domain}):""} is replicating, please try again later, stop
   defer
     condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?objectClass?base}}}}
-    message = Replicating, please try again later
+    message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender}${if eq{${domain:$acl_m_u_sender}}{$acl_m_u_domain}{}{ (alias to $acl_m_u_domain)}} is replicating, please try again later
 
-  # ** не зарегистрирован и не проверяется адрес отправителя => 5xx Sender address {sender_address} does not exist, stop
+  # ** не зарегистрирован и не проверяется адрес отправителя => 5xx {user_sender_descr} address {user_sender_address} {синоним?(alias to {user_domain}):""} does not exist, stop
   deny
     condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base}}}}
     ! acl = mbxchk_acl
-    message = $acl_m_u_sender_desc address $acl_m_u_sender does not exist
+    message = $acl_m_u_sender_desc address $acl_m_u_sender${if eq{${domain:$acl_m_u_sender}}{$acl_m_u_domain}{}{ (alias to $acl_m_u_domain)}} does not exist
 
-  # ** просрочен адрес отправителя => записать в лог задание на проверку, continue
+  # ** просрочен адрес отправителя => записать в лог задание на проверку, flag_expired, continue
   warn
+    set acl_m_u_exp_f = false
     condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated>=S_MBCT_D)}}}}
     logwrite = AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender> ? AdvancedFiltering/MailBox/submission/Update<$acl_m_u_sender> : AdvancedFiltering/MailBox/submission/Delete<$acl_m_u_sender>
+    set acl_m_u_exp_f = true
 
-  # ** авторизация адреса отправителя => 5xx Authenticated user {user} may not use sender address {sender_address}, stop
+  # ** авторизация адреса отправителя => 5xx Authenticated user {user} may not use {user_sender_descr} address {user_sender_address}, stop
   deny
     ! acl = sender_authz_acl
-    message = Authenticated user U_CLIENT_D may not use sender address $acl_m_u_sender
+    message = Authenticated user U_CLIENT_D may not use $acl_m_u_sender_desc address $acl_m_u_sender
 
-  # ** нет DMARC (dmarc_verifier.pl "{domain:sender_address}") => 5xx DMARC is absent for sender domain {domain:sender_address}, stop
+  # ** нет DMARC (dmarc_verifier.pl "{domain:user_sender_address}") => 5xx DMARC is absent for {user_sender_descr} domain {domain:user_sender_address} ({error}), stop
   deny
     ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:$acl_m_u_sender}}{true}{false}}
-    message = DMARC is absent for sender domain ${domain:$acl_m_u_sender} (${if eq{1}{$runrc}{$value}{internal error}})
+    message = DMARC is absent for $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} (${if eq{1}{$runrc}{$value}{internal error}})
     logwrite = ${if eq{1}{$runrc}{}{:panic: }}DMARC: $value
 
   # ** continue
@@ -337,7 +340,7 @@ mail_acl:
   # * присутствует адрес отправителя => проверка адреса отправителя (Sender), continue
   deny
     condition = ${if ! eq{}{$sender_address}}
-    set acl_m_u_sender_desc = Sender
+    set acl_m_u_sender_desc = Envelope-From
     set acl_m_u_sender = $sender_address
     ! acl = sender_acl
 
@@ -378,9 +381,9 @@ mail_acl:
   warn
     control = submission
 
-  # * 2xx {orig_sender_address} {client} {authz:trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived}, stop
+  # * 2xx {orig_sender_address} {client} {(authz)trustedhost/mbox/domain/client/none} {flag_spamsender} {user_hidereceived} {flag_expired}, stop
   accept
-    message = ${if eq{}{$acl_m_u_sender}{none}{${local_part:$acl_m_u_sender}@$acl_m_u_domain}} $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS:$acl_m_u_ss_s_d}{}}${if bool{$acl_m_u_hr_f}{ HR:$acl_m_u_hr_s_d}{}}
+    message = ${if eq{}{$acl_m_u_sender}{none}{${local_part:$acl_m_u_sender}@$acl_m_u_domain}} $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS:$acl_m_u_ss_s_d}{}}${if bool{$acl_m_u_hr_f}{ HR:$acl_m_u_hr_s_d}{}}${if bool{$acl_m_u_exp_f}{ EXP}{}}
 
 rcpt_acl:
 
@@ -424,14 +427,14 @@ data_acl:
   # * есть заголовок X-AdvancedFiltering-MessageData-Submission => 5xx Message loop detected, stop
   deny
     condition = ${if ! eq{}{$rheader_X-AdvancedFiltering-MessageData-Submission:}}
-    message = Message loop detected: $rheader_X-AdvancedFiltering-MessageData-Submission:
+    message = Message loop detected:$rheader_X-AdvancedFiltering-MessageData-Submission:
 
   # * заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
   deny
     condition = ${if eq{}{${address:$bheader_From:}}}
     message = Invalid "From:" header
 
-  # * заголовок "From:" содержит один адрес  => проверка адреса отправителя ("From:"), continue
+  # * заголовок "From:" содержит один адрес => проверка адреса отправителя ("From:"), continue
   deny
     condition = ${if ! eq{}{${address:$bheader_From:}}}
     set acl_m_u_sender_desc = "From:"
@@ -443,6 +446,16 @@ data_acl:
     ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:${address:$bheader_From:}} ${domain:$sender_address} ${domain:${address:$bheader_From:}}}{true}{false}}
     message = DMARC failed for "From:" domain ${domain:${address:$bheader_From:}} (${if eq{1}{$runrc}{$value}{internal error}})
     logwrite = ${if eq{1}{$runrc}{}{:panic: }}DMARC: $value
+
+  # * загрузить пользовательсике настройки (mbox/domain/client) => flag_spamsender, continue
+  # afUSubmissionSpamSender
+  warn
+    ! condition = ${if bool{$acl_m_u_ss_f}}
+    set acl_m_u_conf_name = afUSubmissionSpamSender
+    acl = conf_acl
+    set acl_m_u_ss_f = $acl_m_u_conf_value
+    # User SpamSender Source
+    set acl_m_u_ss_s_d = $acl_m_u_conf_source
 
   # * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
   deny
@@ -478,8 +491,9 @@ data_acl:
     message = Trusted message size
     logwrite = AdvancedFiltering/MessageID/submissiondb/Add<$acl_m_u_realm><U_SDB_EMID_D><U_H_S_D>
 
-  # * 2xx, stop
+  # * 2xx {id=exim_msg_id} {orig_sender_address} {client} {(authz)trustedhost/mbox/domain/client/none} {flag_spamsender} {flag_expired}, stop
   accept
+    message = id=$message_exim_id ${if eq{}{$acl_m_u_sender}{none}{${local_part:$acl_m_u_sender}@$acl_m_u_domain}} $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS:$acl_m_u_ss_s_d}{}}${if bool{$acl_m_u_exp_f}{ EXP}{}}
 
 begin routers
 
@@ -492,7 +506,7 @@ service_verify_router:
   driver = accept
 
 # Router User Realm LDAP Query
-R_U_R_LDAP_Q = afSHostRealm=${quote_ldap_dn:${extract {realm} {$address_data} }}
+R_U_R_LDAP_Q = afSHostRealm=$acl_m_u_realm
 # Router Host Realm LDAP Query
 R_H_R_LDAP_Q = ${reduce{<, S_REALM_Lc}{|}{$value(afSHostRealm=${quote_ldap_dn:$item})}}
 # Router Services Realm LDAP Query
@@ -553,6 +567,8 @@ mailproc_router:
   data = mailproc@services.advancedfiltering.net
   errors_to = error@services.advancedfiltering.net
   redirect_router = service_router
+  headers_remove = X-Envelope-From:X-Envelope-To
+  headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipients
   unseen = true
 
 # Router general LDAP DN
@@ -687,6 +703,7 @@ begin retry
 
 # DEBUG
 ^\N[^@]+@test\-smtp\.hosts\.advancedfiltering\.net$\N * F,5s,1s
+^\N[^@]+@[^@]+\.test\.advancedfiltering\.net$\N * F,5s,1s
 ^\N[^@]+@w01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
 ^\N[^@]+@w02\.hosts\.advancedfiltering\.net$\N * F,5s,1s
 ^\N[^@]+@h01\.hosts\.advancedfiltering\.net$\N * F,5s,1s
