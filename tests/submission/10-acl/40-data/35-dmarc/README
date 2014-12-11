@@ -1,0 +1,1 @@
+* DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {domain:header_from}, stop

@@ -100,11 +100,11 @@ sub check_policy
 	{
 		$from_org_domain = get_org_domain($from_domain) unless $from_org_domain;
 		my $spf_org_domain = get_org_domain($spf_domain);
-		msg_fail("policy=$policy_domain, from_org=$from_org_domain, spf_org=$spf_org_domain: SPF validation failed in \"relaxed\" identifier alignment mode") if $from_org_domain ne $spf_org_domain;
+		msg_fail("policy_src=$policy_domain, from_org=$from_org_domain, spf_org=$spf_org_domain: SPF validation failed in \"relaxed\" identifier alignment mode") if $from_org_domain ne $spf_org_domain;
 	}
 	elsif ($policy->{aspf} eq 's')
 	{
-		msg_fail("policy=$policy_domain, from=$from_domain, spf=$spf_domain: SPF validation failed in \"strict\" identifier alignment mode") if $from_domain ne $spf_domain;
+		msg_fail("policy_src=$policy_domain, from=$from_domain, spf=$spf_domain: SPF validation failed in \"strict\" identifier alignment mode") if $from_domain ne $spf_domain;
 	}
 	else
 	{
@@ -114,11 +114,11 @@ sub check_policy
 	{
 		$from_org_domain = get_org_domain($from_domain) unless $from_org_domain;
 		my $dkim_org_domain = get_org_domain($dkim_domain);
-		msg_fail("policy=$policy_domain, from_org=$from_org_domain, dkim_org=$dkim_org_domain: DKIM validation failed in \"relaxed\" identifier alignment mode") if $from_org_domain ne $dkim_org_domain;
+		msg_fail("policy_src=$policy_domain, from_org=$from_org_domain, dkim_org=$dkim_org_domain: DKIM validation failed in \"relaxed\" identifier alignment mode") if $from_org_domain ne $dkim_org_domain;
 	}
 	elsif ($policy->{adkim} eq 's')
 	{
-		msg_fail("policy=$policy_domain, from=$from_domain, dkim=$dkim_domain: DKIM validation failed in \"strict\" identifier alignment mode") if $from_domain ne $dkim_domain;
+		msg_fail("policy_src=$policy_domain, from=$from_domain, dkim=$dkim_domain: DKIM validation failed in \"strict\" identifier alignment mode") if $from_domain ne $dkim_domain;
 	}
 	else
 	{

@@ -457,10 +457,10 @@ data_acl:
     set acl_m_u_sender = ${address:$bheader_From:}
     ! acl = sender_acl
 
-  # * DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {domain:header_from}, stop
+  # * DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for ("From:") domain {domain:header_from}, stop
   deny
     ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:${address:$bheader_From:}} ${domain:$sender_address} ${domain:${address:$bheader_From:}}}{true}{false}}
-    message = DMARC failed for "From:" domain ${domain:${address:$bheader_From:}} (${if eq{1}{$runrc}{$value}{internal error}})
+    message = DMARC failed for ("From:") domain ${domain:${address:$bheader_From:}} (${if eq{1}{$runrc}{$value}{internal error}})
     logwrite = ${if eq{1}{$runrc}{}{:panic: }}DMARC: $value
 
   # * загрузить пользовательсике настройки (mbox/domain/client) => flag_spamsender, continue

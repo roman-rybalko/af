@@ -63,7 +63,7 @@ data_end
 * заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
 * заголовок "From:" содержит один адрес => проверка адреса отправителя ("From:"), continue
 # может быть домен, котрый не совпадает с mail from и тоже зарегистрирован в системе (relaxed DMARC или ошибка конфигурации)
-* DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for "From:" domain {domain:header_from}, stop
+* DMARC не проверился (dmarc_verifier.pl "from domain" "spf domain" "dkim domain") => 5xx DMARC failed for ("From:") domain {domain:header_from}, stop
 * загрузить пользовательсике настройки (mbox/domain/client) => flag_spamsender, continue
 * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
 * присутствует заголовок "Reply-To:" && домен в заголовке Reply-To: не принимает почту (verify = sender) => 5xx "Reply-To:" domain {domain:header_reply-to} does not accept mail, stop
