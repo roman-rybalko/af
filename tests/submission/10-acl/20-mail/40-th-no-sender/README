@@ -1,0 +1,1 @@
+* trusted_host && отсутствует адрес отправителя => 5xx Trusted host is not allowed to send status notification (empty Envelope-Sender), stop

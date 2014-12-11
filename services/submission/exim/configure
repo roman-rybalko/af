@@ -309,7 +309,7 @@ sender_acl:
   deny
     ! condition = ${run{/usr/local/advancedfiltering/submission/exim/dmarc_verifier.pl ${domain:$acl_m_u_sender}}{true}{false}}
     message = DMARC is absent for $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} (${if eq{1}{$runrc}{$value}{internal error}})
-    logwrite = ${if eq{1}{$runrc}{}{:panic: }}DMARC: $value
+    logwrite = ${if eq{1}{$runrc}{}{:main,panic: }}DMARC: $value
 
   # ** continue
   accept
@@ -318,14 +318,23 @@ sender_acl:
 # accept - found, deny - not found
 conf_acl:
   accept
+    condition = ${if ! eq{}{$acl_m_u_sender}}
+    condition = ${if ! eq{}{$acl_m_u_domain}}
+    condition = ${if ! eq{}{$acl_m_u_realm}}
+    condition = ${if ! eq{}{$acl_m_u_client}}
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?$acl_m_u_conf_name?base}}
     condition = ${if ! eq{}{$acl_m_u_conf_value}}
     set acl_m_u_conf_source = mbox
   accept
+    condition = ${if ! eq{}{$acl_m_u_domain}}
+    condition = ${if ! eq{}{$acl_m_u_realm}}
+    condition = ${if ! eq{}{$acl_m_u_client}}
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?$acl_m_u_conf_name?base}}
     condition = ${if ! eq{}{$acl_m_u_conf_value}}
     set acl_m_u_conf_source = domain
   accept
+    condition = ${if ! eq{}{$acl_m_u_realm}}
+    condition = ${if ! eq{}{$acl_m_u_client}}
     set acl_m_u_conf_value = ${lookup ldap{LDAP_C/U_Submission_R_C_LDAP_DN?$acl_m_u_conf_name?base}}
     condition = ${if ! eq{}{$acl_m_u_conf_value}}
     set acl_m_u_conf_source = client
@@ -343,6 +352,13 @@ mail_acl:
     set acl_m_u_sender_desc = Envelope-From
     set acl_m_u_sender = $sender_address
     ! acl = sender_acl
+
+  # * trusted_host && отсутствует адрес отправителя => 5xx Trusted host is not allowed to send status notification (empty Envelope-Sender), stop
+  deny
+    condition = S_TH_F
+    condition = ${if eq{}{$sender_address}}
+    message = Trusted host is not allowed to send status notification (empty Envelope-Sender)
+    logwrite = :main,panic: TH: empty Envelope-Sender hostname=$sender_host_name ip=$sender_host_address
 
   # * отсутствует адрес отправителя => flag_spamsender, continue
   warn
@@ -725,42 +741,42 @@ A_LOGIN_D = ${if eq{}{$auth1}{$auth2}{$auth1}}
 # client Password
 A_PASSWORD_D = ${if eq{}{$auth1}{$auth3}{$auth2}}
 
-# MailBox Realm
-A_MB_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:${domain:A_LOGIN_D}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
-# Domain Realm
-A_D_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:A_LOGIN_D},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}},S_LDAP_DN?afSClientRealm?base}}
-# Client Realm
-A_C_R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:A_LOGIN_D},S_LDAP_DN?afSClientRealm?base}}
+# MailBox to Client
+A_MB2C_D = ${if eq{}{${domain:A_LOGIN_D}}{}{${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:${domain:A_LOGIN_D}},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}}}
+# Login to Domain
+A_L2D_D = ${if eq{}{${domain:A_LOGIN_D}}{A_LOGIN_D}{${domain:A_LOGIN_D}}}
+# Domain to Client
+A_D2C_D = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:A_L2D_D},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
+
+# MailBox to Realm
+A_MB2R_D = ${if eq{}{A_MB2C_D}{}{${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:A_MB2C_D},S_LDAP_DN?afSClientRealm?base}}}}
+# Domain to Realm
+A_D2R_D = ${if eq{}{A_D2C_D}{}{${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:A_D2C_D},S_LDAP_DN?afSClientRealm?base}}}}
+# Client to Realm
+A_C2R_D = ${lookup ldap{LDAP_C/afSClientName=${quote_ldap_dn:A_LOGIN_D},S_LDAP_DN?afSClientRealm?base}}
 
 # Realm
-A_REALM_D = ${if eq{}{A_MB_R_D}{${if eq{}{A_D_R_D}{${if eq{}{A_C_R_D}{}{A_C_R_D}}}{A_D_R_D}}}{A_MB_R_D}}
+A_REALM_D = ${if eq{}{A_MB2R_D}{${if eq{}{A_D2R_D}{${if eq{}{A_C2R_D}{}{A_C2R_D}}}{A_D2R_D}}}{A_MB2R_D}}
 
-# Domain by Login
-A_DOMAIN_L_D = ${if eq{}{${domain:A_LOGIN_D}}{A_LOGIN_D}{${domain:A_LOGIN_D}}}
-# Client by Domain
-A_CLIENT_D_D = ${lookup ldap{LDAP_C/afSSMTPDomainName=${quote_ldap_dn:A_DOMAIN_L_D},S_SMTP_LDAP_DN?afSSMTPDomainClientName?base}}
-# Domain by Alias
-A_DOMAIN_A_D = ${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_L_D},afUClientName=${quote_ldap_dn:A_CLIENT_D_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionDomainAliasName?base}}
+# Login to Domain Alias
+A_L2DA_D = ${if eq{}{A_D2C_D}{}{${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_L2D_D},afUClientName=${quote_ldap_dn:A_D2C_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+
 # Domain
-A_DOMAIN_D = ${if eq{}{A_DOMAIN_A_D}{A_DOMAIN_L_D}{A_DOMAIN_A_D}}
+A_DOMAIN_D = ${if eq{}{A_L2DA_D}{A_L2D_D}{A_L2DA_D}}
 
-# MailBox Password Raw
-A_MB_P_R_D = ${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:A_LOGIN_D}},afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_CLIENT_D_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
-# MailBox Password (additional check for invalid LDAP query prevention)
-A_MB_P_D = ${if and{{!eq{}{${local_part:A_LOGIN_D}}}{!eq{}{${domain:A_LOGIN_D}}}}{A_MB_P_R_D}{}}
+# MailBox Password
+A_MB_P_D = ${if or{{eq{}{${domain:A_LOGIN_D}}}{eq{}{A_D2C_D}}{eq{}{A_REALM_D}}}{}{${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:A_LOGIN_D}},afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_D2C_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}}}
 # Domain Password
-A_D_P_D = ${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_CLIENT_D_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+A_D_P_D = ${if or{{eq{}{A_D2C_D}}{eq{}{A_REALM_D}}}{}{${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_D2C_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}}}
 # Client Password
-A_C_P_D = ${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:A_LOGIN_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}
+A_C_P_D = ${if eq{}{A_REALM_D}{}{${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:A_LOGIN_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?afUSubmissionAuthPassword?base}}}}
 
-# MailBox Existing Raw
-A_MB_E_R_F = ${if ! eq{}{${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:A_LOGIN_D}},afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_CLIENT_D_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?objectClass?base}}}}
 # MailBox Existing
-A_MB_E_F = ${if and{{!eq{}{${local_part:A_LOGIN_D}}}{!eq{}{${domain:A_LOGIN_D}}}}{A_MB_E_R_F}}
+A_MB_E_F = ${if or{{eq{}{${domain:A_LOGIN_D}}}{eq{}{A_D2C_D}}{eq{}{A_REALM_D}}}{}{${lookup ldap{LDAP_C/afUSubmissionDMBLocalPart=${quote_ldap_dn:${local_part:A_LOGIN_D}},afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_D2C_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?objectClass?base}{true}{false}}}}
 # Domain Existing
-A_D_E_F = ${if ! eq{}{${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_CLIENT_D_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?objectClass?base}}}}
+A_D_E_F = ${if or{{eq{}{A_D2C_D}}{eq{}{A_REALM_D}}}{}{${lookup ldap{LDAP_C/afUSubmissionDomainName=${quote_ldap_dn:A_DOMAIN_D},afUClientName=${quote_ldap_dn:A_D2C_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?objectClass?base}{true}{false}}}}
 # Client Existing
-A_C_E_F = ${if ! eq{}{${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:A_LOGIN_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?objectClass?base}}}}
+A_C_E_F = ${if eq{}{A_REALM_D}{}{${lookup ldap{LDAP_C/afUClientName=${quote_ldap_dn:A_LOGIN_D},afUServiceRealm=${quote_ldap_dn:A_REALM_D}+U_Submission_LDAP_DN?objectClass?base}{true}{false}}}}
 
 # server_advertise_condition
 A_SAC_D = ${if ! eq{}{$tls_in_cipher}}

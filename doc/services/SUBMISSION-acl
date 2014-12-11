@@ -45,6 +45,7 @@ mail
 ** логин определился => continue
 ** 5xx Authentication needed, stop
 * присутствует адрес отправителя => проверка адреса отправителя (Sender), continue
+* trusted_host && отсутствует адрес отправителя => 5xx Trusted host is not allowed to send status notification (empty Envelope-Sender), stop
 * отсутствует адрес отправителя => flag_spamsender, continue
 * загрузить пользовательсике настройки (mbox/domain/client) => user_hidereceived, flag_spamsender, continue
 * user_hidereceived => Удалить заголовки Received, continue
