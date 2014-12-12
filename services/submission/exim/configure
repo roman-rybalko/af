@@ -475,41 +475,43 @@ data_acl:
 
   # * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
   deny
-    condition = ${if ! eq{}{$bheader_Reply-To:}}
+    condition = ${if def:bheader_Reply-To:}
     condition = ${if eq{}{${address:$bheader_Reply-To:}}}
     message = Invalid "Reply-To:" header
 
   # * присутствует заголовок "Reply-To:" && домен в заголовке Reply-To: не принимает почту (verify = sender) => 5xx "Reply-To:" domain {domain:header_reply-to} does not accept mail, stop
   deny
-    condition = ${if ! eq{}{$bheader_Reply-To:}}
+    condition = ${if def:bheader_Reply-To:}
     ! verify = sender=${address:$bheader_Reply-To:}
     message = "Reply-To:" domain ${domain:${address:$bheader_Reply-To:}} does not accept mail
 
-  # * message-id в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
+  # * message-id в БД но sender другой => 5xx Duplicate message, original sender {orig-sender}
   deny
     condition = ${if ! eq{}{U_SDB_S_D}}
     ! condition = ${if eq{U_H_S_D}{U_SDB_S_D}}
-    message = Duplicate, previous sender=U_H_S_D
+    message = Duplicate message, original sender U_SDB_S_D
 
-  # * in-reply-to, references в БД и sender в recipients => flag_hamtrap, continue
+  # * in-reply-to, references в БД и sender в {recipients} => flag_hamtrap, continue
   warn
     # User HamTrap flag
     set acl_m_u_ht_f = false
     condition = ${if forany{U_SMTPDB_S_L}{inlist{$item}{<, $recipients}}}
     set acl_m_u_ht_f = true
-    logwrite = AdvancedFiltering/MessageID/submissiondb/Add<$acl_m_u_realm><U_SDB_EMID_D><U_H_S_D>
 
-  # * msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
-  accept
+  # * msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, continue
+  warn
     set acl_m_u_tms_f = false
     condition = ${if >{$message_size}{S_TMS_D}}
     set acl_m_u_tms_f = true
-    message = Trusted message size
+
+  # * flag_hamtrap || flag_trustedmessagesize => log (submissiondb), continue
+  warn
+    condition = ${if or{{bool{$acl_m_u_ht_f}}{bool{$acl_m_u_tms_f}}}}
     logwrite = AdvancedFiltering/MessageID/submissiondb/Add<$acl_m_u_realm><U_SDB_EMID_D><U_H_S_D>
 
-  # * 2xx {id=exim_msg_id} {orig_sender_address} {client} {(authz)trustedhost/mbox/domain/client/none} {flag_spamsender} {flag_expired}, stop
+  # * 2xx {id=exim_msg_id} {orig_sender_address} {client} {(authz)trustedhost/mbox/domain/client/none} {flag_spamsender} {flag_hamtrap} {flag_trustedmessagesize} {flag_expired}, stop
   accept
-    message = id=$message_exim_id ${if eq{}{$acl_m_u_sender}{none}{${local_part:$acl_m_u_sender}@$acl_m_u_domain}} $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS:$acl_m_u_ss_s_d}{}}${if bool{$acl_m_u_exp_f}{ EXP}{}}
+    message = id=$message_exim_id ${if eq{}{$acl_m_u_sender}{none}{${local_part:$acl_m_u_sender}@$acl_m_u_domain}} $acl_m_u_client $acl_m_u_authz${if bool{$acl_m_u_ss_f}{ SS:$acl_m_u_ss_s_d}{}}${if bool{$acl_m_u_ht_f}{ HT}{}}${if bool{$acl_m_u_tms_f}{ TMS}{}}${if bool{$acl_m_u_exp_f}{ EXP}{}}
 
 begin routers
 

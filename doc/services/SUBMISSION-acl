@@ -68,7 +68,8 @@ data_end
 * присутствует заголовок "Reply-To:" && содержит несколько адресов или битый => 5xx Invalid "Reply-To:" header, stop
 * присутствует заголовок "Reply-To:" && домен в заголовке Reply-To: не принимает почту (verify = sender) => 5xx "Reply-To:" domain {domain:header_reply-to} does not accept mail, stop
 # message-id всегда добавляется для этого соединения (режим submission)
-* message-id в БД но sender другой => 5xx Duplicate, previous sender=prev-sender
-* in-reply-to, references в БД и sender в recipients => flag_hamtrap, continue
-* msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, log (trusted size), 2xx Trusted message size, stop
-* 2xx {id=exim_msg_id} {orig_sender_address} {client} {(authz)trustedhost/mbox/domain/client/none} {flag_spamsender} {flag_expired}, stop
+* message-id в БД но sender другой => 5xx Duplicate message, original sender {orig-sender}
+* in-reply-to, references в БД и sender в {recipients} => flag_hamtrap, continue
+* msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, continue
+* flag_hamtrap || flag_trustedmessagesize => log (submissiondb), continue
+* 2xx {id=exim_msg_id} {orig_sender_address} {client} {(authz)trustedhost/mbox/domain/client/none} {flag_spamsender} {flag_hamtrap} {flag_trustedmessagesize} {flag_expired}, stop

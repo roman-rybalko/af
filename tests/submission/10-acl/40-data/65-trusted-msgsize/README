@@ -1,0 +1,1 @@
+* msgsize >= sys_trustedmessagesize => flag_trustedmessagesize, continue

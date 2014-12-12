@@ -1,0 +1,9 @@
+
+dn: afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+objectClass: afUService
+
+# test-message-id-1
+dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLWlkLTE_,afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+objectClass: afUSMTPMessageOutgoing
+afUSMTPMessageSenderMailAddress: mbox2@test.advancedfiltering.net
+afUSMTPMessageTimeCreated: 9876543210
