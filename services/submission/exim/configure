@@ -273,30 +273,30 @@ sender_acl:
 
   # ** синоним => user_domain, continue
   warn
-    condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    condition = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}{true}{false}}
     set acl_m_u_domain = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}
 
   # ** двойной синоним => 4xx {user_sender_descr} domain {domain:user_sender_address} (alias to {user_domain}) has configuration problem (double domain alias), panic, stop
   defer
-    condition = ${if ! eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}}}}
+    condition = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainAliasName?base}{true}{false}}
     message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender} (alias to $acl_m_u_domain) has configuration problem (double domain alias)
     logwrite = :panic: Double domain alias: sender=$acl_m_u_sender client=$acl_m_u_client realm=$acl_m_u_realm domain=${domain:$acl_m_u_sender} alias=$acl_m_u_domain
 
   # ** не найден в ou=user => 4xx {user_sender_descr} domain {domain:user_sender_address} {синоним?(alias to {user_domain}):""} is replicating, please try again later, stop
   defer
-    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?objectClass?base}}}}
+    ! condition = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?objectClass?base}{true}{false}}
     message = $acl_m_u_sender_desc domain ${domain:$acl_m_u_sender}${if eq{${domain:$acl_m_u_sender}}{$acl_m_u_domain}{}{ (alias to $acl_m_u_domain)}} is replicating, please try again later
 
   # ** не зарегистрирован и не проверяется адрес отправителя => 5xx {user_sender_descr} address {user_sender_address} {синоним?(alias to {user_domain}):""} does not exist, stop
   deny
-    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base}}}}
+    ! condition = ${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base}{true}{false}}
     ! acl = mbxchk_acl
     message = $acl_m_u_sender_desc address $acl_m_u_sender${if eq{${domain:$acl_m_u_sender}}{$acl_m_u_domain}{}{ (alias to $acl_m_u_domain)}} does not exist
 
   # ** просрочен адрес отправителя => записать в лог задание на проверку, flag_expired, continue
   warn
     set acl_m_u_exp_f = false
-    condition = ${if eq{}{${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated>=S_MBCT_D)}}}}
+    condition = ${lookup ldap{LDAP_C/U_Submission_R_C_D_MB_LDAP_DN?afUSubmissionDMBLocalPart?base?(afUSubmissionDMBTimeUpdated<=S_MBCT_D)}{true}{false}}
     logwrite = AdvancedFiltering/MailBox/Check/AFsmtp<$acl_m_u_sender> ? AdvancedFiltering/MailBox/submission/Update<$acl_m_u_sender> : AdvancedFiltering/MailBox/submission/Delete<$acl_m_u_sender>
     set acl_m_u_exp_f = true
 

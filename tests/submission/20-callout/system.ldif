@@ -2,17 +2,12 @@
 dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afSHostRealm: r1
 afSHostServiceName: submission
-afSHostServiceName: smtp
 afSHostServiceName: spamsender
 afSHostServiceName: mailproc
 afSHostServiceName: hamtrap
 afSHostServiceName: bounce
 afSHostServiceName: error
 objectClass: afSHost
-
-dn: afSHostServiceName=smtp,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-afSHServiceTCPPort: 587
-objectClass: afSHostService
 
 dn: afSHostServiceName=spamsender,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afSHServiceTCPPort: 587
@@ -32,6 +27,15 @@ objectClass: afSHostService
 
 dn: afSHostServiceName=error,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afSHServiceTCPPort: 587
+objectClass: afSHostService
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: smtp
+objectClass: afSHost
+
+dn: afSHostServiceName=smtp,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 12525
 objectClass: afSHostService
 
 dn: afSServiceName=submission,ou=system,o=advancedfiltering
