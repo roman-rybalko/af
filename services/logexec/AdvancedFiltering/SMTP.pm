@@ -33,4 +33,11 @@ sub starttls {
 
 sub _STARTTLS { shift->command("STARTTLS")->response() == CMD_OK }
 
+sub stoptls {
+	my $self = shift;
+	$self->stop_SSL(@_);
+	@ISA = @Net::SMTP::ISA;
+	return 1;
+}
+
 1;

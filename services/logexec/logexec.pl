@@ -9,7 +9,7 @@ use lib ($FindBin::Bin);
 
 sub msg_ok
 {
-	print "OK\n";
+	print "OK", @_ ? ": @_" : "", "\n";
 }
 
 sub msg_fail
@@ -58,7 +58,7 @@ while (<>)
 			}
 			else
 			{
-				msg_ok;
+				msg_ok($result);
 			}
 		}
 		else

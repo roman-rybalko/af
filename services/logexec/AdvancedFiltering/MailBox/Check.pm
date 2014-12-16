@@ -35,6 +35,10 @@ sub check_mailbox_vrfy
 	}
 	my $result = $smtp->verify($params{mailbox}) ? 0 : $smtp->message;
 	$smtp->quit;
+	if ($params{tls_cert} && $params{tls_key})
+	{
+		$smtp->stoptls;
+	}
 	return $result;
 }
 
