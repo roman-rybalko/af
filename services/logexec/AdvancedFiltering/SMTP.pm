@@ -6,7 +6,7 @@ use Net::Cmd;
 use IO::Socket::SSL;
 use Net::SMTP;
 
-our $VERSION = "0.01";
+our $VERSION = "0.1";
 our @ISA = @Net::SMTP::ISA;
 
 no strict 'refs';
@@ -16,6 +16,12 @@ foreach (keys %Net::SMTP::)
 	*{$_} = \&{"Net::SMTP::$_"};
 }
 use strict;
+
+# NON-REENTERABLE
+
+sub init {
+	@ISA = @Net::SMTP::ISA;
+}
 
 sub starttls {
 	my $self = shift;
@@ -32,12 +38,5 @@ sub starttls {
 }
 
 sub _STARTTLS { shift->command("STARTTLS")->response() == CMD_OK }
-
-sub stoptls {
-	my $self = shift;
-	$self->stop_SSL(@_);
-	@ISA = @Net::SMTP::ISA;
-	return 1;
-}
 
 1;

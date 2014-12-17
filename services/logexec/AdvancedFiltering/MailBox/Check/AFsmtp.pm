@@ -3,6 +3,8 @@ package AdvancedFiltering::MailBox::Check::AFsmtp;
 use strict;
 use warnings;
 
+use List::Util qw(shuffle);
+
 use AdvancedFiltering::DB qw(get_service_hosts);
 use AdvancedFiltering::DB::submission qw(get_mailbox_data);
 use AdvancedFiltering::MailBox::Check qw(check_mailbox_vrfy);
@@ -18,6 +20,7 @@ sub run
 	my $data = get_mailbox_data($mailbox);
 	return "mailbox data is not found" unless $data;
 	my @hosts = get_service_hosts($data->{realm}, 'smtp');
+	@hosts = shuffle(@hosts);
 	my @errors;
 	foreach my $host (@hosts)
 	{

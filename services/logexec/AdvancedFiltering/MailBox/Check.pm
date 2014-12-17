@@ -10,6 +10,7 @@ our @EXPORT_OK = qw(check_mailbox_vrfy check_mailbox_rcpt);
 use AdvancedFiltering::SMTP;
 use AdvancedFiltering::Conf qw(get_conf_value);
 
+#
 # params:
 # host - host:port
 # mailbox
@@ -17,12 +18,18 @@ use AdvancedFiltering::Conf qw(get_conf_value);
 # tls_key
 # tls_ca
 # timeout
+#
+# conf:
+# check_mailbox_vrfy_smtp_debug
+#
 # return:
 # 0 -OK
 # str - FAIL
+#
 sub check_mailbox_vrfy
 {
 	my %params = @_;
+	AdvancedFiltering::SMTP->init;
 	my $smtp = AdvancedFiltering::SMTP->new(
 		$params{host},
 		Timeout => $params{timeout},
@@ -40,10 +47,6 @@ sub check_mailbox_vrfy
 	die $smtp->code . " " . $smtp->message if $smtp->code == 252 || $smtp->status == 4;
 	$result = $smtp->message unless $smtp->ok;
 	$smtp->quit;
-	if ($params{tls_cert} && $params{tls_key})
-	{
-		$smtp->stoptls;
-	}
 	return $result;
 }
 
