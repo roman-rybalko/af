@@ -7,3 +7,6 @@ dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLWlkLTE_,afUServiceRealm=r1+afUServiceName=
 objectClass: afUSMTPMessageIncoming
 afUSMTPMessageSenderMailAddress: test@dmarc.test.advancedfiltering.net
 afUSMTPMessageTimeCreated: 9876543210
+
+dn: afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+objectClass: afUService

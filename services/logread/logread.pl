@@ -99,7 +99,7 @@ sub process_line
 	my $reply = <$processor_stdout>;
 	warn "Processed: $line -> $reply" if $opts{v} > 1;
 	die "$line -> $reply" if $reply =~ /^FATAL/;
-	warn "$line -> $reply" unless $reply =~ /^OK/;
+	warn "Bad reply: $line -> $reply" unless $reply =~ /^OK/;
 	++$process_count;
 }
 

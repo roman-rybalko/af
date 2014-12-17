@@ -5,10 +5,6 @@ afSHostServiceName: submission
 afSHostServiceName: smtp
 objectClass: afSHost
 
-dn: afSHostServiceName=smtp,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-afSHServiceTCPPort: 587
-objectClass: afSHostService
-
 dn: afSServiceName=submission,ou=system,o=advancedfiltering
 afSSubmissionMaxMessageSize: 30000000
 afSSubmissionTrustedMessageSize: 2000000

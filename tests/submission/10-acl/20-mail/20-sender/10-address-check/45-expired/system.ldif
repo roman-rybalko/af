@@ -1,0 +1,9 @@
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: smtp
+objectClass: afSHost
+
+dn: afSHostServiceName=smtp,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 12525
+objectClass: afSHostService

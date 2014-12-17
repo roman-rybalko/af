@@ -7,19 +7,33 @@ $| = 1;
 use FindBin;
 use lib ($FindBin::Bin);
 
+sub make_desc
+{
+	my $desc = "";
+	if (@_)
+	{
+		$desc = ": " . join(" ", @_) if @_;
+		$desc =~ s/\s/ /g;
+	}
+	return $desc;
+}
+
 sub msg_ok
 {
-	print "OK", @_ ? ": @_" : "", "\n";
+	my $desc = make_desc(@_);
+	print "OK$desc\n";
 }
 
 sub msg_fail
 {
-	print "FAIL: @_\n";
+	my $desc = make_desc(@_);
+	print "FAIL$desc\n";
 }
 
 sub msg_fatal
 {
-	print "FATAL: @_\n";
+	my $desc = make_desc(@_);
+	print "FATAL$desc\n";
 }
 
 sub run_expr
@@ -58,7 +72,7 @@ while (<>)
 			}
 			else
 			{
-				msg_ok($result);
+				msg_ok("$result, OK");
 			}
 		}
 		else

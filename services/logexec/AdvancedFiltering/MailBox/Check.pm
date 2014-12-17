@@ -45,7 +45,7 @@ sub check_mailbox_vrfy
 	my $result = 0;
 	$smtp->verify($params{mailbox});
 	die $smtp->code . " " . $smtp->message if $smtp->code == 252 || $smtp->status == 4;
-	$result = $smtp->message unless $smtp->ok;
+	$result = $smtp->code . " " . $smtp->message unless $smtp->ok;
 	$smtp->quit;
 	return $result;
 }

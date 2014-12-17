@@ -1,0 +1,12 @@
+
+# test-message-id-2
+dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLWlkLTI_,afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+objectClass: afUSMTPMessageOutgoing
+afUSMTPMessageSenderMailAddress: mbox@test.advancedfiltering.net
+afUSMTPMessageTimeCreated: 1234567890
+
+# test-message-id-3
+dn: afUSMTPMessageId=dGVzdC1tZXNzYWdlLWlkLTM_,afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+objectClass: afUSMTPMessageOutgoing
+afUSMTPMessageSenderMailAddress: mbox@test.advancedfiltering.net
+afUSMTPMessageTimeCreated: 1234567890
