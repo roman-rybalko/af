@@ -61,9 +61,9 @@ start_server()
 		rm -f smtp_server_$id.pid
 	fi
 	if echo $id | grep notls >/dev/null; then
-		smtp_server -P smtp_server_$id.pid $* &
+		smtp_server -P smtp_server_$id.pid "$@" &
 	else
-		smtp_server -c "$TESTDIR"/.tools/tests.crt -k "$TESTDIR"/.tools/tests.key -C "$TESTDIR"/.tools/ca.crt -P smtp_server_$id.pid $* &
+		smtp_server -c "$TESTDIR"/.tools/tests.crt -k "$TESTDIR"/.tools/tests.key -C "$TESTDIR"/.tools/ca.crt -P smtp_server_$id.pid "$@" &
 	fi
 	wait_file smtp_server_$id.pid
 }

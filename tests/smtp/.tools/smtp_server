@@ -7,7 +7,7 @@ use IO::Socket::SSL '1.84'; # SSL_verify_callback
 use Getopt::Std;
 
 my %opts;
-getopts('hp:m:e:s:c:k:C:R:P:r:a', \%opts);
+getopts('hp:m:e:s:c:k:C:R:P:r:y:a', \%opts);
 
 if ($opts{h})
 {
@@ -24,8 +24,9 @@ if ($opts{h})
 		"\t-R re\tReject SSL certificate subject that contains regexp re\n",
 		"\t-P file\tWrite self PID to file\n",
 		"\t-r re\tReject client command that contains regexp re\n",
+		"\t-y reply\tReject reply\n",
 		"\t-a\tOffer AUTH extension\n",
-		"";
+		"VERSION: 1.0\n";
 	exit 0;
 }
 $opts{p} = 25 unless $opts{p};
@@ -61,7 +62,7 @@ sub session
 
 		if ($opts{r} && /$opts{r}/)
 		{
-			print $s "550 Rejected\r\n";
+			print $s $opts{y} ? $opts{y} : "550 Rejected", "\r\n";
 			next;
 		}
 
