@@ -5,6 +5,7 @@ export AF_private_tls_cert="$TESTDIR"/.tools/tests.crt
 export AF_private_tls_key="$TESTDIR"/.tools/tests.key
 export AF_private_tls_ca=
 
+rm -f smtp.env smtp2.env
 cnt=10
 while ! [ -e smtp.env -a -e smtp2.env ]; do
 	rm -vf smtp.env smtp2.env
@@ -20,7 +21,7 @@ done
 grep test2@test.com smtp.env
 grep test3@test.com smtp2.env
 
-rm -vf smtp.env smtp2.env
+rm -f smtp.env smtp2.env
 cnt=10
 while ! [ -e smtp.env -a -e smtp2.env ]; do
 	rm -vf smtp.env smtp2.env
