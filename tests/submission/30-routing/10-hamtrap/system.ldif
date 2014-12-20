@@ -1,0 +1,9 @@
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: hamtrap
+objectClass: afSHost
+
+dn: afSHostServiceName=hamtrap,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 10025
+objectClass: afSHostService
