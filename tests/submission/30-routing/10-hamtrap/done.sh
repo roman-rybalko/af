@@ -7,4 +7,5 @@ del_ldif user.ldif
 del_ldif system.ldif
 
 stop_server ht
-rm -f ht.env
+stop_server mx
+rm -f ht.env mx.env
