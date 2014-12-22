@@ -711,6 +711,7 @@ internet_transport:
   tls_certificate = S_S_C_D
   tls_privatekey = S_S_CK_D
   tls_verify_certificates = S_S_CA_D
+  return_path = $sender_address
   dkim_domain = ${domain:${address:$bheader_From:}}
   dkim_selector = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainDKIMSelector?base}}
   dkim_private_key = /usr/local/advancedfiltering/submission/dkim/$acl_m_u_client.key

@@ -40,14 +40,14 @@ afSSMTPTrustedPort: 445
 afSSMTPMailBoxTimeout: 14400
 objectClass: afSSMTPService
 
-dn: afSClientName=cli1,ou=system,o=advancedfiltering
+dn: afSClientName=submission-test,ou=system,o=advancedfiltering
 afSClientRealm: r1
 objectClass: afSClient
 
 dn: afSSubmissionAuthHostAddress=1.2.3.4,afSServiceName=submission,ou=system,o=advancedfiltering
-afSSubmissionAuthClientName: cli1
+afSSubmissionAuthClientName: submission-test
 objectClass: afSSubmissionAuth
 
 dn: afSSMTPDomainName=test.advancedfiltering.net,afSServiceName=smtp,ou=system,o=advancedfiltering
-afSSMTPDomainClientName: cli1
+afSSMTPDomainClientName: submission-test
 objectClass: afSSMTPDomain
