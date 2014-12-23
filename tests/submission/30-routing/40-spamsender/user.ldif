@@ -1,0 +1,6 @@
+
+dn: afUSubmissionDMBLocalPart=mbox2,afUSubmissionDomainName=test.advancedfiltering.net,afUClientName=submission-test,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+objectClass: afUSubmissionDMailBox
+afUSubmissionDMBTimeUpdated: 1234567890
+objectClass: afUSubmissionSettings
+afUSubmissionSpamSender: TRUE

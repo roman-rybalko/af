@@ -1,0 +1,5 @@
+
+dn: afUSubmissionDomainName=test.advancedfiltering.net,afUClientName=submission-test,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+changetype: modify
+add: afUSubmissionBackupMailAddress
+afUSubmissionBackupMailAddress: domain-backup@dmarc.test.advancedfiltering.net

@@ -6,8 +6,8 @@ swaks -tls --tls-cert tests.crt --tls-key tests.key -f mbox@test.advancedfilteri
 wait_file ht.env
 wait_file mx.env
 grep hamtrap ht.env
-! grep test@ ht.env
 ! grep mbox@ ht.env
-grep mbox@ mx.env
-grep test@ mx.env
+! grep test@ ht.env
+grep mbox@ ht.mime | grep Envelope
+grep test@ ht.mime | grep Envelope
 wait_ldif_add user2.ldif

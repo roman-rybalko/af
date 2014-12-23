@@ -8,4 +8,4 @@ del_ldif system.ldif
 
 stop_server ht
 stop_server mx
-rm -f ht.env mx.env
+rm -f ht.env ht.mime mx.env

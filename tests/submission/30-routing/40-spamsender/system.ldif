@@ -1,0 +1,14 @@
+
+dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHostRealm: r1
+afSHostServiceName: mailproc
+afSHostServiceName: spamsender
+objectClass: afSHost
+
+dn: afSHostServiceName=mailproc,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 11025
+objectClass: afSHostService
+
+dn: afSHostServiceName=spamsender,afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 12025
+objectClass: afSHostService

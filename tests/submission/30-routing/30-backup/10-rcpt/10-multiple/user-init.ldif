@@ -1,0 +1,5 @@
+
+dn: afUSubmissionDMBLocalPart=mbox,afUSubmissionDomainName=test.advancedfiltering.net,afUClientName=submission-test,afUServiceRealm=r1+afUServiceName=submission,ou=user,o=advancedfiltering
+changetype: modify
+add: afUSubmissionBackupMailAddress
+afUSubmissionBackupMailAddress: mbox-backup2@dmarc.test.advancedfiltering.net

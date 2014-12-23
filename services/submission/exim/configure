@@ -575,6 +575,8 @@ hamtrap_router:
   data = hamtrap@services.advancedfiltering.net
   errors_to = error@services.advancedfiltering.net
   redirect_router = service_router
+  headers_remove = X-Envelope-From:X-Envelope-To
+  headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipients
   unseen = true
 
 # * mailproc [!flag_trustedmessagesize && !flag_hamtrap] {continue} -> service => error
@@ -589,6 +591,13 @@ mailproc_router:
   headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipients
   unseen = true
 
+# Router MessageData Submission Info
+R_MDS_I_D = $acl_m_u_client $sender_address $message_exim_id $address_data
+# Router MessageData Submission Key
+R_MDS_K_D = l8JI6T7kctCno3lL44hqNOQ0NnWvjpVZn4WCFvuBxp
+# Router MessageData Submission Header
+R_MDS_H_D = ${str2b64:R_MDS_I_D ${md5:R_MDS_I_D R_MDS_K_D}}
+
 # Router general LDAP DN
 R_LDAP_DN = ""
 
@@ -600,7 +609,7 @@ R_CS_D = ""
 
 # * backup_rcpt {continue} -> internet >> backup_end => error
 R_LDAP_DN == U_Submission_R_C_D_MB_LDAP_DN
-R_CS_D == $local_part@$domain
+R_CS_D == $sender_address
 # the same for all backup_ routers
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSubmissionBackupMailAddress?base}}
 backup_rcpt_router:
@@ -616,6 +625,8 @@ backup_rcpt_pass_router:
   condition = ${if ! eq{}{R_CT_Lc}}
   driver = redirect
   data = $local_part@$domain
+  # remove the first (new) key
+  address_data = ${sg{$address_data}{^\\s*\\S+\\s*}{}}
   errors_to = error@services.advancedfiltering.net
   redirect_router = backup_end_router
 
@@ -637,6 +648,8 @@ backup_domain_pass_router:
   condition = ${if ! eq{}{R_CT_Lc}}
   driver = redirect
   data = $local_part@$domain
+  # remove the first (new) key
+  address_data = ${sg{$address_data}{^\\s*\\S+\\s*}{}}
   errors_to = error@services.advancedfiltering.net
   redirect_router = backup_end_router
 
@@ -658,6 +671,8 @@ backup_client_pass_router:
   condition = ${if ! eq{}{R_CT_Lc}}
   driver = redirect
   data = $local_part@$domain
+  # remove the first (new) key
+  address_data = ${sg{$address_data}{^\\s*\\S+\\s*}{}}
   errors_to = error@services.advancedfiltering.net
   redirect_router = backup_end_router
 
@@ -665,13 +680,6 @@ backup_client_pass_router:
 backup_end_router:
   driver = redirect
   data = ""
-
-# Router MessageData Submission Info
-R_MDS_I_D = $acl_m_u_client $sender_address $message_exim_id
-# Router MessageData Submission Key
-R_MDS_K_D = l8JI6T7kctCno3lL44hqNOQ0NnWvjpVZn4WCFvuBxp
-# Router MessageData Submission Header
-R_MDS_H_D = ${str2b64:R_MDS_I_D ${md5:R_MDS_I_D R_MDS_K_D}}
 
 # * spamsender [flag_spamsender] {stop} -> service => error
 spamsender_router:
@@ -687,6 +695,7 @@ spamsender_router:
 # * internet {stop} => bounce
 internet_router:
   driver = dnslookup
+  address_data = $address_data sender=$sender_address
   transport = internet_transport
   errors_to = bounce@services.advancedfiltering.net
   check_srv = smtp
@@ -711,7 +720,7 @@ internet_transport:
   tls_certificate = S_S_C_D
   tls_privatekey = S_S_CK_D
   tls_verify_certificates = S_S_CA_D
-  return_path = $sender_address
+  return_path = ${extract{sender}{$address_data}}
   dkim_domain = ${domain:${address:$bheader_From:}}
   dkim_selector = ${lookup ldap{LDAP_C/U_Submission_R_C_D_LDAP_DN?afUSubmissionDomainDKIMSelector?base}}
   dkim_private_key = /usr/local/advancedfiltering/submission/dkim/$acl_m_u_client.key

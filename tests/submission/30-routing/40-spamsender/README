@@ -1,0 +1,2 @@
+* service [@services] {stop} => error
+* spamsender [flag_spamsender] {stop} -> service => error
