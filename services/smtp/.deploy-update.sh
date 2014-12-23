@@ -9,9 +9,7 @@ cp -vf ../advancedfiltering_smtp_exim etc/rc.d/
 
 chmod -Rv u+w advancedfiltering/smtp/exim
 cp -vf ../exim/configure advancedfiltering/smtp/exim/
-cp -vf ../exim/message_loop_detector.pl advancedfiltering/smtp/exim/
-cp -vf ../exim/mid_list_encoder.pl advancedfiltering/smtp/exim/
-cp -vf ../exim/base64_decoder.pl advancedfiltering/smtp/exim/
+cp -vf ../../exim/scripts/message_loop_detector.pl ../../exim/scripts/mid_list_encoder.pl ../../exim/scripts/base64_decoder.pl advancedfiltering/smtp/exim/
 chmod a-w etc/rc.d/advancedfiltering_smtp_exim advancedfiltering/smtp/exim/configure \
 	advancedfiltering/smtp/exim/message_loop_detector.pl \
 	advancedfiltering/smtp/exim/mid_list_encoder.pl advancedfiltering/smtp/exim/base64_decoder.pl \
