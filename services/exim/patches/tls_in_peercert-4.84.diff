@@ -1,0 +1,35 @@
+commit f291a533061b18350bfe37b53c5e9c66a27e1091
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Wed Dec 24 16:49:48 2014 +0300
+
+    tls_in_peercert available for unverified cert
+
+diff --git src/tls-openssl.c src/tls-openssl.c
+index 18994ea..e164427 100644
+--- src/tls-openssl.c
++++ src/tls-openssl.c
+@@ -279,6 +279,8 @@ static uschar txt[256];
+ 
+ X509_NAME_oneline(X509_get_subject_name(cert), CS txt, sizeof(txt));
+ 
++tlsp->peercert = X509_dup(cert);
++
+ if (state == 0)
+   {
+   log_write(0, LOG_MAIN, "SSL verify error: depth=%d error=%s cert=%s",
+@@ -289,7 +291,6 @@ if (state == 0)
+   *calledp = TRUE;
+   if (!*optionalp)
+     {
+-    tlsp->peercert = X509_dup(cert);
+     return 0;			    /* reject */
+     }
+   DEBUG(D_tls) debug_printf("SSL verify failure overridden (host in "
+@@ -319,7 +320,6 @@ else
+ #endif
+ 
+   tlsp->peerdn = txt;
+-  tlsp->peercert = X509_dup(cert);
+ 
+ #ifdef EXPERIMENTAL_CERTNAMES
+   if (  tlsp == &tls_out
