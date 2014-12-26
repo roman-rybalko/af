@@ -214,7 +214,7 @@ mail_acl:
     set acl_m_md_sender_mail_address = $sender_address
     set acl_m_md_sender_host_address = $sender_host_address
     set acl_m_md_sender_host_name = $sender_host_name
-    set acl_m_md_sender_certificate_subject = $tls_in_peerdn
+    set acl_m_md_sender_certificate_subject = ${reduce{<, ${certextract{subject}{$tls_in_peercert}}}{}{/$item$value}}
     set acl_m_md_sender_certificate_verified = ${if bool{$tls_in_certificate_verified}}
   # * проверка системных списков фильтрации (на основе переменных md_...) => flag_sys_wl, flag_sys_bl, msg_sys_wbl
   warn
@@ -1246,7 +1246,7 @@ ${if ! eq{}{$acl_m_md_spam_description}{X-AdvancedFiltering-MessageData-SpamDesc
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }
 # Transport Mail eXchanger Name Data
 # not using ":" in keys - not allowed in authenticators
-T_MXN_D = ${extract {$host${if bool_lax{$smtp_host_specific_port}{/$smtp_host_specific_port}{}}/name} {$address_data} }
+T_MXN_D = ${extract {$host${if eq{25}{$host_port}{}{/$host_port}}/name} {$address_data} }
 # Transport Auth-required Hosts
 T_AH_D = ${lookup ldap{LDAP_C/afUSMTPMXName=${quote_ldap_dn:T_MXN_D},T_LDAP_DN?afUSMTPMXHostName?base?(afUSMTPMXAuthUser=*)} }
 # Transport TLS-required Hosts
@@ -1349,8 +1349,8 @@ bounce@services.advancedfiltering.net * F,15m,1m; F,1d,15m
 begin authenticators
 
 # client_send does not allow ":" in the data
-A_USER = ${extract {$host${if bool_lax{$smtp_host_specific_port}{/$smtp_host_specific_port}{}}/user} {$address_data} }
-A_PASSWORD = ${extract {$host${if bool_lax{$smtp_host_specific_port}{/$smtp_host_specific_port}{}}/password} {$address_data} }
+A_USER = ${extract {$host${if eq{25}{$host_port}{}{/$host_port}}/user} {$address_data} }
+A_PASSWORD = ${extract {$host${if eq{25}{$host_port}{}{/$host_port}}/password} {$address_data} }
 
 user_cram_md5_authenticator:
   client_condition = ${if ! eq{}{A_USER}}
