@@ -8,9 +8,39 @@ dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 afshostname: dst.hosts.advancedfiltering.net
 afshostrealm: r1
 afSHostServiceName: smtp
+afSHostServiceName: mailproc
+afSHostServiceName: spamtrap
+afSHostServiceName: hamtrap
+afSHostServiceName: error
+afSHostServiceName: bounce
+afSHostServiceName: submission
 afSHostDataBaseName: smtpdb
 afSHostDataBaseName: sdb
 objectClass: afSHost
+
+dn: afSHostServiceName=mailproc,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 445
+objectClass: afSHostService
+
+dn: afSHostServiceName=spamtrap,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 445
+objectClass: afSHostService
+
+dn: afSHostServiceName=hamtrap,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 445
+objectClass: afSHostService
+
+dn: afSHostServiceName=error,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 445
+objectClass: afSHostService
+
+dn: afSHostServiceName=bounce,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 445
+objectClass: afSHostService
+
+dn: afSHostServiceName=submission,afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
+afSHServiceTCPPort: 445
+objectClass: afSHostService
 
 dn: afSServiceName=smtp,ou=system,o=advancedfiltering
 afsservicename: smtp

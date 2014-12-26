@@ -1,10 +1,4 @@
 
-dn: afUSMTPDMBLocalPart=mbox3,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
-objectClass: afUSMTPDMailBox
-afUSMTPDMBTimeUpdated: 1234567890
-objectClass: afUSMTPSettings
-afUSMTPRedirectMailAddress: mbox4@test.com
-
 dn: afUSMTPDMBLocalPart=mbox4,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPDMailBox
 afUSMTPDMBTimeUpdated: 1234567890

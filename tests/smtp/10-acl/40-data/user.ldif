@@ -13,12 +13,12 @@ objectClass: afUClient
 afUClientAdminMailAddress: admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin@tests.advancedfiltering.net
 objectClass: afUSMTPSettings
-afUSMTPMXName: src
+afUSMTPMXName: mx
 
-dn: afUSMTPMXName=src,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+dn: afUSMTPMXName=mx,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPMailExchanger
-afUSMTPMXHostName: src.hosts.advancedfiltering.net
-afUSMTPMXTCPPort: 2525
+afUSMTPMXHostName: dst.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 445
 
 dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPDomain
