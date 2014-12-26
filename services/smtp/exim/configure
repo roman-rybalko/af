@@ -137,10 +137,10 @@ cert_bwl_acl:
     # no certificate verification
     condition = $acl_c_bl_f
   accept
-    condition = ${if bool_lax{$acl_m_md_sender_certificate_verified}}
+    condition = ${if bool{$acl_m_md_sender_certificate_verified}}
     condition = $acl_c_wl_f
   deny
-    ! condition = ${if bool_lax{$acl_m_md_sender_certificate_verified}}
+    ! condition = ${if bool{$acl_m_md_sender_certificate_verified}}
     condition = $acl_c_wl_f
     #logwrite = DEBUG: cert_bwl: cert verify fail
   deny
@@ -607,13 +607,13 @@ data_acl:
 
   # * md_spam_status && user_spt => 2xx MD:SP,U:SPT/S (Spam: message data: md_spam_description) id=..., stop, flag_spam
   accept
-    condition = ${if bool_lax{$acl_m_md_spam_status}}
+    condition = ${if bool{$acl_m_md_spam_status}}
     condition = $acl_m_u_spt_f
     set acl_m_spam_f = true
     message = MD:SP,U:SPT/S (Spam: message data: $acl_m_md_spam_description) id=$message_exim_id
   # * md_spam_status => 5xx MD:SP/ (Spam: message data: md_spam_description) id=..., stop
   deny
-    condition = ${if bool_lax{$acl_m_md_spam_status}}
+    condition = ${if bool{$acl_m_md_spam_status}}
     message = MD:SP/ (Spam: message data: $acl_m_md_spam_description) id=$message_exim_id
   # * md_spam_status == "false" => 2xx MD:SP/ (Ham) id=..., stop
   accept
