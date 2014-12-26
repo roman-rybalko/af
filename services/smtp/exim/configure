@@ -214,7 +214,7 @@ mail_acl:
     set acl_m_md_sender_mail_address = $sender_address
     set acl_m_md_sender_host_address = $sender_host_address
     set acl_m_md_sender_host_name = $sender_host_name
-    set acl_m_md_sender_certificate_subject = ${reduce{<, ${certextract{subject}{$tls_in_peercert}}}{}{/$item$value}}
+    set acl_m_md_sender_certificate_subject = $tls_in_peerdn
     set acl_m_md_sender_certificate_verified = ${if bool{$tls_in_certificate_verified}}
   # * проверка системных списков фильтрации (на основе переменных md_...) => flag_sys_wl, flag_sys_bl, msg_sys_wbl
   warn

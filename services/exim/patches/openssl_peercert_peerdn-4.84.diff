@@ -1,0 +1,40 @@
+diff --git src/tls-openssl.c src/tls-openssl.c
+index 18994ea..23d4f16 100644
+--- src/tls-openssl.c
++++ src/tls-openssl.c
+@@ -275,9 +275,15 @@ verify_callback(int state, X509_STORE_CTX *x509ctx,
+   tls_support *tlsp, BOOL *calledp, BOOL *optionalp)
+ {
+ X509 * cert = X509_STORE_CTX_get_current_cert(x509ctx);
+-static uschar txt[256];
++uschar txt[256];
++static uschar peerdn[256];
++
++if (tlsp->peercert)
++  X509_free(tlsp->peercert);
++tlsp->peercert = X509_dup(cert);
+ 
+-X509_NAME_oneline(X509_get_subject_name(cert), CS txt, sizeof(txt));
++X509_NAME_oneline(X509_get_subject_name(cert), CS peerdn, sizeof(peerdn));
++tlsp->peerdn = peerdn;
+ 
+ if (state == 0)
+   {
+@@ -289,7 +295,6 @@ if (state == 0)
+   *calledp = TRUE;
+   if (!*optionalp)
+     {
+-    tlsp->peercert = X509_dup(cert);
+     return 0;			    /* reject */
+     }
+   DEBUG(D_tls) debug_printf("SSL verify failure overridden (host in "
+@@ -318,9 +323,6 @@ else
+   uschar * verify_cert_hostnames;
+ #endif
+ 
+-  tlsp->peerdn = txt;
+-  tlsp->peercert = X509_dup(cert);
+-
+ #ifdef EXPERIMENTAL_CERTNAMES
+   if (  tlsp == &tls_out
+      && ((verify_cert_hostnames = client_static_cbinfo->verify_cert_hostnames)))
