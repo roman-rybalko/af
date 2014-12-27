@@ -1,9 +1,4 @@
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=dkim.advancedfiltering.net; s=smtp;
-	h=X-AdvancedFiltering-MessageData-SPFStatus:X-AdvancedFiltering-MessageData-SenderHostName:X-AdvancedFiltering-MessageData-SenderHostAddress:X-AdvancedFiltering-MessageData-SenderMailAddress:X-AdvancedFiltering-MessageData-ViaRecipients:Message-ID:Subject:From:To:Date; bh=ecGWgWCJeWxJFeM0urOVWP+KOlqqvsQYKOpYUP8nk7I=;
-	b=SX7bp4VxNRrTn/gBr2jc9HHkvtKgJCU+fRXHsE8Z6tKXF9LaIpZsskHx4sedtAi4Lx3fMBHH4FcI+5d+k9/Jah9Nm4uqxrxKo0EF3bn5nKfZR0t8NPabm9LT0VjKyGALQKnxAf7Ljt+iIhYJSPnrx/1IgbmLjYSB4kIIsc2PLQc=;
-Received: from test-smtp.hosts.advancedfiltering.net ([10.255.255.122] helo=w02.hosts.advancedfiltering.net) by w02.hosts.advancedfiltering.net with esmtp
- id 1Y4V69-000JZW-7L (envelope-from <test@tests.advancedfiltering.net>) for mbox@test.com; Fri, 26 Dec 2014 16:38:33 +0300
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=dkim.advancedfiltering.net; s=smtp;
 	h=X-AdvancedFiltering-MessageData-SPFStatus:X-AdvancedFiltering-MessageData-SenderHostName:X-AdvancedFiltering-MessageData-SenderHostAddress:X-AdvancedFiltering-MessageData-SenderMailAddress:X-AdvancedFiltering-MessageData-ViaRecipients:Message-ID:Subject:From:To:Date;
 	bh=xxxxxxx;
 	b=SX7bp4VxNRrTn/gBr2jc9HHkvtKgJCU+fRXHsE8Z6tKXF9LaIpZsskHx4sedtAi4Lx3fMBHH4FcI+5d+k9/Jah9Nm4uqxrxKo0EF3bn5nKfZR0t8NPabm9LT0VjKyGALQKnxAf7Ljt+iIhYJSPnrx/1IgbmLjYSB4kIIsc2PLQc=;
