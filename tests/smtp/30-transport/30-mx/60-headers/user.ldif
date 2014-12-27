@@ -1,0 +1,10 @@
+
+dn: afUSMTPMXName=test1,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPMailExchanger
+afUSMTPMXHostName: 1.2.3.4
+afUSMTPMXTCPPort: 12525
+
+dn: afUSMTPMXName=test2,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPMailExchanger
+afUSMTPMXHostName: 1.2.3.4
+afUSMTPMXTCPPort: 22525
