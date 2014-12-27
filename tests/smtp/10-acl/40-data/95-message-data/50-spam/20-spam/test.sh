@@ -2,5 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -d test.mime | grep -E "5[[:digit:]][[:digit:]].MD:SP/ \\(Spam: message data: test"
-swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -d test.mime | grep -E "5[[:digit:]][[:digit:]].+id="
+swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -d test.mime | smtp_rj.pl | grep -E "5[[:digit:]][[:digit:]].MD:SP/ \\(Spam: message data: test.+ id="

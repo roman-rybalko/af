@@ -1,10 +1,4 @@
 
-dn: afSHostName=src.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
-changetype: modify
-delete: afshostrealm
-afshostrealm: r2
-afshostrealm: r3
-
 dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfiltering
 changetype: modify
 delete: afshostrealm

@@ -2,5 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -d test.mime | grep -E "5[[:digit:]][[:digit:]].U:BL/ \\(message data: user recipient policy:"
-swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -d test.mime | grep -E "5[[:digit:]][[:digit:]].+certificate\\) id="
+swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST -d test.mime | smtp_rj.pl | grep -E "5[[:digit:]][[:digit:]] U:BL/ \\(message data: user recipient policy: certificate\\) id="

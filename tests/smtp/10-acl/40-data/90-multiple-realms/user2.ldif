@@ -16,7 +16,7 @@ afuclientname: cli2
 objectClass: afUClient
 afUClientAdminMailAddress: admin@tests.advancedfiltering.net
 afUClientTechMailAddress: admin@tests.advancedfiltering.net
-afUSMTPMXName: src
+afUSMTPMXName: mx
 objectClass: afUSMTPSettings
 
 dn: afUSMTPDomainName=test2.com,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
@@ -30,7 +30,7 @@ afUSMTPDMBLocalPart: mbox2
 afUSMTPDMBTimeUpdated: 1234567890
 objectClass: afUSMTPDMailBox
 
-dn: afUSMTPMXName=src,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
-afusmtpmxhostname: src.hosts.advancedfiltering.net
-afusmtpmxtcpport: 2525
+dn: afUSMTPMXName=mx,afUClientName=cli2,afUServiceRealm=r2+afUServiceName=smtp,ou=user,o=advancedfiltering
+afusmtpmxhostname: dst.hosts.advancedfiltering.net
+afusmtpmxtcpport: 445
 objectClass: afUSMTPMailExchanger

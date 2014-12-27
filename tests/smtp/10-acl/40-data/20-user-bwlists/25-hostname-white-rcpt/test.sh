@@ -2,4 +2,4 @@
 
 . "$TESTCONF"
 
-swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST | grep -E "2[[:digit:]][[:digit:]].U:WL/ \\(user recipient policy: sender host name\\) id="
+swaks -f test@tests.advancedfiltering.net -t mbox@test.com -s $DST_HOST | smtp_rj.pl | grep -E "2[[:digit:]][[:digit:]].U:WL/ \\(user recipient policy: sender host name\\) id="
