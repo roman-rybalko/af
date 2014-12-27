@@ -1,6 +1,7 @@
 * smtp: убрать все "(...)" из Received и "for ..." тоже - есть X-Envelope-To
 * smtp: * домен отправителя не задан => 5xx Sender domain is absent, stop
 * smtp: * домен отправителя не существует => 5xx Sender domain does not exist, spamtrap, spam, stop
+* retry patterns - польовательская настройка retry для хостов
 * поправить mbxchk для smtp и submission
 * проверка дубликатов в smtp
 * проверка DMARC в smtp
