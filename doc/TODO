@@ -1,4 +1,3 @@
-* smtp tests: mx for acl/data tests (зависают сообщения)
 * submiccion: MessageData-ViaRecipients вместо MessageData-Submission
 возможно inet -> smtp -> mx -> submission -> smtp -> mx -> submission -> inet
 если есть обычный флаг MessageData-Submission - первый форвард не сработает

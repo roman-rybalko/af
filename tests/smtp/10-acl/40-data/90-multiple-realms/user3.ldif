@@ -31,6 +31,6 @@ afUSMTPDMBTimeUpdated: 1234567890
 objectClass: afUSMTPDMailBox
 
 dn: afUSMTPMXName=mx,afUClientName=cli3,afUServiceRealm=r3+afUServiceName=smtp,ou=user,o=advancedfiltering
-afusmtpmxhostname: dst.hosts.advancedfiltering.net
-afusmtpmxtcpport: 445
+afUSMTPMXHostName: src.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 22525
 objectClass: afUSMTPMailExchanger

@@ -17,8 +17,8 @@ afUSMTPMXName: mx
 
 dn: afUSMTPMXName=mx,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPMailExchanger
-afUSMTPMXHostName: dst.hosts.advancedfiltering.net
-afUSMTPMXTCPPort: 445
+afUSMTPMXHostName: src.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 12525
 
 dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
 objectClass: afUSMTPDomain
