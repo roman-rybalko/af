@@ -1,6 +1,23 @@
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=dkim.advancedfiltering.net; s=smtp;
-	h=X-AdvancedFiltering-MessageData-SPFStatus:X-AdvancedFiltering-MessageData-SenderHostName:X-AdvancedFiltering-MessageData-SenderHostAddress:X-AdvancedFiltering-MessageData-SenderMailAddress:X-AdvancedFiltering-MessageData-ViaRecipients:Message-ID:Subject:From:To:Date; bh=ecGWgWCJeWxJFeM0urOVWP+KOlqqvsQYKOpYUP8nk7I=;
-	b=mPBdfMX9n1afL5gDm1ExO+pHm8iKZW8JkcPmV/QpqXsg2MujdNwB4Hb9K9UjW/m//+iu8a8j4G3HzccNDTf68su1WWR0PlI24z1OLj1fM1yWldEINTaO1Iu2eBKmO+AdHLSBvxQ0PFfd5Z3LszebVYhrcb6R/DagKD9Fjb1z0JY=;
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=
+	dkim.advancedfiltering.net; h=From:Sender:Reply-To:Subject:Date
+	:Message-ID:To:Cc:MIME-Version:Content-Type
+	:Content-Transfer-Encoding:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help
+	:List-Unsubscribe:List-Subscribe:List-Post:List-Owner
+	:List-Archive:X-AdvancedFiltering-MessageData-SenderMailAddress
+	:X-AdvancedFiltering-MessageData-SenderHostAddress
+	:X-AdvancedFiltering-MessageData-SenderHostName
+	:X-AdvancedFiltering-MessageData-SenderCertificateSubject
+	:X-AdvancedFiltering-MessageData-SenderCertificateVerified
+	:X-AdvancedFiltering-MessageData-SPFStatus
+	:X-AdvancedFiltering-MessageData-SPFDescription
+	:X-AdvancedFiltering-MessageData-SpamStatus
+	:X-AdvancedFiltering-MessageData-SpamDescription; s=test; bh=7uq
+	DQo3EVTnDX6HK/OlpR/tasWM=; b=aEcaL+c+kcED+e37QCYtC1X6LeTHxZeWCyR
+	aI3A/g7z7xU7LRDm8oTuZAfonFP3+2RMjyl3sqoWSFrucKk5yOeN5DdtbyHJq5Md
+	eHFqqCy4MY/I3XMpkqLRNWB2eJ9nvNqU+CowsZDdKx6DwawlAMrpcd+Rn8ioo0zJ
+	aC6z+VCg=
 Received: from test-smtp.hosts.advancedfiltering.net ([10.255.255.122] helo=w02.hosts.advancedfiltering.net) by w02.hosts.advancedfiltering.net with esmtp
  id 1Y4V60-000JU4-9A (envelope-from <test@tests.advancedfiltering.net>) for mbox2@test.com; Fri, 26 Dec 2014 16:38:24 +0300
 Date: Fri, 26 Dec 2014 16:38:24 +0300
@@ -9,7 +26,7 @@ From: test@tests.advancedfiltering.net
 Subject: test Fri, 26 Dec 2014 16:38:24 +0300
 X-Mailer: swaks v20130209.0 jetmore.org/john/code/swaks/
 Message-ID: message-loop-1
-X-AdvancedFiltering-MessageData-ViaRecipients:  mbox2@test.com
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients:  mbox2@test.com
 X-AdvancedFiltering-MessageData-SenderMailAddress: test@tests.advancedfiltering.net
 X-AdvancedFiltering-MessageData-SenderHostAddress: 10.255.255.122
 X-AdvancedFiltering-MessageData-SenderHostName: test-smtp.hosts.advancedfiltering.net

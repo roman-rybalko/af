@@ -8,7 +8,7 @@ wait_file submission.mime
 # DKIM-Signature
 dkim_verifier submission.mime | grep advancedfiltering | grep pass
 # headers
-grep ^X-AdvancedFiltering-MessageData-ViaRecipients: submission.mime
+grep ^X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: submission.mime
 grep ^X-AdvancedFiltering-MessageData-SenderMailAddress: submission.mime
 grep ^X-AdvancedFiltering-MessageData-SenderHostAddress: submission.mime
 grep ^X-AdvancedFiltering-MessageData-SPFStatus: submission.mime

@@ -10,4 +10,4 @@ grep spamsender ss.env
 ! grep test@ ss.env
 grep mbox2@ ss.mime | grep Envelope
 grep test@ ss.mime | grep Envelope
-grep MessageData-Submission ss.mime
+grep MessageData-Submission-ViaRecipients ss.mime

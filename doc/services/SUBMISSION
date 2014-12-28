@@ -115,9 +115,12 @@ Sender нужен в submissiondb для проверки ответа (reply). 
 При отправке в интернет возможно отправить на себя или на соседний submission - возникнет цикл.
 Разрешать отправку только с определенных сервисов не выход, т.к. на одном хосте может быть submission и разрешенный сервис (например smtp).
 Нужно на submission запретить прием с других submission.
-Добавить заголовок X-AdvancedFiltering-MessageData-Submission: ... в роутерах spamsender и internet.
-Удалять заголовок X-AdvancedFiltering-MessageData-Submission в сервисе smtp в транспорте submission.
-Блокировать отправку в submission если присутствует заголовок X-AdvancedFiltering-MessageData-Submission.
+Возможна ситуация: mx1 -> smtp -> mx2 -> submission -> mx1 -> smtp -> mx2 -> submission -> ...
+mx1 и mx2 могут иметь разные настройки перенаправления, которые в целом образуют цикл (mx1: addr1 -> addr2, addr3 -> addr4; mx2: addr2 -> addr3, addr4 -> addr1).
+Добавить заголовок X-AdvancedFiltering-MessageData-Submission-ViaRecipients: ... в роутерах spamsender и internet.
+Блокировать отправку в submission если обнаружен цикл.
+Т.к. в submission допускается несколько получателей, проверку цикла нужно производить для каждого получателя отдельно,
+заголовок Submission-ViaRecipients для каждого получателя добавляется уникальный - отправка каждому получателю отдельной SMTP-сессией.
 
 Алгоритм
 ========

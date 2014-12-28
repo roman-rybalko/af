@@ -435,65 +435,59 @@ dkim_acl:
   # используем заголовки только если DKIM проверен и заголовок включен в сигнатуру
   # * загружаем заголовки X-AdvancedFiltering-MessageData-* => md_..., flag_spf (message data: ...)
   warn
-    set acl_m_md_via_recipients = 
-  warn
-    # inlisti - кто-то может поправить регистр, сигнатура не сломается
-    condition = ${if inlisti{X-AdvancedFiltering-MessageData-ViaRecipients}{$dkim_headernames}}
-    # в сигнатуре может быть а заголовок может отсутствовать
-    condition = ${if ! eq{}{$header_X-AdvancedFiltering-MessageData-ViaRecipients:}}
-    # MessageData ...
-    set acl_m_md_via_recipients = $header_X-AdvancedFiltering-MessageData-ViaRecipients:
-
-  warn
     set acl_m_md_sender_mail_address = 
     set acl_m_md_sender_host_address = 
     set acl_m_md_sender_host_name = 
     set acl_m_md_sender_certificate_subject = 
     set acl_m_md_sender_certificate_verified = false
   warn
+    # inlisti - кто-то может поправить регистр, сигнатура не сломается
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderMailAddress}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderMailAddress:}{}}
-    set acl_m_md_sender_mail_address = $header_X-AdvancedFiltering-MessageData-SenderMailAddress:
+    # в сигнатуре может быть а заголовок может отсутствовать
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SenderMailAddress:}}
+    # MessageData ...
+    # bheader_ - промежуточный MTA может запаковать заголовки в транспортную кодировку
+    set acl_m_md_sender_mail_address = $bheader_X-AdvancedFiltering-MessageData-SenderMailAddress:
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderHostAddress}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderHostAddress:}{}}
-    set acl_m_md_sender_host_address = $header_X-AdvancedFiltering-MessageData-SenderHostAddress:
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SenderHostAddress:}}
+    set acl_m_md_sender_host_address = $bheader_X-AdvancedFiltering-MessageData-SenderHostAddress:
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderHostName}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderHostName:}{}}
-    set acl_m_md_sender_host_name = $header_X-AdvancedFiltering-MessageData-SenderHostName:
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SenderHostName:}}
+    set acl_m_md_sender_host_name = $bheader_X-AdvancedFiltering-MessageData-SenderHostName:
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderCertificateSubject}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}{}}
-    set acl_m_md_sender_certificate_subject = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}{$value}fail}
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}}
+    set acl_m_md_sender_certificate_subject = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $bheader_X-AdvancedFiltering-MessageData-SenderCertificateSubject:}{$value}fail}
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SenderCertificateVerified}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}{}}
-    set acl_m_md_sender_certificate_verified = ${if bool{$header_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}}
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}}
+    set acl_m_md_sender_certificate_verified = ${if bool{$bheader_X-AdvancedFiltering-MessageData-SenderCertificateVerified:}}
 
   warn
     set acl_m_spf_f = false
     set acl_m_spf_m = 
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SPFStatus}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SPFStatus:}{}}
-    set acl_m_spf_f = ${if bool{$header_X-AdvancedFiltering-MessageData-SPFStatus:}{true}{false}}
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SPFStatus:}}
+    set acl_m_spf_f = ${if bool{$bheader_X-AdvancedFiltering-MessageData-SPFStatus:}{true}{false}}
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SPFDescription}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SPFDescription:}{}}
-    set acl_m_spf_m = message data: ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SPFDescription:}{$value}fail}
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SPFDescription:}}
+    set acl_m_spf_m = message data: ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $bheader_X-AdvancedFiltering-MessageData-SPFDescription:}{$value}fail}
 
   warn
     set acl_m_md_spam_status = 
     set acl_m_md_spam_description = 
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SpamStatus}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SpamStatus:}{}}
-    set acl_m_md_spam_status = ${if bool{$header_X-AdvancedFiltering-MessageData-SpamStatus:}{true}{false}}
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SpamStatus:}}
+    set acl_m_md_spam_status = ${if bool{$bheader_X-AdvancedFiltering-MessageData-SpamStatus:}{true}{false}}
   warn
     condition = ${if inlisti{X-AdvancedFiltering-MessageData-SpamDescription}{$dkim_headernames}}
-    ! condition = ${if eq{$header_X-AdvancedFiltering-MessageData-SpamDescription:}{}}
-    set acl_m_md_spam_description = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $header_X-AdvancedFiltering-MessageData-SpamDescription:}{$value}fail}
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-SpamDescription:}}
+    set acl_m_md_spam_description = ${run{/usr/local/advancedfiltering/smtp/exim/base64_decoder.pl $bheader_X-AdvancedFiltering-MessageData-SpamDescription:}{$value}fail}
 
   # * проверка системных списков фильтрации (на основе переменных md_... если есть заголовки) => flag_sys_wl, flag_sys_bl, msg_sys_wbl (message data: ...)
   warn
@@ -554,10 +548,11 @@ data_acl:
     set acl_m_spamtrap_f = true
     control = fakereject/MBA/ST (Mail box does not exist) id=$message_exim_id
 
-  # * проверка md_via_recipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
+  # * проверка MessageData-Smtp-ViaRecipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
   deny
-    condition = ${if ! eq{}{$acl_m_md_via_recipients}}
-    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $acl_m_md_via_recipients $acl_m_u_recipient}{true}{false}}
+    # bheader_ - промежуточный MTA может запаковать заголовки в транспортную кодировку
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-Smtp-ViaRecipients:}}
+    condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $bheader_X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $acl_m_u_recipient}{true}{false}}
     message = MD:VR/ (Message loop detected: $value)
 
   # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
@@ -1178,7 +1173,6 @@ submission_transport:
   # return path fix (address_data)
   return_path = ${extract {sender} {$address_data} }
   # for submission to accept
-  headers_remove = X-AdvancedFiltering-MessageData-Submission
   dkim_domain = dkim.advancedfiltering.net
   dkim_selector = smtp
   dkim_private_key = /usr/local/advancedfiltering/smtp/dkim-smtp.key
@@ -1209,7 +1203,6 @@ Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:\
 Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:\
 In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
-X-AdvancedFiltering-MessageData-ViaRecipients:\
 X-AdvancedFiltering-MessageData-SenderMailAddress:\
 X-AdvancedFiltering-MessageData-SenderHostAddress:\
 X-AdvancedFiltering-MessageData-SenderHostName:\
@@ -1220,7 +1213,7 @@ X-AdvancedFiltering-MessageData-SPFDescription:\
 X-AdvancedFiltering-MessageData-SpamStatus:\
 X-AdvancedFiltering-MessageData-SpamDescription
   headers_remove = \
-X-AdvancedFiltering-MessageData-ViaRecipients:\
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients:\
 X-AdvancedFiltering-MessageData-SenderMailAddress:\
 X-AdvancedFiltering-MessageData-SenderHostAddress:\
 X-AdvancedFiltering-MessageData-SenderHostName:\
@@ -1231,7 +1224,7 @@ X-AdvancedFiltering-MessageData-SPFDescription:\
 X-AdvancedFiltering-MessageData-SpamStatus:\
 X-AdvancedFiltering-MessageData-SpamDescription
   headers_add = \
-X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_u_recipient\n\
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $bheader_X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $acl_m_u_recipient\n\
 X-AdvancedFiltering-MessageData-SenderMailAddress: $acl_m_md_sender_mail_address\n\
 X-AdvancedFiltering-MessageData-SenderHostAddress: $acl_m_md_sender_host_address\n\
 ${if ! eq{}{$acl_m_md_sender_host_name}{X-AdvancedFiltering-MessageData-SenderHostName: $acl_m_md_sender_host_name\n}{}}\
@@ -1299,7 +1292,6 @@ Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:\
 Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:\
 In-Reply-To:References:\
 List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:\
-X-AdvancedFiltering-MessageData-ViaRecipients:\
 X-AdvancedFiltering-MessageData-SenderMailAddress:\
 X-AdvancedFiltering-MessageData-SenderHostAddress:\
 X-AdvancedFiltering-MessageData-SenderHostName:\
@@ -1310,7 +1302,7 @@ X-AdvancedFiltering-MessageData-SPFDescription:\
 X-AdvancedFiltering-MessageData-SpamStatus:\
 X-AdvancedFiltering-MessageData-SpamDescription
   headers_remove = \
-X-AdvancedFiltering-MessageData-ViaRecipients:\
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients:\
 X-AdvancedFiltering-MessageData-SenderMailAddress:\
 X-AdvancedFiltering-MessageData-SenderHostAddress:\
 X-AdvancedFiltering-MessageData-SenderHostName:\
@@ -1321,7 +1313,7 @@ X-AdvancedFiltering-MessageData-SPFDescription:\
 X-AdvancedFiltering-MessageData-SpamStatus:\
 X-AdvancedFiltering-MessageData-SpamDescription
   headers_add = \
-X-AdvancedFiltering-MessageData-ViaRecipients: $acl_m_md_via_recipients $acl_m_u_recipient\n\
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $bheader_X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $acl_m_u_recipient\n\
 X-AdvancedFiltering-MessageData-SenderMailAddress: $acl_m_md_sender_mail_address\n\
 X-AdvancedFiltering-MessageData-SenderHostAddress: $acl_m_md_sender_host_address\n\
 ${if ! eq{}{$acl_m_md_sender_host_name}{X-AdvancedFiltering-MessageData-SenderHostName: $acl_m_md_sender_host_name\n}{}}\

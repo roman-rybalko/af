@@ -1,3 +1,23 @@
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=
+	dkim.advancedfiltering.net; h=From:Sender:Reply-To:Subject:Date
+	:Message-ID:To:Cc:MIME-Version:Content-Type
+	:Content-Transfer-Encoding:Content-ID:Content-Description
+	:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help
+	:List-Unsubscribe:List-Subscribe:List-Post:List-Owner
+	:List-Archive:X-AdvancedFiltering-MessageData-SenderMailAddress
+	:X-AdvancedFiltering-MessageData-SenderHostAddress
+	:X-AdvancedFiltering-MessageData-SenderHostName
+	:X-AdvancedFiltering-MessageData-SenderCertificateSubject
+	:X-AdvancedFiltering-MessageData-SenderCertificateVerified
+	:X-AdvancedFiltering-MessageData-SPFStatus
+	:X-AdvancedFiltering-MessageData-SPFDescription
+	:X-AdvancedFiltering-MessageData-SpamStatus
+	:X-AdvancedFiltering-MessageData-SpamDescription; s=test; bh=7uq
+	DQo3EVTnDX6HK/OlpR/tasWM=; b=guw5DrmmT8Xz2bFbAhFO2zK2FVQZ+NrG2PX
+	SC3ic7JwA1Bvsgxr+n7A6OOcJrKv92pd7BXA8te7N6NhZfxHYlvkwnRgQ2m6gcdx
+	Ce84J6gxFkgQxofx9VOv/NP9YLB3x3lza94URnkz15bFRyRwfHKMktI5H5f9dSCf
+	2/gvHjHM=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=dkim.advancedfiltering.net; s=smtp;
 	h=X-AdvancedFiltering-MessageData-SPFStatus:X-AdvancedFiltering-MessageData-SenderHostName:X-AdvancedFiltering-MessageData-SenderHostAddress:X-AdvancedFiltering-MessageData-SenderMailAddress:X-AdvancedFiltering-MessageData-ViaRecipients:Message-ID:Subject:From:To:Date; bh=ecGWgWCJeWxJFeM0urOVWP+KOlqqvsQYKOpYUP8nk7I=;
 	b=TCRxJcCYNp0dB1kt+ELk5ZhuZXyngLoryzAFAbge0Dz81R5bgh5wDDHrQwnkiGwG2jwTihJpsKGBGnwgEt37bqgKLV9k81nidhTE32EFs5IuRuSnJkN2Z8mEdW0eL5f091jyJnPVEwhvcoNvVOZjn/6N2q+1rEo/jSOx1Gt2ZAE=;
@@ -19,7 +39,7 @@ From: test@tests.advancedfiltering.net
 Subject: test Fri, 26 Dec 2014 16:38:25 +0300
 X-Mailer: swaks v20130209.0 jetmore.org/john/code/swaks/
 Message-ID: message-loop-2
-X-AdvancedFiltering-MessageData-ViaRecipients: mbox3@test.com mbox4@test.com mbox3@test.com
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: mbox3@test.com mbox4@test.com mbox3@test.com
 X-AdvancedFiltering-MessageData-SenderMailAddress: test@tests.advancedfiltering.net
 X-AdvancedFiltering-MessageData-SenderHostAddress: 10.255.255.122
 X-AdvancedFiltering-MessageData-SenderHostName: test-smtp.hosts.advancedfiltering.net

@@ -10,7 +10,7 @@ From: test@tests.advancedfiltering.net
 Subject: test Fri, 26 Dec 2014 16:38:32 +0300
 X-Mailer: swaks v20130209.0 jetmore.org/john/code/swaks/
 Message-ID: message-loop-mx-1
-X-AdvancedFiltering-MessageData-ViaRecipients:  mbox@test.com
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients:  mbox@test.com
 X-AdvancedFiltering-MessageData-SenderMailAddress: test@tests.advancedfiltering.net
 X-AdvancedFiltering-MessageData-SenderHostAddress: 10.255.255.122
 X-AdvancedFiltering-MessageData-SenderHostName: test-smtp.hosts.advancedfiltering.net

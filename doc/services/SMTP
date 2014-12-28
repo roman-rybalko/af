@@ -78,8 +78,9 @@ route_list = ${if bool_lax{LIST}{* "<! LIST"}{}} - не работает
 Возможно зацикливание сообщений. Клиент может настроить циклические переадресации или задать наш сервер как свой MX.
 + Решение:
 Добавить заголовок
-X-AdvancedFiltering-MessageData-ViaRecipients: rcpt@ rcpt@ rcpt@
-в smtp/mx и smtp/submission. Подписать DKIM.
+X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: rcpt@ rcpt@ rcpt@
+(X-AdvancedFiltering-MessageData-Submission-ViaRecipients - для submission, см. объяснение там)
+в smtp/mx и smtp/submission. DKIM не подписывать - нет смысла.
 При каждой пересылке в этот заголовок добавлять текущий адрес получателя.
 Была идея использовать адреса отправителя, но это не сработает если где-то есть BATV.
 При каждом приеме искать в этом заголовке цикл.

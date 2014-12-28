@@ -440,10 +440,11 @@ data_acl:
     ! verify = header_syntax
     message = Invalid message headers (Sender/From/Reply-To/To/Cc/Bcc)
 
-  # * есть заголовок X-AdvancedFiltering-MessageData-Submission => 5xx Message loop detected, stop
+  # * проверка MessageData-Submission-ViaRecipients (message_loop_detector.pl) => 5xx Message loop detected: stdout, stop
   deny
-    condition = ${if ! eq{}{$rheader_X-AdvancedFiltering-MessageData-Submission:}}
-    message = Message loop detected:$rheader_X-AdvancedFiltering-MessageData-Submission:
+    condition = ${if ! eq{}{$bheader_X-AdvancedFiltering-MessageData-Submission-ViaRecipients:}}
+    condition = ${if forany{<, $acl_m_u_recipients}{bool{${run{/usr/local/advancedfiltering/submission/exim/message_loop_detector.pl $bheader_X-AdvancedFiltering-MessageData-Submission-ViaRecipients: $item}{true}{false}}}}}
+    message = Message loop detected: $value
 
   # * заголовок From: содержит несколько адресов или битый => 5xx Invalid "From:" header, stop
   deny
@@ -591,13 +592,6 @@ mailproc_router:
   headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipients
   unseen = true
 
-# Router MessageData Submission Info
-R_MDS_I_D = $acl_m_u_client $sender_address $message_exim_id $address_data
-# Router MessageData Submission Key
-R_MDS_K_D = l8JI6T7kctCno3lL44hqNOQ0NnWvjpVZn4WCFvuBxp
-# Router MessageData Submission Header
-R_MDS_H_D = ${str2b64:R_MDS_I_D ${md5:R_MDS_I_D R_MDS_K_D}}
-
 # Router general LDAP DN
 R_LDAP_DN = ""
 
@@ -690,7 +684,8 @@ spamsender_router:
   redirect_router = service_router
   headers_remove = X-Envelope-From:X-Envelope-To
   headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipients
-  headers_add = X-AdvancedFiltering-MessageData-Submission: R_MDS_H_D
+  headers_remove = X-AdvancedFiltering-MessageData-Submission-ViaRecipients
+  headers_add = X-AdvancedFiltering-MessageData-Submission-ViaRecipients: $bheader_X-AdvancedFiltering-MessageData-Submission-ViaRecipients: $local_part@$domain
 
 # * internet {stop} => bounce
 internet_router:
@@ -700,7 +695,8 @@ internet_router:
   errors_to = bounce@services.advancedfiltering.net
   check_srv = smtp
   self = send
-  headers_add = X-AdvancedFiltering-MessageData-Submission: R_MDS_H_D
+  headers_remove = X-AdvancedFiltering-MessageData-Submission-ViaRecipients
+  headers_add = X-AdvancedFiltering-MessageData-Submission-ViaRecipients: $bheader_X-AdvancedFiltering-MessageData-Submission-ViaRecipients: $local_part@$domain
 
 begin transports
 

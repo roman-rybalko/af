@@ -10,5 +10,5 @@ grep test@ mx.env
 grep mbox@ mx.mime
 grep test@ mx.mime
 grep -i DKIM-Signature mx.mime
-grep MessageData-Submission mx.mime
+grep MessageData-Submission-ViaRecipients mx.mime
 grep -i Message-Id mx.mime

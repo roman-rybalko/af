@@ -96,7 +96,6 @@ dkim
 * проверка системных списков фильтрации (на основе переменных md_... если есть заголовки) => flag_sys_wl, flag_sys_bl, msg_sys_wbl (message data: ...)
 * проверка пользовательских списков фильтрации (на основе переменных md_... если есть заголовки) => flag_user_wl, flag_user_bl, msg_user_wbl (message data: ...)
 * ok
-md_via_recipients
 md_sender_mail_address
 md_sender_host_address
 md_sender_host_name
@@ -109,7 +108,7 @@ md_spam_description
 data_end
 * message_size >= sys_maxmessagesize => 5xx ...
 * flag_mb_absent => fake/5xx MBA/ST (Mail box does not exist) id=..., stop, flag_spamtrap
-* проверка md_via_recipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
+* проверка MessageData-Smtp-ViaRecipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
 * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
 # flag_user_bl может быть установлен после загрузки заголовков MessageData-*
 * flag_user_bl => 5xx U:BL/ ($msg_user_wbl) id=..., stop

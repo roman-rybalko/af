@@ -1,1 +1,1 @@
-* есть заголовок X-AdvancedFiltering-MessageData-Submission => 5xx Message loop detected, stop
+* проверка MessageData-Submission-ViaRecipients (message_loop_detector.pl) => 5xx Message loop detected: stdout, stop

@@ -8,7 +8,10 @@ cp -vf ../advancedfiltering_submission_exim etc/rc.d/
 
 chmod -Rv u+w advancedfiltering/submission/exim
 cp -vf ../exim/configure advancedfiltering/submission/exim/
-cp -vf ../../exim/scripts/mid_list_encoder.pl ../../exim/scripts/dmarc_verifier.pl ../../exim/scripts/dmarc_verifier_*.dat advancedfiltering/submission/exim/
+cp -vf ../../exim/scripts/mid_list_encoder.pl \
+	../../exim/scripts/dmarc_verifier.pl ../../exim/scripts/dmarc_verifier_*.dat \
+	../../exim/scripts/message_loop_detector.pl \
+	advancedfiltering/submission/exim/
 chmod a-w etc/rc.d/advancedfiltering_submission_exim advancedfiltering/submission/exim/configure \
 	advancedfiltering/submission/exim/mid_list_encoder.pl \
 	advancedfiltering/submission/exim/dmarc_verifier.pl \
