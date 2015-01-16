@@ -26,12 +26,7 @@ acl_smtp_dkim = dkim_acl
 acl_smtp_data = data_acl
 received_header_text = Received:\
   ${if def:sender_rcvhost { from $sender_rcvhost}{ from localhost}} by $primary_hostname\
-  ${if def:received_protocol { with $received_protocol}}\
-  ${if def:tls_cipher { ($tls_cipher)}}\
-  ${if def:tls_peerdn { ($tls_peerdn)}}\n \
-  id $message_exim_id\
-  ${if def:sender_address { (envelope-from <$sender_address>)}}\
-  ${if def:received_for { for $received_for}}
+  ${if def:received_protocol { with $received_protocol}} id $message_exim_id
 dkim_verify_signers = dkim.advancedfiltering.net
 
 # Lightweight Directory Access Protocol Connection
@@ -1326,6 +1321,8 @@ ${if ! eq{}{$acl_m_spf_f}{X-AdvancedFiltering-MessageData-SPFStatus: $acl_m_spf_
 ${if ! eq{}{$acl_m_spf_m}{X-AdvancedFiltering-MessageData-SPFDescription: $acl_m_spf_m\n}{}}\
 ${if ! eq{}{$acl_m_md_spam_status}{X-AdvancedFiltering-MessageData-SpamStatus: $acl_m_md_spam_status\n}{}}\
 ${if ! eq{}{$acl_m_md_spam_description}{X-AdvancedFiltering-MessageData-SpamDescription: $acl_m_md_spam_description\n}{}}
+  # no header_remove - user wants to know everything
+  headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipient
 
 begin retry
 

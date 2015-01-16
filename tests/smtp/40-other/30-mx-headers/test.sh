@@ -8,7 +8,5 @@ wait_file mx.mime
 grep ^Received mx.mime | grep ' from '
 grep ^Received mx.mime | grep ' with esmtps '
 grep ^Received mx.mime | grep ' by '
-grep ^Received mx.mime | grep ' with esmtps ('
-grep ^Received mx.mime | grep ') (/O=advancedfiltering/OU=hosts/CN=tests-bwlist)'
-grep ^Received mx.mime | grep -v ') (/O=advancedfiltering/OU=hosts/CN=tests-bwlist)'
-grep '^ id ' mx.mime | grep ' (envelope-from <test@tests.advancedfiltering.net>) for mbox@test.com; '
+grep ^X-Envelope-From mx.mime | grep test@tests.advancedfiltering.net
+grep ^X-Envelope-To mx.mime | grep mbox@test.com
