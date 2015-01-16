@@ -107,6 +107,7 @@ ldap_bwl_acl:
 sma_bwl_acl:
   deny
     condition = ${if eq{}{$acl_m_md_sender_mail_address}}
+    #logwrite = DEBUG: sma_bwl: no sender
   warn
     set acl_c_bwl_ldap_q = afSMTPBWListSenderMailAddress=${quote_ldap_dn:$acl_m_md_sender_mail_address}
     acl = ldap_bwl_acl
