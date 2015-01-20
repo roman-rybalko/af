@@ -1158,6 +1158,8 @@ service_transport:
   tls_verify_certificates = /etc/advancedfiltering_ssl/ca
   tls_crl = /etc/advancedfiltering_ssl/ca
   # no return path fix
+  headers_remove = X-Envelope-From:X-Envelope-To
+  headers_add = X-Envelope-From: $sender_address\nX-Envelope-To: $acl_m_u_recipient
 
 submission_transport:
   driver = smtp
@@ -1232,6 +1234,8 @@ ${if ! eq{}{$acl_m_spf_f}{X-AdvancedFiltering-MessageData-SPFStatus: $acl_m_spf_
 ${if ! eq{}{$acl_m_spf_m}{X-AdvancedFiltering-MessageData-SPFDescription: $acl_m_spf_m\n}{}}\
 ${if ! eq{}{$acl_m_md_spam_status}{X-AdvancedFiltering-MessageData-SpamStatus: $acl_m_md_spam_status\n}{}}\
 ${if ! eq{}{$acl_m_md_spam_description}{X-AdvancedFiltering-MessageData-SpamDescription: $acl_m_md_spam_description\n}{}}
+  # no header_remove - user wants to know everything
+  headers_add = X-Envelope-To: $acl_m_u_recipient
 
 # Transport LDAP DN
 T_LDAP_DN = ${extract {mx_ldap_dn} {$address_data} }

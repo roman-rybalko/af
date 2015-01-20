@@ -4,8 +4,6 @@
 подпись DKIM в сообщении должна быть если DMARC задан
 dkim_acl: dmarc_verifier.pl "from domain" "spf domain" "dkim domain" => OK
 data_acl: dmarc/dkim не прошел => dmarc_verifier.pl "from domain" => policy (none => spam,spamtrap,2xx/quarantine => mailproc,4xx/reject => spamtrap,5xx)
-* smtp: добавить X-Envelope-From в mx_transport и service_transport
-* smtp: добавить X-Envelope-To во все транспорты
 * обновление LDAP из логов
 * поправить ldaprepl - afSHostDataBaseName
 * поправить mailproc - записывать все MID из Message-ID, если их несколько, с разделителем ":"

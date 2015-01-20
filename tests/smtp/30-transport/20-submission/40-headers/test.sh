@@ -12,6 +12,7 @@ grep ^X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: submission.mime
 grep ^X-AdvancedFiltering-MessageData-SenderMailAddress: submission.mime
 grep ^X-AdvancedFiltering-MessageData-SenderHostAddress: submission.mime
 grep ^X-AdvancedFiltering-MessageData-SPFStatus: submission.mime
+grep ^X-Envelope-To: submission.mime
 # DKIM
 grep -E '[:=]X-AdvancedFiltering-MessageData-SenderMailAddress:' submission.mime
 grep -E '[:=]X-AdvancedFiltering-MessageData-SenderHostAddress:' submission.mime
