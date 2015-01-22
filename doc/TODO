@@ -1,10 +1,11 @@
 * поправить mbxchk для smtp и submission
+* обновление LDAP из логов
+* VRFY в smtp
 * проверка дубликатов в smtp
 * проверка DMARC в smtp
 подпись DKIM в сообщении должна быть если DMARC задан
 dkim_acl: dmarc_verifier.pl "from domain" "spf domain" "dkim domain" => OK
 data_acl: dmarc/dkim не прошел => dmarc_verifier.pl "from domain" => policy (none => spam,spamtrap,2xx/quarantine => mailproc,4xx/reject => spamtrap,5xx)
-* обновление LDAP из логов
 * поправить ldaprepl - afSHostDataBaseName
 * поправить mailproc - записывать все MID из Message-ID, если их несколько, с разделителем ":"
 * отдельный конфиг сервиса smtp для вывода из эксплуатации (отправить все сообщения из очереди на соседний smtp)

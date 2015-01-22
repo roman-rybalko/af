@@ -360,7 +360,7 @@ rcpt_acl:
     # existing
     ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
     message = MB:(E|NF)/ (Your data is verifying, please try again later)
-    logwrite = AdvancedFiltering:NewMailBox:<$local_part>Domain:<$acl_m_u_domain>Client:<$acl_m_u_client>Realm:<$acl_m_u_realm>
+    logwrite = AdvancedFiltering/MailBox/Check/Callout<$local_part@$acl_m_u_domain> ? AdvancedFiltering/MailBox/smtp/Add<$local_part@$acl_m_u_domain> : AdvancedFiltering/MailBox/smtp/Disable<$local_part@$acl_m_u_domain>
 
   # * получение пользовательской настройки user_spt (Spam PassThrough)
   warn
@@ -553,20 +553,22 @@ data_acl:
     condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $bheader_X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $acl_m_u_recipient}{true}{false}}
     message = MD:VR/ (Message loop detected: $value)
 
-  # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
+  # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop, log (smtpdb)
   accept
     condition = $acl_m_u_wl_f
     message = U:WL/ ($acl_m_u_bwl_m) id=$message_exim_id
+    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address>
 
   # * flag_user_bl => 5xx U:BL/ ($msg_user_wbl) id=..., stop
   deny
     condition = $acl_m_u_bl_f
     message = U:BL/ ($acl_m_u_bwl_m) id=$message_exim_id
 
-  # * flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl) id=..., stop
+  # * flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl) id=..., stop, log (smtpdb)
   accept
     condition = $acl_c_s_wl_f
     message = S:WL/ ($acl_c_s_bwl_m) id=$message_exim_id
+    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address>
 
   # * flag_sys_bl && user_spt => 2xx S:BL,U:SPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
   accept
@@ -669,7 +671,7 @@ data_acl:
     message = MI/ (Ham) id=$message_exim_id
 
   # * проверка In-Reply-To, References в afMessageOutgoing
-  # ** ok => 2xx MO/HT (Reply) id=..., stop, flag_hamtrap
+  # ** ok => 2xx MO/HT (Reply) id=..., stop, flag_hamtrap, log (smtpdb)
   accept
     condition = ${if ! eq{}{U_MO_H_D}}
     #logwrite = DEBUG: realm: $acl_m_u_realm
@@ -679,11 +681,13 @@ data_acl:
     condition = ${if forany{U_SDB_MO_sender_L}{eqi{$item}{$acl_m_u_recipient}}}
     set acl_m_hamtrap_f = true
     message = MO/HT (Reply) id=$message_exim_id
+    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address>
 
-  # * message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop
+  # * message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop, log (smtpdb)
   accept
     condition = ${if >{$message_size}{S_TMS_D}}
     message = S:TMS/ (Ham) id=$message_exim_id
+    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address>
 
   # * 4xx /MP (Your data is verifying, please try again later) id=..., flag_mailproc
   accept

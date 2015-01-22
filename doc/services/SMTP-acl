@@ -109,10 +109,10 @@ data_end
 * message_size >= sys_maxmessagesize => 5xx ...
 * flag_mb_absent => fake/5xx MBA/ST (Mail box does not exist) id=..., stop, flag_spamtrap
 * проверка MessageData-Smtp-ViaRecipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
-* flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
+* flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop, log (smtpdb)
 # flag_user_bl может быть установлен после загрузки заголовков MessageData-*
 * flag_user_bl => 5xx U:BL/ ($msg_user_wbl) id=..., stop
-* flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl) id=..., stop
+* flag_sys_wl => 2xx S:WL/ ($msg_sys_wbl) id=..., stop, log (smtpdb)
 * flag_sys_bl && user_spt => 2xx S:BL,U:SPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
 * flag_sys_bl => fake/5xx S:BL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
 * flag_spf && user_spt => 2xx SPF,U:SPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
@@ -135,8 +135,8 @@ data_end
 ** не совпадает sender => 5xx MI:SND/ (Several senders for the same message) id=..., stop
 ** ok => 2xx MI/ (Ham) id=..., stop
 * проверка In-Reply-To, References в afMessageOutgoing
-** ok => 2xx MO/HT (Reply) id=..., stop, flag_hamtrap
-* message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop
+** ok => 2xx MO/HT (Reply) id=..., stop, flag_hamtrap, log (smtpdb)
+* message_size >= sys_trustedmessagesize => 2xx S:TMS/ (Ham) id=..., stop, log (smtpdb)
 * 4xx /MP (Your data is verifying, please try again later) id=..., flag_mailproc
 flag_spam
 flag_spamtrap
