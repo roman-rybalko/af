@@ -15,3 +15,9 @@ test_data(realm => $data->{realm}, client => $data->{client}, domain => $data->{
 Неверно:
 my $data = get_data(...);
 test_data(%$data);
+
+* Проверять наличие полей используя defined, иначе нет возможности использовать в значении "0" или пустую строку.
+Верно:
+test_data(...) if defined($realm) && defined($client) && defined($domain);
+Неверно:
+test_data(...) if $realm && $client && $domain;
