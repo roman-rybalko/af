@@ -8,31 +8,23 @@ our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(get_ldap_value find_ldap_value add_ldap_object update_ldap_object delete_ldap_object);
 
 use Net::LDAP;
-use AdvancedFiltering::Conf qw(get_conf_value);
+use AdvancedFiltering::Conf qw(get_conf_value check_conf_value);
 
 my $ldap;
 sub init_ldap
 {
 	die 'LDAP: ldap_url conf.option is required' unless get_conf_value('ldap_url');
 	$ldap = Net::LDAP->new(get_conf_value('ldap_url')) or die "LDAP connection error";
-	if (get_conf_value('ldap_tls_cert'))
+	if (check_conf_value('ldap_tls_cert'))
 	{
-		die 'LDAP: ldap_tls_key conf.option option is required' unless get_conf_value('ldap_tls_key');
-		my @options = (
-			clientcert => get_conf_value('ldap_tls_cert'),
-			clientkey => get_conf_value('ldap_tls_key'),
-		);
-		push @options =>
-			verify => 'require',
-			capath => get_conf_value('ldap_tls_ca'),
-			checkcrl => 1
-				if get_conf_value('ldap_tls_ca');
+		my @options;
+		push @options => (clientcert => get_conf_value('ldap_tls_cert'), clientkey => get_conf_value('ldap_tls_key'), );
+		push @options => (verify => 'require', capath => get_conf_value('ldap_tls_ca'), checkcrl => 1, ) if check_conf_value('ldap_tls_ca');
 		my $msg = $ldap->start_tls(@options);
 		die "LDAP: start_tls failed: " . $msg->error_text if $msg->is_error;
 	}
-	if (get_conf_value('ldap_bind_dn'))
+	if (check_conf_value('ldap_bind_dn'))
 	{
-		die "LDAP: ldap_bind_pw conf.option is required" unless get_conf_value('ldap_bind_pw');
 		my $msg = $ldap->bind(get_conf_value('ldap_bind_dn'), password => get_conf_value('ldap_bind_pw'));
 		die "LDAP: bind failed: " . $msg->error_text if $msg->is_error;
 	}

@@ -8,7 +8,7 @@ our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(check_mailbox_vrfy check_mailbox_rcpt);
 
 use AdvancedFiltering::SMTP;
-use AdvancedFiltering::Conf qw(get_conf_value);
+use AdvancedFiltering::Conf qw(get_conf_value check_conf_value);
 
 #
 # params:
@@ -34,7 +34,7 @@ sub check_mailbox_vrfy
 		$params{host},
 		Timeout => $params{timeout},
 		Hello => `hostname`,
-		Debug => get_conf_value('check_mailbox_vrfy_smtp_debug'),
+		Debug => check_conf_value('check_mailbox_vrfy_smtp_debug') ? get_conf_value('check_mailbox_vrfy_smtp_debug') : undef,
 	) or die "Can't connect to SMTP server";
 	if (defined $params{tls_cert})
 	{
@@ -79,7 +79,7 @@ sub check_mailbox_rcpt
 		$params{host},
 		Timeout => $params{timeout},
 		Hello => $hello_hostname,
-		Debug => get_conf_value('check_mailbox_rcpt_smtp_debug'),
+		Debug => check_conf_value('check_mailbox_rcpt_smtp_debug') ? get_conf_value('check_mailbox_rcpt_smtp_debug') : undef,
 	) or die "Can't connect to SMTP server";
 	if (defined $smtp->supports('STARTTLS'))
 	{
@@ -113,7 +113,7 @@ sub check_mailbox_rcpt
 		$smtp->auth($params{auth_user}, $params{auth_password}) or die "AUTH failed (" . $smtp->code . " " . $smtp->message . ")";
 	}
 	my $result = 0;
-	$smtp->mail(get_conf_value('check_mailbox_rcpt_smtp_from') ? get_conf_value('check_mailbox_rcpt_smtp_from') : '<>');
+	$smtp->mail(check_conf_value('check_mailbox_rcpt_smtp_from') ? get_conf_value('check_mailbox_rcpt_smtp_from') : '<>');
 	die $smtp->code . " " . $smtp->message if $smtp->status != 2;
 	$smtp->to($params{mailbox});
 	die $smtp->code . " " . $smtp->message if $smtp->status == 4;

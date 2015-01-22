@@ -5,7 +5,7 @@ use warnings;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(get_conf_value);
+our @EXPORT_OK = qw(get_conf_value check_conf_value);
 
 use FindBin;
 
@@ -40,7 +40,15 @@ sub init_from_file
 		$value =~ s/^"//;
 		$value =~ s/"$//;
 		$value =~ s~^\./~$FindBin::Bin/~;
-		$conf{lc $name} = $value;
+		if ($value)
+		{
+			$conf{lc $name} = $value;
+		}
+		else
+		{
+			# remove key
+			delete $conf{lc $name};
+		}
 	}
 }
 sub init_from_env
@@ -50,7 +58,15 @@ sub init_from_env
 		my $name = $key;
 		if ($name =~ s/^ADVANCEDFILTERING_//i || $name =~ s/^AF_//i)
 		{
-			$conf{lc $name} = $ENV{$key};
+			if ($ENV{$key})
+			{
+				$conf{lc $name} = $ENV{$key};
+			}
+			else
+			{
+				# remove key
+				delete $conf{lc $name};
+			}
 			next;
 		}
 	}
@@ -66,8 +82,17 @@ sub get_conf_value
 {
 	my $name = shift;
 	init_conf unless %conf;
+	# "exists", not "defined" - check the key but not create one
 	die "Conf.value $name is not defined" unless exists $conf{$name};
 	return $conf{$name};
+}
+
+sub check_conf_value
+{
+	my $name = shift;
+	init_conf unless %conf;
+	# "exists", not "defined" - check the key but not create one
+	return exists $conf{$name};
 }
 
 1;
