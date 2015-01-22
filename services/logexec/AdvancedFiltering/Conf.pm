@@ -66,6 +66,7 @@ sub get_conf_value
 {
 	my $name = shift;
 	init_conf unless %conf;
+	die "Conf.value $name is not defined" unless exists $conf{$name};
 	return $conf{$name};
 }
 

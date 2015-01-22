@@ -36,10 +36,10 @@ sub check_mailbox_vrfy
 		Hello => `hostname`,
 		Debug => get_conf_value('check_mailbox_vrfy_smtp_debug'),
 	) or die "Can't connect to SMTP server";
-	if ($params{tls_cert} && $params{tls_key})
+	if (defined $params{tls_cert})
 	{
 		my @options = (SSL_cert_file => $params{tls_cert}, SSL_key_file => $params{tls_key});
-		push @options => $params{tls_ca} ? (SSL_ca_path => $params{tls_ca}, SSL_check_crl => 1, SSL_verify_mode => 0x01) : (SSL_verify_mode => 0x00);
+		push @options => defined($params{tls_ca}) ? (SSL_ca_path => $params{tls_ca}, SSL_check_crl => 1, SSL_verify_mode => 0x01) : (SSL_verify_mode => 0x00);
 		$smtp->starttls(@options) or die "STARTTLS failed (", IO::Socket::SSL::errstr, ")";
 	}
 	my $result = 0;
@@ -50,10 +50,76 @@ sub check_mailbox_vrfy
 	return $result;
 }
 
+#
+# params:
+# host - host:port
+# mailbox
+# auth_user
+# auth_password
+# tls_required
+# tls_cert
+# tls_key
+# tls_ca
+# timeout
+#
+# conf:
+# check_mailbox_rcpt_smtp_debug
+# check_mailbox_rcpt_smtp_from
+#
+# return:
+# 0 -OK
+# str - FAIL
+#
 sub check_mailbox_rcpt
 {
 	my %params = @_;
-	return "TODO";
+	my $hello_hostname = `hostname`;
+	AdvancedFiltering::SMTP->init;
+	my $smtp = AdvancedFiltering::SMTP->new(
+		$params{host},
+		Timeout => $params{timeout},
+		Hello => $hello_hostname,
+		Debug => get_conf_value('check_mailbox_rcpt_smtp_debug'),
+	) or die "Can't connect to SMTP server";
+	if (defined $smtp->supports('STARTTLS'))
+	{
+		my @options;
+		push @options => defined($params{tls_cert}) ? (SSL_cert_file => $params{tls_cert}, SSL_key_file => $params{tls_key}) : ();
+		push @options => defined($params{tls_ca}) ? (SSL_ca_path => $params{tls_ca}, SSL_check_crl => 1, SSL_verify_mode => 0x01) : (SSL_verify_mode => 0x00);
+		if ($smtp->starttls(@options))
+		{
+			$smtp->hello($hello_hostname) or die "EHLO/HELO failed (second try; " . $smtp->code . " " . $smtp->message . ")";
+		}
+		else
+		{
+			die "STARTTLS failed (" . $smtp->code . " " . $smtp->message . "; " . IO::Socket::SSL::errstr . ") but requred" if $params{tls_required};
+			$smtp->close;
+			AdvancedFiltering::SMTP->init;
+			$smtp = AdvancedFiltering::SMTP->new(
+				$params{host},
+				Timeout => $params{timeout},
+				Hello => $hello_hostname,
+				Debug => get_conf_value('check_mailbox_rcpt_smtp_debug'),
+			) or die "Can't connect to SMTP server (second try)";
+		}
+	}
+	else
+	{
+		die "STARTTLS is not supported but required" if $params{tls_required};
+	}
+	if ($params{auth_user})
+	{
+		die "AUTH is not supported but required" unless defined $smtp->supports('AUTH');
+		$smtp->auth($params{auth_user}, $params{auth_password}) or die "AUTH failed (" . $smtp->code . " " . $smtp->message . ")";
+	}
+	my $result = 0;
+	$smtp->mail(get_conf_value('check_mailbox_rcpt_smtp_from') ? get_conf_value('check_mailbox_rcpt_smtp_from') : '<>');
+	die $smtp->code . " " . $smtp->message if $smtp->status != 2;
+	$smtp->to($params{mailbox});
+	die $smtp->code . " " . $smtp->message if $smtp->status == 4;
+	$result = $smtp->code . " " . $smtp->message unless $smtp->ok;
+	$smtp->quit;
+	return $result;
 }
 
 1;

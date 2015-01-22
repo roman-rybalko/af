@@ -10,9 +10,10 @@ use AdvancedFiltering::DB::submission qw(get_mailbox_data);
 use AdvancedFiltering::MailBox::Check qw(check_mailbox_vrfy);
 use AdvancedFiltering::Conf qw(get_conf_value);
 
-# ENV
-# AF_vrfy_timeout
-
+#
+# conf:
+# afsmtp_vrfy_timeout
+#
 sub run
 {
 	my $mailbox = shift;
@@ -31,7 +32,7 @@ sub run
 				tls_cert => get_conf_value('private_tls_cert'),
 				tls_key => get_conf_value('private_tls_key'),
 				tls_ca => get_conf_value('private_tls_ca'),
-				timeout => get_conf_value('vrfy_timeout') || 10,
+				timeout => get_conf_value('afsmtp_vrfy_timeout') || 10,
 			);
 		};
 		if ($@)
