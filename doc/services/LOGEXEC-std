@@ -21,3 +21,5 @@ test_data(%$data);
 test_data(...) if defined($realm) && defined($client) && defined($domain);
 Неверно:
 test_data(...) if $realm && $client && $domain;
+
+* В каждой функции проверять наличие необходимых аргументов. Выдавать Usage в исключение.
