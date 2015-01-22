@@ -10,8 +10,9 @@ sub run
 	my $realm = shift;
 	my $mid = shift;
 	my $sender = shift;
-	die "USAGE: <realm> <message-id> <sender>" unless defined($realm) && defined($mid) && defined($sender);
-	return add_message(realm => $realm, mid => $mid, sender=> $sender);
+	my $spam_descr = shift;
+	die "USAGE: <realm> <message-id> <sender> [spam_descr]" unless defined($realm) && defined($mid) && defined($sender);
+	return add_message(realm => $realm, mid => $mid, sender => $sender, defined($spam_descr) ? (spam_descr => $spam_descr) : ());
 }
 
 1;
