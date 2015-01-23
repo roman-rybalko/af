@@ -13,7 +13,6 @@ use AdvancedFiltering::Conf qw(get_conf_value check_conf_value);
 my $ldap;
 sub init_ldap
 {
-	die 'LDAP: ldap_url conf.option is required' unless get_conf_value('ldap_url');
 	$ldap = Net::LDAP->new(get_conf_value('ldap_url')) or die "LDAP connection error";
 	if (check_conf_value('ldap_tls_cert'))
 	{
@@ -34,6 +33,7 @@ sub get_ldap_value
 {
 	my $dn = shift;
 	my $attrs = shift;
+	die "USAGE: AdvancedFiltering::LDAP::get_ldap_value<dn><attrs>" unless defined($dn) && defined($attrs);
 	init_ldap unless $ldap;
 	my $msg = $ldap->search(
 		base => $dn,
@@ -62,6 +62,7 @@ sub find_ldap_value
 	my $dn = shift;
 	my $filter = shift;
 	my $attrs = shift;	
+	die "USAGE: AdvancedFiltering::LDAP::find_ldap_value<dn><filter><attrs>" unless defined($dn) && defined($filter) && defined($attrs);
 	init_ldap unless $ldap;
 	my $filter_str = '';
 	if ($filter)
@@ -80,7 +81,7 @@ sub find_ldap_value
 		attrs => ref($attrs) ? $attrs : [$attrs],
 	);
 	my @entries = $msg->entries;
-	return wantarray?():undef unless @entries;
+	return wantarray ? () : undef unless @entries;
 	if (ref $attrs)
 	{
 		if (wantarray)
@@ -112,6 +113,7 @@ sub add_ldap_object
 {
 	my $dn = shift;
 	my $attrs = shift;
+	# TODO: check args
 	init_ldap unless $ldap;
 	my $msg = $ldap->add($dn, attr => [%$attrs]);
 	if ($msg->is_error)
