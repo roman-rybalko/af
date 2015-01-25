@@ -10,9 +10,9 @@ sub run
 	my $realm = shift;
 	my $mid = shift;
 	my $sender = shift;
-	die "USAGE: <realm> <message-id> <sender>" unless $realm && $mid && $sender;
-	add_message($realm, $mid, $sender);
-	return 0;
+	die "USAGE: <realm> <message-id> <sender>" unless defined($realm) && defined($mid) && defined($sender);
+	return "message-id is missing" unless $mid;
+	return add_message($realm, $mid, $sender);
 }
 
 1;

@@ -17,10 +17,10 @@ use AdvancedFiltering::Conf qw(get_conf_value);
 sub run
 {
 	my $mailbox = shift;
-	die "USAGE: <mailbox>" unless $mailbox;
+	die "USAGE: <mailbox>" unless defined($mailbox);
 	my $mb_data = get_mailbox_data($mailbox);
 	return "mailbox data is not found" unless $mb_data;
-	my @mx_data = get_mx_data(realm => $mb_data->{realm}, client => $mb_data->{client}, domain => $mb_data->{domain}, $mb_data->{local_part} ? (local_part => $mb_data->{local_part}) : ());
+	my @mx_data = get_mx_data($mb_data->{realm}, $mb_data->{client}, $mb_data->{domain}, $mb_data->{local_part});
 	return "mx data is not found" unless @mx_data;
 	@mx_data = shuffle(@mx_data);
 	my @errors;

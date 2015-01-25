@@ -20,7 +20,7 @@ sub get_mailbox_data
 {
 	my $mailbox = shift;
 	my ($local_part, $domain) = split /\@/, $mailbox;
-	die "DB: mailbox parse failed" unless $local_part && $domain;
+	die "AdvancedFiltering/DB/smtp/get_mailbox_data: mailbox parse failed" unless defined($local_part) && defined($domain);
 	my $client = get_domain_client($domain);
 	return undef unless $client;
 	my $realm = get_client_realm($client);

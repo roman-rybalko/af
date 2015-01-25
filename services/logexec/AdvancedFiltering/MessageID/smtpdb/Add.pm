@@ -13,7 +13,7 @@ sub run
 	my $spam_descr = shift;
 	die "USAGE: <realm> <message-id> <sender> [spam_descr]" unless defined($realm) && defined($mid) && defined($sender);
 	return "message-id is missing" unless $mid;
-	return add_message(realm => $realm, mid => $mid, sender => $sender, defined($spam_descr) ? (spam_descr => $spam_descr) : ());
+	return add_message($realm, $mid, $sender, $spam_descr);
 }
 
 1;

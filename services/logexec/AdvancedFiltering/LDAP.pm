@@ -113,7 +113,7 @@ sub add_ldap_object
 {
 	my $dn = shift;
 	my $attrs = shift;
-	# TODO: check args
+	die "USAGE: AdvancedFiltering::LDAP::add_ldap_object<dn><attrs>" unless defined($dn) && defined($attrs);
 	init_ldap unless $ldap;
 	my $msg = $ldap->add($dn, attr => [%$attrs]);
 	if ($msg->is_error)
@@ -137,6 +137,7 @@ sub update_ldap_object
 {
 	my $dn = shift;
 	my $attrs = shift;
+	die "USAGE: AdvancedFiltering::LDAP::update_ldap_object<dn><attrs>" unless defined($dn) && defined($attrs);
 	init_ldap unless $ldap;
 	my $msg = $ldap->search(
 		base => $dn,
@@ -156,6 +157,7 @@ sub update_ldap_object
 sub delete_ldap_object
 {
 	my $dn = shift;
+	die "USAGE: AdvancedFiltering::LDAP::delete_ldap_object<dn>" unless defined($dn);
 	init_ldap unless $ldap;
 	my $msg = $ldap->search(
 		base => $dn,

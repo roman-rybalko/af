@@ -20,8 +20,9 @@ sub get_service_hosts
 {
 	my $realm = shift;
 	my $service = shift;
- 	my @hosts = find_ldap_value('ou=system,o=advancedfiltering', {objectClass => 'afSHost', afSHostRealm => $realm, afSHostServiceName => $service}, 'afSHostName');
- 	@hosts = map {
+	die "USAGE: AdvancedFiltering::DB::get_service_hosts<realm><service>" unless defined($realm) && defined($service);
+	my @hosts = find_ldap_value('ou=system,o=advancedfiltering', {objectClass => 'afSHost', afSHostRealm => $realm, afSHostServiceName => $service}, 'afSHostName');
+	@hosts = map {
 		my $value = get_ldap_value("afSHostServiceName=$service,afSHostName=$_,ou=system,o=advancedfiltering", 'afSHServiceTCPPort');
 		$value ? $_ . ":" . $value : $_;
 	} @hosts;
@@ -31,6 +32,7 @@ sub get_service_hosts
 sub get_client_realm
 {
 	my $client = shift;
+	die "USAGE: AdvancedFiltering::DB::get_client_realm<client>" unless defined($client);
 	return get_ldap_value("afSClientName=$client,ou=system,o=advancedfiltering", 'afSClientRealm');
 }
 
