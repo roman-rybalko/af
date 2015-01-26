@@ -29,6 +29,12 @@ use AdvancedFiltering::Conf qw(get_conf_value check_conf_value);
 sub check_mailbox_vrfy
 {
 	my %params = @_;
+	die "USAGE: AdvancedFiltering::MailBox::Check::check_mailbox_vrfy<host => ...><timeout => ...><mailbox => ...>[<tls_cert => ...><tls_key => ...>[<tls_ca => ...>]]"
+		if !defined($params{host})
+		|| !defined($params{timeout})
+		|| !defined($params{mailbox})
+		|| (defined($params{tls_cert}) && !defined($params{tls_key}))
+		|| (defined($params{tls_ca}) && !defined($params{tls_cert}));
 	AdvancedFiltering::SMTP->init;
 	my $smtp = AdvancedFiltering::SMTP->new(
 		$params{host},
@@ -73,6 +79,13 @@ sub check_mailbox_vrfy
 sub check_mailbox_rcpt
 {
 	my %params = @_;
+	die "USAGE: AdvancedFiltering::MailBox::Check::check_mailbox_rcpt<host => ...><timeout => ...><mailbox => ...>[<tls_cert => ...><tls_key => ...>[<tls_ca => ...>]][<auth_user => ...><auth_password => ...>]"
+		if !defined($params{host})
+		|| !defined($params{timeout})
+		|| !defined($params{mailbox})
+		|| (defined($params{tls_cert}) && !defined($params{tls_key}))
+		|| (defined($params{tls_ca}) && !defined($params{tls_cert}))
+		|| (defined($params{auth_user}) && !defined($params{auth_password}));
 	my $hello_hostname = `hostname`;
 	AdvancedFiltering::SMTP->init;
 	my $smtp = AdvancedFiltering::SMTP->new(

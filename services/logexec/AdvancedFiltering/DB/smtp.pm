@@ -13,14 +13,16 @@ use AdvancedFiltering::LDAP qw(get_ldap_value add_ldap_object update_ldap_object
 sub get_domain_client
 {
 	my $domain = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::get_domain_client<domain>" unless defined $domain;
 	return get_ldap_value("afSSMTPDomainName=$domain,afSServiceName=smtp,ou=system,o=advancedfiltering", 'afSSMTPDomainClientName');
 }
 
 sub get_mailbox_data
 {
 	my $mailbox = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::get_mailbox_data<mailbox>" unless defined $mailbox;
 	my ($local_part, $domain) = split /\@/, $mailbox;
-	die "AdvancedFiltering/DB/smtp/get_mailbox_data: mailbox parse failed" unless defined($local_part) && defined($domain);
+	die "AdvancedFiltering::DB::smtp::get_mailbox_data: mailbox parse failed" unless defined($local_part) && defined($domain);
 	my $client = get_domain_client($domain);
 	return undef unless $client;
 	my $realm = get_client_realm($client);
@@ -32,7 +34,8 @@ sub get_mailbox_data
 		realm => $realm,
 		client => $client,
 		domain => $domain,
-		$data ? (local_part => $local_part, update_time => $data->{afUSMTPDMBTimeUpdated}, is_absent => $data->{afUSMTPDMBIsAbsent}) : (),
+		local_part => $local_part,
+		$data ? (update_time => $data->{afUSMTPDMBTimeUpdated}, absent => $data->{afUSMTPDMBIsAbsent}) : (),
 	};
 }
 
@@ -48,17 +51,21 @@ sub get_mailbox_data
 #
 sub get_mx_data
 {
-	my %params = @_;
+	my $realm = shift;
+	my $client = shift;
+	my $domain = shift;
+	my $local_part = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::get_mx_data<realm><client><domain>[local_part]" unless defined($realm) && defined($client) && defined($domain);
 	my @ldap_dn;
-	if (defined $params{realm} && defined $params{client})
+	if (defined $realm && defined $client)
 	{
-		unshift @ldap_dn => "afUClientName=$params{client},afUServiceName=smtp+afUServiceRealm=$params{realm},ou=user,o=advancedfiltering";
-		if (defined $params{domain})
+		unshift @ldap_dn => "afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering";
+		if (defined $domain)
 		{
-			unshift @ldap_dn => "afUSMTPDomainName=$params{domain},afUClientName=$params{client},afUServiceName=smtp+afUServiceRealm=$params{realm},ou=user,o=advancedfiltering";
-			if (defined $params{local_part})
+			unshift @ldap_dn => "afUSMTPDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering";
+			if (defined $local_part)
 			{
-				unshift @ldap_dn => "afUSMTPDMBLocalPart=$params{local_part},afUSMTPDomainName=$params{domain},afUClientName=$params{client},afUServiceName=smtp+afUServiceRealm=$params{realm},ou=user,o=advancedfiltering";
+				unshift @ldap_dn => "afUSMTPDMBLocalPart=$local_part,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering";
 			}
 		}
 	}
@@ -93,16 +100,25 @@ sub get_mx_data
 
 sub add_mailbox
 {
-	my %params = @_;
-	return add_ldap_object("afUSMTPDMBLocalPart=$params{local_part},afUSMTPDomainName=$params{domain},afUClientName=$params{client},afUServiceName=smtp+afUServiceRealm=$params{realm},ou=user,o=advancedfiltering",
+	my $realm = shift;
+	my $client = shift;
+	my $domain = shift;
+	my $local_part = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::add_mailbox<realm><client><domain><local_part>" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
+	return add_ldap_object("afUSMTPDMBLocalPart=$local_part,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering",
 		{objectClass => 'afUSMTPDMailBox', afUSMTPDMBTimeUpdated => time, });
 }
 
 sub update_mailbox
 {
-	my %params = @_;
-	return update_ldap_object("afUSubmissionDMBLocalPart=$params{local_part},afUSubmissionDomainName=$params{domain},afUClientName=$params{client},afUServiceName=smtp+afUServiceRealm=$params{realm},ou=user,o=advancedfiltering",
-		{afUSMTPDMBTimeUpdated => $params{update_time}, defined($params{absent}) ? (afUSMTPDMBIsAbsent => $params{absent} ? 'TRUE' : []) : (), });
+	my $realm = shift;
+	my $client = shift;
+	my $domain = shift;
+	my $local_part = shift;
+	my $absent = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::update_mailbox<realm><client><domain><local_part>[absent]" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
+	return update_ldap_object("afUSubmissionDMBLocalPart=$local_part,afUSubmissionDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering",
+		{afUSMTPDMBTimeUpdated => time, defined($absent) ? (afUSMTPDMBIsAbsent => $absent ? 'TRUE' : []) : (), });
 }
 
 1;
