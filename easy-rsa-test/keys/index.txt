@@ -1,3 +1,4 @@
 V	241116152610Z		01	unknown	/O=advancedfiltering/OU=tests/CN=submission
 V	241116155653Z		02	unknown	/O=advancedfiltering/OU=tests/CN=client
 R	241118160545Z	141121160613Z	03	unknown	/O=advancedfiltering/OU=tests/CN=revoked
+V	250124082437Z		04	unknown	/O=advancedfiltering/OU=tests/CN=logexec

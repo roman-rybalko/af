@@ -1,0 +1,5 @@
+
+dn: afUSMTPMessageId=testmid,afUServiceName=smtpdb+afUServiceRealm=r1,ou=user,o=advancedfiltering
+afUSMTPMessageTimeCreated: 1415699152
+afUSMTPMessageSenderMailAddress: test@test.com
+objectClass: afUSMTPMessageIncoming

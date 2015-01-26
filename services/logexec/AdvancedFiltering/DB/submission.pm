@@ -9,7 +9,7 @@ our @EXPORT_OK = qw(get_mailbox_data add_mailbox update_mailbox delete_mailbox);
 
 use AdvancedFiltering::DB qw(get_my_realms get_client_realm);
 use AdvancedFiltering::DB::smtp qw(get_domain_client);
-use AdvancedFiltering::LDAP qw(get_ldap_value add_ldap_object update_ldap_object delete_ldap_object);
+use AdvancedFiltering::LDAP qw(get_ldap_value find_ldap_value add_ldap_object update_ldap_object delete_ldap_object);
 
 sub get_mailbox_data
 {
@@ -62,7 +62,8 @@ sub delete_mailbox
 	my $domain = shift;
 	my $local_part = shift;
 	die "USAGE: AdvancedFiltering::DB::submission::delete_mailbox<realm><client><domain><local_part>" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
-	return delete_ldap_object("afUSubmissionDMBLocalPart=$local_part,afUSubmissionDomainName=$domain,afUClientName=$client,afUServiceName=submission+afUServiceRealm=$realm,ou=user,o=advancedfiltering");
+	delete_ldap_object($_) foreach reverse find_ldap_value("afUSubmissionDMBLocalPart=$local_part,afUSubmissionDomainName=$domain,afUClientName=$client,afUServiceName=submission+afUServiceRealm=$realm,ou=user,o=advancedfiltering", { objectClass => '*' }, 'dn');
+	return 0;
 }
 
 1;

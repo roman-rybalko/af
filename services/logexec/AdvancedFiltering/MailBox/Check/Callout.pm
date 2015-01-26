@@ -7,7 +7,7 @@ use List::Util qw(shuffle);
 
 use AdvancedFiltering::DB::smtp qw(get_mailbox_data get_mx_data);
 use AdvancedFiltering::MailBox::Check qw(check_mailbox_rcpt);
-use AdvancedFiltering::Conf qw(get_conf_value);
+use AdvancedFiltering::Conf qw(check_conf_value get_conf_value);
 
 #
 # conf:
@@ -34,7 +34,7 @@ sub run
 				$mx_data->{tls_required} ? (tls_required => $mx_data->{tls_required}) : (),
 				$mx_data->{tls_cert_name} ? (tls_cert => get_conf_value('callout_tls_data_path').'/'.$mx_data->{tls_cert_name}.'.crt', tls_key => get_conf_value('callout_tls_data_path').'/'.$mx_data->{tls_key_name}.'.key') : (),
 				$mx_data->{tls_ca_name} ? (tls_ca => get_conf_value('callout_tls_data_path').'/'.$mx_data->{tls_ca_name}) : (),
-				timeout => get_conf_value('callout_rcpt_timeout') || 10,
+				timeout => check_conf_value('callout_rcpt_timeout') ? get_conf_value('callout_rcpt_timeout') : 10,
 			);
 		};
 		if ($@)
@@ -44,7 +44,7 @@ sub run
 		}
 		return $result;
 	}
-	die "no smtp hosts available (" . join(",", @errors) . ")";
+	die "no smtp hosts available (" . join(",", @errors) . ")";  # no die
 }
 
 1;

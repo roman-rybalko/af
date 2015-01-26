@@ -4,4 +4,5 @@
 
 del_ldif user.ldif
 
-rm -f 1.ldif 2.ldif
+stop_server mx
+rm -f mx.env

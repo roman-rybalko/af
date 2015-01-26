@@ -112,7 +112,7 @@ sub check_mailbox_rcpt
 				$params{host},
 				Timeout => $params{timeout},
 				Hello => $hello_hostname,
-				Debug => get_conf_value('check_mailbox_rcpt_smtp_debug'),
+				Debug => check_conf_value('check_mailbox_rcpt_smtp_debug') ? get_conf_value('check_mailbox_rcpt_smtp_debug') : undef,
 			) or die "Can't connect to SMTP server (second try)";
 		}
 	}

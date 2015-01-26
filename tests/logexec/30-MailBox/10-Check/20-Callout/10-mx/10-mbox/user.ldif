@@ -1,0 +1,5 @@
+
+dn: afUSMTPMXName=testmx,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPMailExchanger
+afUSMTPMXHostName: dst.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 12525

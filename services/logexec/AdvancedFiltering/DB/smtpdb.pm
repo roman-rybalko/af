@@ -7,7 +7,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(add_message delete_message);
 
-use AdvancedFiltering::LDAP qw(add_ldap_object delete_ldap_object);
+use AdvancedFiltering::LDAP qw(find_ldap_value add_ldap_object delete_ldap_object);
 
 sub add_message
 {
@@ -25,7 +25,8 @@ sub delete_message
 	my $realm = shift;
 	my $mid = shift;
 	die "USAGE: AdvancedFiltering::DB::smtpdb::delete_message<realm><mid>" unless defined($realm) && defined($mid);
-	return delete_ldap_object("afUSMTPMessageId=$realm,afUServiceName=smtpdb+afUServiceRealm=$mid,ou=user,o=advancedfiltering");
+	delete_ldap_object($_) foreach reverse find_ldap_value("afUSMTPMessageId=$mid,afUServiceName=smtpdb+afUServiceRealm=$realm,ou=user,o=advancedfiltering", { objectClass => '*' }, 'dn');
+	return 0;
 }
 
 1;

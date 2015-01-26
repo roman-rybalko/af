@@ -1,6 +1,5 @@
 
 dn: afUSMTPMessageId=testmid2,afUServiceName=submissiondb+afUServiceRealm=r1,ou=user,o=advancedfiltering
+objectClass: afUSMTPMessageOutgoing
 afUSMTPMessageTimeCreated: 33333333
 afUSMTPMessageSenderMailAddress: test@test.com
-objectClass: afUSMTPMessageOutgoing
-afUSMTPMessageId: testmid2

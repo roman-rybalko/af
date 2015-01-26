@@ -4,4 +4,4 @@
 
 del_ldif user.ldif
 
-rm -f 1.ldif 2.ldif
+rm -vf 1.ldif 2.ldif

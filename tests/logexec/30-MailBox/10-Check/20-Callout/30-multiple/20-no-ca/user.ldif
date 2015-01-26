@@ -1,0 +1,14 @@
+
+dn: afUSMTPMXName=testmx1,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPMailExchanger
+afUSMTPMXHostName: dst.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 12525
+afUSMTPMXTLSRequired: TRUE
+afUSMTPMXAuthTLSCertificate: testcert
+afUSMTPMXAuthTLSKey: testkey
+afUSMTPMXAuthTLSCA: testca
+
+dn: afUSMTPMXName=testmx2,afUSMTPDMBLocalPart=mbox,afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+objectClass: afUSMTPMailExchanger
+afUSMTPMXHostName: dst.hosts.advancedfiltering.net
+afUSMTPMXTCPPort: 22525

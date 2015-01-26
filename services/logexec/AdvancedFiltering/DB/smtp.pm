@@ -5,10 +5,10 @@ use warnings;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(get_domain_client get_mailbox_data get_mx_data add_mailbox update_mailbox);
+our @EXPORT_OK = qw(get_domain_client get_mailbox_data get_mx_data add_mailbox update_mailbox delete_mailbox);
 
 use AdvancedFiltering::DB qw(get_my_realms get_client_realm);
-use AdvancedFiltering::LDAP qw(get_ldap_value add_ldap_object update_ldap_object);
+use AdvancedFiltering::LDAP qw(get_ldap_value find_ldap_value add_ldap_object update_ldap_object delete_ldap_object);
 
 sub get_domain_client
 {
@@ -117,8 +117,19 @@ sub update_mailbox
 	my $local_part = shift;
 	my $absent = shift;
 	die "USAGE: AdvancedFiltering::DB::smtp::update_mailbox<realm><client><domain><local_part>[absent]" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
-	return update_ldap_object("afUSubmissionDMBLocalPart=$local_part,afUSubmissionDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering",
+	return update_ldap_object("afUSMTPDMBLocalPart=$local_part,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering",
 		{afUSMTPDMBTimeUpdated => time, defined($absent) ? (afUSMTPDMBIsAbsent => $absent ? 'TRUE' : []) : (), });
+}
+
+sub delete_mailbox
+{
+	my $realm = shift;
+	my $client = shift;
+	my $domain = shift;
+	my $local_part = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::delete_mailbox<realm><client><domain><local_part>" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
+	delete_ldap_object($_) foreach reverse find_ldap_value("afUSMTPDMBLocalPart=$local_part,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering", { objectClass => '*' }, 'dn');
+	return 0;
 }
 
 1;

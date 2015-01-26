@@ -1,0 +1,10 @@
+
+dn: afUSMTPMessageId=testmid2,afUServiceName=smtpdb+afUServiceRealm=r1,ou=user,o=advancedfiltering
+objectClass: afUSMTPMessageIncoming
+afUSMTPMessageTimeCreated: 33333333
+afUSMTPMessageSenderMailAddress: test@test.com
+
+dn: afUSMTPMessageId=testmid2,afUSMTPMessageId=testmid2,afUServiceName=smtpdb+afUServiceRealm=r1,ou=user,o=advancedfiltering
+objectClass: afUSMTPMessageIncoming
+afUSMTPMessageTimeCreated: 33333333
+afUSMTPMessageSenderMailAddress: test@test.com

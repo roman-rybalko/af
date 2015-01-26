@@ -1,0 +1,8 @@
+#!/bin/sh -ex
+
+. "$TESTCONF"
+
+add_ldif user.ldif
+
+start_server mx -s 1 -e mx.env -p 12525 -a
+rm -f mx.env
