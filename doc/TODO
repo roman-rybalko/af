@@ -1,7 +1,6 @@
 * поправить mbxchk для smtp и submission
 * обновление LDAP из логов
 * VRFY в smtp
-* logread - FATAL в syslog, продолжить работу
 * проверка дубликатов в smtp
 * проверка DMARC в smtp
 подпись DKIM в сообщении должна быть если DMARC задан

@@ -14,6 +14,6 @@ use strict;
 
 print "state:\n" , Dumper($state);
 
-exit 1 unless defined $state->{ofs} && $state->{ofs} == 0;
+exit 1 unless $state->{ofs};
 
 print "state: OK\n";

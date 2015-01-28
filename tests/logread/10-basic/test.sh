@@ -4,7 +4,7 @@
 export TESTPROC_OK=1
 export TESTPROC_LOG=testproc.log
 
-run_target -v 2
+run_target
 
 ! grep TEST/1 testproc.log
 grep Test/2 testproc.log

@@ -15,7 +15,7 @@ timed_wait()
 
 run_target()
 {
-	"$TESTDIR"/.target/logread.sh "$@" &
+	"$TESTDIR"/.target/logread.sh -i logread-test -f local0 "$@" &
 	pid=$!
 	if timed_wait $pid 500000; then
 		true

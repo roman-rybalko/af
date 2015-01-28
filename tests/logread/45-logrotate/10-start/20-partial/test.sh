@@ -10,7 +10,7 @@ while [ $i -le 15 ]; do
 	i=$(($i+1))
 done
 
-run_target -v 2
+run_target
 
 grep Test/10 testproc.log
 
@@ -20,12 +20,12 @@ while [ $i -le 25 ]; do
 	i=$(($i+1))
 done
 
-run_target -v 2
+run_target
 
 grep Test/15 testproc.log
 ! grep Test/16 testproc.log
 
-run_target -v 2
+run_target
 
 grep Test/25 testproc.log
 ! grep Test/26 testproc.log

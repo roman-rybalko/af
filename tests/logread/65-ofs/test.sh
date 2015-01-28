@@ -3,8 +3,9 @@
 
 export TESTPROC_FATAL=1
 
-run_target -v 2
-run_target -v 2
-run_target -v 2
+"$TESTDIR"/.target/logread.sh -i logread-test -f local0 &
+pid=$!
+usleep 200000
+kill $pid
 
 ./state.pl logread.state

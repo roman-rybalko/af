@@ -7,7 +7,7 @@ echo Test/1 > logread.log
 echo test2 >> logread.log
 echo test3 >> logread.log
 
-"$TESTDIR"/.target/logread.sh -v 2 &
+"$TESTDIR"/.target/logread.sh -i logread-test -f local0 &
 pid=$!
 usleep 200000
 

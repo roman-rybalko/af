@@ -10,7 +10,7 @@ while [ $i -le 10 ]; do
 	i=$(($i+1))
 done
 
-run_target -v 2
+run_target
 
 grep Test/10 testproc.log
 
@@ -21,8 +21,8 @@ done
 mv logread.log logread.log.1
 touch logread.log
 
-run_target -v 2 # finish backup
-run_target -v 2
+run_target # finish backup
+run_target
 
 grep Test/20 testproc.log
 
@@ -31,6 +31,6 @@ while [ $i -le 30 ]; do
 	i=$(($i+1))
 done
 
-run_target -v 2
+run_target
 
 grep Test/30 testproc.log
