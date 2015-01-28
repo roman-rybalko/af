@@ -2,7 +2,8 @@
 . ./remote.conf
 . ./pkgdep.sh
 
-pkgdep_install smtp_exim_test p5-IO-Socket-SSL p5-Mail-DKIM
+pkgdep_install smtp_exim_test p5-Mail-DKIM
+# p5-IO-Socket-SSL is installed by p5-perl-ldap
 
 ./mkca.sh tests-smtp-ca
 mv -vf tests-smtp* /usr/local/advancedfiltering/smtp/ssl/

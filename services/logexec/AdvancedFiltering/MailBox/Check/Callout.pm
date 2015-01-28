@@ -19,9 +19,9 @@ sub run
 	my $mailbox = shift;
 	die "USAGE: <mailbox>" unless defined($mailbox);
 	my $mb_data = get_mailbox_data($mailbox);
-	return "mailbox data is not found" unless $mb_data;
+	die "mailbox data is not found" unless $mb_data;
 	my @mx_data = get_mx_data($mb_data->{realm}, $mb_data->{client}, $mb_data->{domain}, $mb_data->{local_part});
-	return "mx data is not found" unless @mx_data;
+	die "mx data is not found" unless @mx_data;
 	@mx_data = shuffle(@mx_data);
 	my @errors;
 	foreach my $mx_data (@mx_data)

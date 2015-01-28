@@ -19,8 +19,9 @@ sub run
 	my $mailbox = shift;
 	die "USAGE: <mailbox>" unless defined($mailbox);
 	my $data = get_mailbox_data($mailbox);
-	return "mailbox data is not found" unless $data;
+	die "mailbox data is not found" unless $data;
 	my @hosts = get_service_hosts($data->{realm}, 'smtp');
+	die "host with smtp service is not found" unless @hosts;
 	@hosts = shuffle(@hosts);
 	my @errors;
 	foreach my $host (@hosts)

@@ -1,0 +1,6 @@
+
+dn: cn=smtp,ou=auth
+cn: smtp
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+userpassword: {SSHA}hYjTNOPvu5hp262iOqqlZB8PXflLNAOF

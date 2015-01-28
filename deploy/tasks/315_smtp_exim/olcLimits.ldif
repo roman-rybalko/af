@@ -1,0 +1,10 @@
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+add: olcLimits
+olcLimits: dn="cn=smtp,ou=auth" size=unlimited time=unlimited
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcLimits
+olcLimits: dn="cn=smtp,ou=auth" size=unlimited time=unlimited
