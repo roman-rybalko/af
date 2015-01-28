@@ -14,8 +14,8 @@ cp -vf ../../exim/scripts/mid_list_encoder.pl \
 	advancedfiltering/submission/exim/
 chmod a-w etc/rc.d/advancedfiltering_submission_exim advancedfiltering/submission/exim/configure \
 	advancedfiltering/submission/exim/mid_list_encoder.pl \
-	advancedfiltering/submission/exim/dmarc_verifier.pl \
-	advancedfiltering/submission/exim/dmarc_verifier_*.dat \
+	advancedfiltering/submission/exim/dmarc_verifier.pl advancedfiltering/submission/exim/dmarc_verifier_*.dat \
+	advancedfiltering/submission/exim/message_loop_detector.pl \
 	advancedfiltering/submission/exim
 
 chmod -Rv u+w advancedfiltering/submission/mbxchk/logread
