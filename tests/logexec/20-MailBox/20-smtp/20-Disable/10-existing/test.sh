@@ -5,4 +5,7 @@
 
 match_ldif "afUSMTPDMBLocalPart=test,afUSMTPDomainName=test.com,\
 afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering" \
-"^afUSMTPDMBLocalPart|^afUSMTPDMBIsAbsent" match.ldif
+"^afUSMTPDMBLocalPart" match1.ldif
+match_ldif "afUSMTPDMBLocalPart=test,afUSMTPDomainName=test.com,\
+afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering" \
+"^afUSMTPDMBIsAbsent" match2.ldif

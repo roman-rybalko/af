@@ -360,7 +360,7 @@ rcpt_acl:
     # existing
     ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
     message = MB:(E|NF)/ (Your data is verifying, please try again later)
-    logwrite = AdvancedFiltering/MailBox/Check/Callout<$local_part@$acl_m_u_domain> ? AdvancedFiltering/MailBox/smtp/Add<$local_part@$acl_m_u_domain> : AdvancedFiltering/MailBox/smtp/Disable<$local_part@$acl_m_u_domain>
+    logwrite = AdvancedFiltering/MailBox/Check/Callout<$local_part@$acl_m_u_domain> ? AdvancedFiltering/MailBox/smtp/Enable<$local_part@$acl_m_u_domain> : AdvancedFiltering/MailBox/smtp/Disable<$local_part@$acl_m_u_domain>
 
   # * получение пользовательской настройки user_spt (Spam PassThrough)
   warn

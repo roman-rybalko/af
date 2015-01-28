@@ -1,4 +1,4 @@
-package AdvancedFiltering::MailBox::smtp::Add;
+package AdvancedFiltering::MailBox::smtp::Enable;
 
 use strict;
 use warnings;

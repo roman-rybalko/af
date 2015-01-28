@@ -104,9 +104,10 @@ sub add_mailbox
 	my $client = shift;
 	my $domain = shift;
 	my $local_part = shift;
-	die "USAGE: AdvancedFiltering::DB::smtp::add_mailbox<realm><client><domain><local_part>" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
+	my $absent = shift;
+	die "USAGE: AdvancedFiltering::DB::smtp::add_mailbox<realm><client><domain><local_part>[absent]" unless defined($realm) && defined($client) && defined($domain) && defined($local_part);
 	return add_ldap_object("afUSMTPDMBLocalPart=$local_part,afUSMTPDomainName=$domain,afUClientName=$client,afUServiceName=smtp+afUServiceRealm=$realm,ou=user,o=advancedfiltering",
-		{objectClass => 'afUSMTPDMailBox', afUSMTPDMBTimeUpdated => time, });
+		{objectClass => 'afUSMTPDMailBox', afUSMTPDMBTimeUpdated => time, $absent ? (afUSMTPDMBIsAbsent => 'TRUE') : (), });
 }
 
 sub update_mailbox
