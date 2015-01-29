@@ -1,5 +1,3 @@
-* поправить mbxchk для smtp и submission
-* обновление LDAP из логов
 * удалить mbxchk из services, tests и deploy
 * VRFY в smtp
 * проверка дубликатов в smtp
