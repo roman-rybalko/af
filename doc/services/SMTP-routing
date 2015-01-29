@@ -11,6 +11,8 @@
 
 * service [@services] {stop} => error
 * service_defer [@services] {stop} -> service => error
+* vrfy_ok :verify_only: [flag_vrfy && flag_vrfy_result] {stop}
+* vrfy_fail :verify_only: [flag_vrfy && !flag_vrfy_result] {stop}
 * mailproc [flag_mailproc] {stop} -> service => error
 * hamtrap [flag_hamtrap && sys_hamtrap] {continue} -> service => error
 * spamtrap [flag_spamtrap && sys_spamtrap] {continue} -> service => error

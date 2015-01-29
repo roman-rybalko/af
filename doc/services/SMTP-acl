@@ -24,6 +24,11 @@ connect
 helo
 * ok
 
+vrfy
+* callout => flag_vfry, flag_vrfy_result, continue
+* ! flag_vrfy => 252, stop
+* ok
+
 mail
 * проверка spf
 ** fail => flag_spf
