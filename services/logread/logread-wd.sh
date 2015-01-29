@@ -2,8 +2,8 @@
 
 # WatchDog Cron wrapper
 
-LOCK=/tmp/logread.lock
-LOG=/tmp/logread.log
+: ${LOCK:=/tmp/logread.lock}
+: ${LOG:=/tmp/logread.log}
 if [ -e $LOCK ] && kill -0 `cat $LOCK`; then
 	exit 0
 fi

@@ -1,3 +1,3 @@
 MAILTO=root
 PATH=/bin:/usr/bin:/usr/local/bin
-* * * * * /usr/local/advancedfiltering/submission/mbxchk/logread/logread-wd.sh
+* * * * * LOCK=/tmp/logread-submission.lock LOG=/tmp/logread-submission.log /usr/local/advancedfiltering/submission/mbxchk/logread/logread-wd.sh -i logread-submission
