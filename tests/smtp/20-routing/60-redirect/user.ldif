@@ -1,4 +1,7 @@
 
+dn: afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+objectClass: afUService
+
 dn: afUSMTPMessageId=dGVzdC1vdXRnb2luZy1tZXNzYWdlLTI_,afUServiceRealm=r1+afUServiceName=submissiondb,ou=user,o=advancedfiltering
 afUSMTPMessageId: dGVzdC1vdXRnb2luZy1tZXNzYWdlLTI_
 afUSMTPmessagesendermailaddress: mbox@test.com

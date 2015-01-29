@@ -1,6 +1,9 @@
 
+dn: afUServiceRealm=r2+afUServiceName=submissiondb,ou=user,o=advancedfiltering
+afuservicerealm: r2
+objectClass: afUService
+
 dn: afUSMTPMessageId=dGVzdC1vdXRnb2luZy1tZXNzYWdlLTI_,afUServiceRealm=r2+afUServiceName=submissiondb,ou=user,o=advancedfiltering
-afUSMTPMessageId: dGVzdC1vdXRnb2luZy1tZXNzYWdlLTI_
 afUSMTPmessagesendermailaddress: mbox2@test2.com
 afUSMTPmessagetimecreated: 1234567890
 objectClass: afUSMTPMessageOutgoing

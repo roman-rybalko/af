@@ -1,6 +1,8 @@
 
+dn: afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
+objectClass: afUService
+
 dn: afUSMTPMessageId=dGVzdC1zcGFtLW1lc3NhZ2UtMQ__,afUServiceRealm=r1+afUServiceName=smtpdb,ou=user,o=advancedfiltering
-afUSMTPMessageId: dGVzdC1zcGFtLW1lc3NhZ2UtMQ__
 afUSMTPmessagesendermailaddress: test@tests.advancedfiltering.net
 afUSMTPmessagespamdescription: Test spam message
 afUSMTPmessagetimecreated: 1234567890
