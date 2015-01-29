@@ -1,8 +1,0 @@
-
-dn: cn=mbxchk,ou=auth
-changetype: delete
-
-dn: olcDatabase={2}mdb,cn=config
-changetype: modify
-delete: olcAccess
-olcAccess: to dn.subtree="" by dn.exact="cn=mbxchk,ou=auth" manage by * break

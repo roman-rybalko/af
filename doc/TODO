@@ -1,4 +1,3 @@
-* удалить mbxchk из services, tests и deploy
 * VRFY в smtp
 * проверка дубликатов в smtp
 * проверка DMARC в smtp

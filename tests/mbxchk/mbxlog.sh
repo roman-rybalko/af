@@ -1,1 +1,0 @@
-../../services/mbxchk/mbxlog.sh
