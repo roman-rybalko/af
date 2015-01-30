@@ -20,6 +20,7 @@ tls_privatekey = /usr/local/advancedfiltering/ssl/smtp.services.advancedfilterin
 tls_verify_certificates = /usr/local/advancedfiltering/ssl/ca
 tls_crl = /usr/local/advancedfiltering/ssl/ca
 acl_smtp_connect = connect_acl
+acl_smtp_vrfy = vrfy_acl
 acl_smtp_mail = mail_acl
 acl_smtp_rcpt = rcpt_acl
 acl_smtp_dkim = dkim_acl
@@ -67,6 +68,10 @@ S_MBTO_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPMailBoxTimeout?base}}
 S_MBCT_D = ${eval10:$tod_epoch-S_MBTO_D}
 # System Trusted Message Size
 S_TMS_D = ${lookup ldap{LDAP_C/S_SMTP_LDAP_DN?afSSMTPTrustedMessageSize?base}}
+# System Trusted Host Raw Flag
+S_TH_R_F = ${if forany{<, ${lookup ldap{LDAP_C/afSHostName=${quote_ldap_dn:$sender_host_name},S_LDAP_DN?afSHostRealm?base}}}{inlist{$item}{<, S_REALM_Lc}}{true}{false}}
+# System Trusted Host Flag
+S_TH_F = ${if eq{}{$sender_host_name}{false}{S_TH_R_F}}
 
 connect_acl:
   warn
@@ -78,6 +83,22 @@ connect_acl:
   accept
     # smtp_banner
     message = smtp.services.advancedfiltering.net ESMTP${if bool{S_TP_F}{ TP}{}}${if bool{$acl_c_s_st_f}{ ST}{}}${if bool{$acl_c_s_ht_f}{ HT}{}}
+
+vrfy_acl:
+  # * ! trusted_host => 252, stop
+  deny
+    ! condition = S_TH_F
+  # * callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
+  warn
+    set acl_c_vrfy_m = ${run{/usr/local/advancedfiltering/smtp/mbxchk/logexec/logexec-cli.sh AdvancedFiltering/MailBox/Check/Callout<$local_part@$domain>}{$value}{}}
+    set acl_c_vrfy_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{true}{false}}}}
+    set acl_c_vrfy_result_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{false}}}}
+  # * ! flag_vrfy => 252 msg_vrfy, stop
+  deny
+    ! condition = $acl_c_vrfy_f
+    message = $acl_c_vrfy_m
+  # * ok
+  accept
 
 # General Black/White List
 # accept - match, deny - not match
