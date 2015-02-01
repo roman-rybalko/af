@@ -24,16 +24,14 @@ connect
 helo
 * ok
 
-адрес присутствует на сервере клиента
-
 vrfy
-* ! trusted_host => deny, stop
-* адрес в БД и не просрочен => accept, stop
-* адрес присутствует на сервере клиента => accept, stop
+* ! trusted_host => fail, stop
+* адрес в БД и не просрочен => ok, stop
+* адрес присутствует на сервере клиента => ok, stop
 ** callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
-** ! flag_vrfy => deny, stop
+** ! flag_vrfy => fail, stop
 ** задание в лог на обновление адреса, continue
-** accept
+** ok
 * 252 msg_vrfy
 
 mail
