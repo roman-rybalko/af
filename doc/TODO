@@ -1,4 +1,6 @@
 * VRFY в smtp
+* доработать AFsmtp - на 252 возвращать FATAL
+* доработать семантику expired/nombxchk в smtp
 * проверка дубликатов в smtp
 * проверка DMARC в smtp
 подпись DKIM в сообщении должна быть если DMARC задан

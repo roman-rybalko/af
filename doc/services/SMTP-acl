@@ -26,13 +26,12 @@ helo
 
 vrfy
 * ! trusted_host => fail, stop
-* адрес в БД и не просрочен => ok, stop
-* адрес присутствует на сервере клиента => ok, stop
-** callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
-** ! flag_vrfy => fail, stop
-** задание в лог на обновление адреса, continue
-** ok
-* 252 msg_vrfy
+* callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
+# ! flag_vrfy - callout не сработал
+* ! flag_vrfy => fail, stop
+* flag_vrfy_result => log mbox Enable, continue
+* ! flag_vrfy_result => log mbox Disable, continue
+* ok
 
 mail
 * проверка spf
