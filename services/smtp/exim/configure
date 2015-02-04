@@ -85,7 +85,7 @@ connect_acl:
     message = smtp.services.advancedfiltering.net ESMTP${if bool{S_TP_F}{ TP}{}}${if bool{$acl_c_s_st_f}{ ST}{}}${if bool{$acl_c_s_ht_f}{ HT}{}}
 
 vrfy_acl:
-  # * ! trusted_host => 252, stop
+  # * ! trusted_host => fail, stop
   deny
     ! condition = S_TH_F
   # * callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
@@ -93,10 +93,18 @@ vrfy_acl:
     set acl_c_vrfy_m = ${run{/usr/local/advancedfiltering/smtp/mbxchk/logexec/logexec-cli.sh AdvancedFiltering/MailBox/Check/Callout<$local_part@$domain>}{$value}{}}
     set acl_c_vrfy_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{true}{false}}}}
     set acl_c_vrfy_result_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{false}}}}
-  # * ! flag_vrfy => 252 msg_vrfy, stop
+  # * ! flag_vrfy => fail, stop
   deny
     ! condition = $acl_c_vrfy_f
     message = $acl_c_vrfy_m
+  # * flag_vrfy_result => log mbox Enable, continue
+  warn
+    condition = $acl_c_vrfy_result_f
+    logwrite = AdvancedFiltering/MailBox/smtp/Enable<$local_part@$domain>
+  # * ! flag_vrfy_result => log mbox Disable, continue
+  warn
+    ! condition = $acl_c_vrfy_result_f
+    logwrite = AdvancedFiltering/MailBox/smtp/Disable<$local_part@$domain>
   # * ok
   accept
 
@@ -768,6 +776,23 @@ service_defer_router:
   driver = redirect
   allow_defer = true
   data = :defer:
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+
+# * vrfy_ok [flag_vrfy && flag_vrfy_result] {stop} -> service => error
+vrfy_ok_router:
+  condition = ${if and{{bool{$acl_c_vrfy_f}}{bool{$acl_c_vrfy_result_f}}}}
+  driver = redirect
+  data = :blackhole: $acl_c_vrfy_m
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+
+# * vrfy_fail [flag_vrfy && !flag_vrfy_result] {stop} -> service => error
+vrfy_fail_router:
+  condition = ${if and{{bool{$acl_c_vrfy_f}}{! bool{$acl_c_vrfy_result_f}}}}
+  driver = redirect
+  allow_fail = true
+  data = :fail: $acl_c_vrfy_m
   errors_to = error@services.advancedfiltering.net
   redirect_router = service_router
 
