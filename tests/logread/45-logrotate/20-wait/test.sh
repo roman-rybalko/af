@@ -13,11 +13,11 @@ done
 "$TESTDIR"/.target/logread.sh -i logread-test -f local0 &
 pid=$!
 
-usleep 200000
+usleep 500000
 grep Test/5 testproc.log
 
 mv logread.log logread.log.1
 touch logread.log
 
-usleep 200000
+usleep 500000
 ! kill $pid
