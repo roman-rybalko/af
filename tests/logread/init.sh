@@ -1,4 +1,4 @@
 #!/bin/sh -ex
 . "$TESTCONF"
 
-usleep 1
+common_init

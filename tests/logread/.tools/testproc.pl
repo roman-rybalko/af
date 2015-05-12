@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-$| = 1;
+use IO::Handle;
 
 my $ok;
 my $fail;
@@ -21,8 +21,10 @@ my $L;
 if ($ENV{TESTPROC_LOG})
 {
 	open $L, ">>", $ENV{TESTPROC_LOG} or die "Unable to open log";
+	$L->autoflush(1);
 }
 
+STDOUT->autoflush(1);
 while (<>)
 {
 	chomp;

@@ -2,26 +2,25 @@
 . "$TESTCONF"
 
 export TESTPROC_OK=1
+export TESTPROC_LOG=testproc.log
 
-"$TESTDIR"/.target/logread.sh -i logread-test -f local0 &
-pid=$!
-usleep 500000
+start_target
+pid=`cat logread.pid`
+
+echo Test/1 >> logread.log
+wait_line testproc.log Test/1
+
 [ ! -e logread.state ]
-
 kill -USR1 $pid
-usleep 500000
-kill -0 $pid
-[ -e logread.state ]
+wait_file logread.state
 rm -f logread.state
-
-echo TEST/1 >> logread.log
 
 # check the target is not terminated
 kill -USR2 $pid
-usleep 500000
-kill -0 $pid
+echo Test/2 >> logread.log
+wait_line testproc.log Test/2
 
+rm -f logread.state
 kill $pid
-usleep 500000
+wait_file logread.state
 ! kill -0 $pid
-[ -e logread.state ]

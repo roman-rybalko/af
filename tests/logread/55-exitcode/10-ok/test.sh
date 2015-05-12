@@ -3,4 +3,7 @@
 
 export TESTPROC_OK=1
 
-"$TESTDIR"/.target/logread.sh -i logread-test -f local0
+start_target
+pid=`cat logread.pid`
+wait_file logread.state
+wait $pid

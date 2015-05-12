@@ -1,4 +1,5 @@
 #!/bin/sh -x
 . "$TESTCONF"
 
-rm -f logread.state logread.log
+stop_target
+rm -f logread.state logread.log testproc.log

@@ -2,9 +2,14 @@
 . "$TESTCONF"
 
 export TESTPROC_OK=1
+export TESTPROC_LOG=testproc.log
 
-"$TESTDIR"/.target/logread.sh -i logread-test -f local0 &
-pid=$!
-usleep 500000
+start_target
+pid=`cat logread.pid`
+
+wait_line testproc.log Test/1
+
+rm -f logread.state
 kill $pid
+wait_file logread.state
 ! wait $pid
