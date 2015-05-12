@@ -12,4 +12,4 @@ wait_line testproc.log Test/1
 rm -f logread.state
 kill $pid
 wait_file logread.state
-./state.pl logread.state
+check_state logread.state '$state->{ofs}'

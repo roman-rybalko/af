@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use Data::Dumper;
 
+die "USAGE $0 <file> <condition>" unless @ARGV;
+
 my $F;
 open $F, "<", $ARGV[0] or die "Unable to open file $ARGV[0]: $!";
 my @lines = <$F>;
@@ -14,6 +16,7 @@ use strict;
 
 print "state:\n" , Dumper($state);
 
-exit 1 unless $state->{ofs} == $state->{size};
+my $cond = $ARGV[1];
+exit 1 unless eval $cond;
 
 print "state: OK\n";
