@@ -1,0 +1,53 @@
+commit c57cf90fa52ce31731cd3ffa71ee0ca6739c4687
+Author: Roman Rybalko <devel@romanr.info>
+Date:   Tue Jun 2 12:25:28 2015 +0300
+
+    recipient address for vrfy acl
+
+diff --git src/src/acl.c src/src/acl.c
+index 6e635fb..f7feacf 100644
+--- src/src/acl.c
++++ src/src/acl.c
+@@ -4319,11 +4319,7 @@ sender_verified_failed = NULL;
+ ratelimiters_cmd = NULL;
+ log_reject_target = LOG_MAIN|LOG_REJECT;
+ 
+-#ifndef DISABLE_PRDR
+-if (where == ACL_WHERE_RCPT || where == ACL_WHERE_PRDR )
+-#else
+-if (where == ACL_WHERE_RCPT )
+-#endif
++if (recipient)
+   {
+   adb = address_defaults;
+   addr = &adb;
+diff --git src/src/smtp_in.c src/src/smtp_in.c
+index dbaa328..6502578 100644
+--- src/src/smtp_in.c
++++ src/src/smtp_in.c
+@@ -4484,19 +4484,18 @@ while (done <= 0)
+ 
+     case VRFY_CMD:
+     HAD(SCH_VRFY);
+-    rc = acl_check(ACL_WHERE_VRFY, NULL, acl_smtp_vrfy, &user_msg, &log_msg);
++    /* rfc821_domains = TRUE; << no longer needed */
++    recipient = parse_extract_address(smtp_cmd_data, &errmess, &start, &end,
++      &recipient_domain, FALSE);
++    /* rfc821_domains = FALSE; << no longer needed */
++    rc = acl_check(ACL_WHERE_VRFY, recipient, acl_smtp_vrfy, &user_msg, &log_msg);
+     if (rc != OK)
+       done = smtp_handle_acl_fail(ACL_WHERE_VRFY, rc, user_msg, log_msg);
+     else
+       {
+-      uschar *address;
++      uschar *address = recipient;
+       uschar *s = NULL;
+ 
+-      /* rfc821_domains = TRUE; << no longer needed */
+-      address = parse_extract_address(smtp_cmd_data, &errmess, &start, &end,
+-        &recipient_domain, FALSE);
+-      /* rfc821_domains = FALSE; << no longer needed */
+-
+       if (address == NULL)
+         s = string_sprintf("501 %s", errmess);
+       else
