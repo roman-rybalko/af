@@ -31,6 +31,28 @@ del_ldif()
 		| ldapdel.sh
 }
 
+wait_ldif_add()
+{
+	cat $* \
+		| ldif_nl.pl \
+		| ldif_dn.pl \
+		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
+		| sed "s/1\\.2\\.3\\.4/$SRC_IP/g;s/4\\.3\\.2\\.1/$DST_IP/g;" \
+		| sed "s/1234567890/$CUR_TIME/g;s/0987654321/$YSTD_TIME/g;" \
+		| xargs -L 1 ldapwait.sh add
+}
+
+wait_ldif_del()
+{
+	cat $* \
+		| ldif_nl.pl \
+		| ldif_dn.pl \
+		| sed "s/src.hosts.advancedfiltering.net/$SRC_HOST/g;s/dst.hosts.advancedfiltering.net/$DST_HOST/g;" \
+		| sed "s/1\\.2\\.3\\.4/$SRC_IP/g;s/4\\.3\\.2\\.1/$DST_IP/g;" \
+		| sed "s/1234567890/$CUR_TIME/g;s/0987654321/$YSTD_TIME/g;" \
+		| xargs -L 1 ldapwait.sh del
+}
+
 wait_file()
 {
 	local c f

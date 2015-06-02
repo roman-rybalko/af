@@ -1,0 +1,2 @@
+* callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
+* ! flag_vrfy_result => log mbox Disable, continue
