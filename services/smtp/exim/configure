@@ -93,17 +93,13 @@ vrfy_acl:
     set acl_c_vrfy_m = ${run{/usr/local/advancedfiltering/smtp/mbxchk/logexec/logexec-cli.sh AdvancedFiltering/MailBox/Check/Callout<${address:$smtp_command_argument}>}{$value}{$value}}
     set acl_c_vrfy_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{true}{false}}}}
     set acl_c_vrfy_result_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{false}}}}
-  # * ! flag_vrfy => fail, stop
-  deny
-    ! condition = $acl_c_vrfy_f
-    message = $acl_c_vrfy_m
-  # * flag_vrfy_result => log mbox Enable, continue
+  # * flag_vrfy && flag_vrfy_result => log mbox Enable, continue # 2xx
   warn
-    condition = $acl_c_vrfy_result_f
+    condition = ${if and{{bool{$acl_c_vrfy_f}}{bool{$acl_c_vrfy_result_f}}}}
     logwrite = AdvancedFiltering/MailBox/smtp/Enable<${address:$smtp_command_argument}>
-  # * ! flag_vrfy_result => log mbox Disable, continue
+  # * flag_vrfy && ! flag_vrfy_result => log mbox Disable, continue # 5xx
   warn
-    ! condition = $acl_c_vrfy_result_f
+    condition = ${if and{{bool{$acl_c_vrfy_f}}{! bool{$acl_c_vrfy_result_f}}}}
     logwrite = AdvancedFiltering/MailBox/smtp/Disable<${address:$smtp_command_argument}>
   # * ok
   accept
@@ -776,6 +772,15 @@ service_defer_router:
   driver = redirect
   allow_defer = true
   data = :defer:
+  errors_to = error@services.advancedfiltering.net
+  redirect_router = service_router
+
+# * vrfy_defer [!flag_vrfy] {stop} -> service => error
+vrfy_defer_router:
+  condition = ${if eq{$acl_c_vrfy_f}{false}}
+  driver = redirect
+  allow_defer = true
+  data = :defer: $acl_c_vrfy_m
   errors_to = error@services.advancedfiltering.net
   redirect_router = service_router
 

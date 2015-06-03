@@ -12,6 +12,7 @@
 * service [@services] {stop} => error
 * service_defer [@services] {stop} -> service => error
 # -> service => error - для единообразия
+* vrfy_defer [!flag_vrfy] {stop} -> service => error
 * vrfy_ok [flag_vrfy && flag_vrfy_result] {stop} -> service => error
 * vrfy_fail [flag_vrfy && !flag_vrfy_result] {stop} -> service => error
 * mailproc [flag_mailproc] {stop} -> service => error

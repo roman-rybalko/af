@@ -25,12 +25,12 @@ helo
 * ok
 
 vrfy
-* ! trusted_host => fail, stop
+* ! trusted_host => fail, stop # 252
 * callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
-# ! flag_vrfy - callout не сработал
-* ! flag_vrfy => fail, stop
-* flag_vrfy_result => log mbox Enable, continue
-* ! flag_vrfy_result => log mbox Disable, continue
+# код SMTP выставляется в routers
+# ! flag_vrfy - callout не сработал # 4xx
+* flag_vrfy && flag_vrfy_result => log mbox Enable, continue # 2xx
+* flag_vrfy && ! flag_vrfy_result => log mbox Disable, continue # 5xx
 * ok
 
 mail
