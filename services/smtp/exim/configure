@@ -90,7 +90,7 @@ vrfy_acl:
     ! condition = S_TH_F
   # * callout => flag_vfry, flag_vrfy_result, msg_vrfy, continue
   warn
-    set acl_c_vrfy_m = ${run{/usr/local/advancedfiltering/smtp/mbxchk/logexec/logexec-cli.sh AdvancedFiltering/MailBox/Check/Callout<$local_part@$domain>}{$value}{$value}}
+    set acl_c_vrfy_m = ${run{/usr/local/advancedfiltering/smtp/mbxchk/logexec/logexec-cli.sh AdvancedFiltering/MailBox/Check/Callout<${address:$smtp_command_argument}>}{$value}{$value}}
     set acl_c_vrfy_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{true}{false}}}}
     set acl_c_vrfy_result_f = ${if eq{0}{$runrc}{true}{${if eq{1}{$runrc}{false}}}}
   # * ! flag_vrfy => fail, stop
@@ -100,11 +100,11 @@ vrfy_acl:
   # * flag_vrfy_result => log mbox Enable, continue
   warn
     condition = $acl_c_vrfy_result_f
-    logwrite = AdvancedFiltering/MailBox/smtp/Enable<$local_part@$domain>
+    logwrite = AdvancedFiltering/MailBox/smtp/Enable<${address:$smtp_command_argument}>
   # * ! flag_vrfy_result => log mbox Disable, continue
   warn
     ! condition = $acl_c_vrfy_result_f
-    logwrite = AdvancedFiltering/MailBox/smtp/Disable<$local_part@$domain>
+    logwrite = AdvancedFiltering/MailBox/smtp/Disable<${address:$smtp_command_argument}>
   # * ok
   accept
 
