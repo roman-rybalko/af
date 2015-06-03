@@ -1,4 +1,3 @@
-* доработать AFsmtp - на 252 возвращать FATAL
 * доработать семантику expired/nombxchk в smtp
 * проверка дубликатов в smtp
 * проверка DMARC в smtp
