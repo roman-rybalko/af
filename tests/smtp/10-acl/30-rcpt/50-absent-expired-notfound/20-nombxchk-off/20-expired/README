@@ -1,0 +1,1 @@
+* !user_nombxchk && (flag_notfound || flag_expired) => 4xx !U:NMBC[,NF][,E]/ (Your data is verifying, please try again later), log, stop

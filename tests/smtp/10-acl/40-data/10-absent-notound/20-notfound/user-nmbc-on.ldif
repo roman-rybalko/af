@@ -1,0 +1,8 @@
+
+dn: afUSMTPDomainName=test.com,afUClientName=cli1,afUServiceRealm=r1+afUServiceName=smtp,ou=user,o=advancedfiltering
+changetype: modify
+add: objectClass
+objectClass: afUSMTPSettings
+-
+add: afUSMTPNoMailBoxCheck
+afUSMTPNoMailBoxCheck: TRUE

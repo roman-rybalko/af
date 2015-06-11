@@ -1,0 +1,1 @@
+* user_nombxchk && (flag_absent || flag_notfound) && !sys_spamtrap => 5xx U:NMBC[,A][,NF],!S:ST/ (Mail box does not exist), stop
