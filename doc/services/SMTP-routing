@@ -18,7 +18,7 @@
 * mailproc [flag_mailproc] {stop} -> service => error
 * hamtrap [flag_hamtrap && sys_hamtrap] {continue} -> service => error
 * spamtrap [flag_spamtrap && sys_spamtrap] {continue} -> service => error
-* absent :blackhole: [flag_mb_absent] {stop} => error
+* absent :blackhole: [flag_absent || flag_notfound] {stop} => error
 * spam :blackhole: [flag_spam && !user_spt] {stop} => error
 * spamaddress_rcpt [flag_spam] {stop} -> submission => error
 * spamaddress_domain [flag_spam] {stop} -> submission => error

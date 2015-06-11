@@ -312,7 +312,7 @@ bwl_rcpt_acl:
   deny
 
 # User SMTP MailBox Data
-U_SMTP_MB_D = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?objectClass,afUSMTPDMBIsAbsent?base?(afUSMTPDMBTimeUpdated>=S_MBCT_D)}}
+U_SMTP_MB_D = ${lookup ldap{LDAP_C/U_SMTP_R_C_D_MB_LDAP_DN?afUSMTPDMBIsAbsent,afUSMTPDMBTimeUpdated?base}}
 
 rcpt_acl:
   # * recipients_count > 0 => 4xx RC/ (Mail box is temporarily unavailable, please try again later)
@@ -353,39 +353,50 @@ rcpt_acl:
     acl = conf_rcpt_acl
     set acl_m_u_nombxchk_f = $acl_m_u_conf_value
 
-  # * проверка адреса получателя в afMailBox (с учетом MailBox Timeout)
+  # * вычисление flag_absent, flag_expired, flag_notfound
   warn
-    set acl_m_mb_absent_f = false
-  # ** afIsAbsent && sys_spamtrap => 2xx MB:A,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop
+    set acl_m_absent_f = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}}
+    set acl_m_expired_f = ${if <{${extract {afUSMTPDMBTimeUpdated}{U_SMTP_MB_D}{$value}{$tod_epoch}}}{S_MBCT_D}{true}{false}}
+    set acl_m_notfound_f = ${extract {afUSMTPDMBTimeUpdated}{U_SMTP_MB_D}{false}{true}}
+
+  # * user_nombxchk && (flag_absent || flag_notfound) && sys_spamtrap => 2xx U:NMBC[,A][,NF],S:ST/ST (Mail box does not exist), flag_spamtrap, stop
   accept
-    condition = $acl_c_s_st_f
-    condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
-    set acl_m_mb_absent_f = true
-    message = MB:A,S:ST/MBA (Mail box does not exist)
-  # ** afIsAbsent => 5xx MB:A/ (Mail box does not exist), stop
-  deny
-    condition = ${extract {afUSMTPDMBIsAbsent}{U_SMTP_MB_D}{true}{false}}
-    message = MB:A/ (Mail box does not exist)
-  # ** (expired || not_found) && user_nombxchk && sys_spamtrap => 2xx MB:(E|NF),U:MBC,S:ST/MBA (Mail box does not exist), flag_mb_absent, stop
-  accept
-    condition = $acl_c_s_st_f
     condition = $acl_m_u_nombxchk_f
-    # existing
-    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
-    set acl_m_mb_absent_f = true
-    message = MB:(E|NF),U:MBC,S:ST/MBA (Mail box does not exist)
-  # ** (expired || not_found) && user_nombxchk => 5xx MB:(E|NF),U:MBC/ (Mail box does not exist), stop
+    condition = ${if or{{bool{$acl_m_absent_f}}{bool{$acl_m_notfound_f}}}}
+    condition = $acl_c_s_st_f
+    message = U:NMBC${if bool{$acl_m_absent_f}{,A}{}}${if bool{$acl_m_notfound_f}{,NF}{}},S:ST/ST (Mail box does not exist)
+    set acl_m_spamtrap_f = true
+
+  # * user_nombxchk && (flag_absent || flag_notfound) && !sys_spamtrap => 5xx U:NMBC[,A][,NF],!S:ST/ (Mail box does not exist), stop
   deny
     condition = $acl_m_u_nombxchk_f
-    # existing
-    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
-    message = MB:(E|NF),U:MBC/ (Mail box does not exist)
-  # ** expired || not_found => 4xx MB:(E|NF)/ (Your data is verifying, please try again later), log, stop
+    condition = ${if or{{bool{$acl_m_absent_f}}{bool{$acl_m_notfound_f}}}}
+    ! condition = $acl_c_s_st_f
+    message = U:NMBC${if bool{$acl_m_absent_f}{,A}{}}${if bool{$acl_m_notfound_f}{,NF}{}},!S:ST/ (Mail box does not exist)
+
+  # * !user_nombxchk && (flag_notfound || flag_expired) => 4xx !U:NMBC[,NF][,E]/ (Your data is verifying, please try again later), log, stop
   defer
-    # existing
-    ! condition = ${extract {objectClass}{U_SMTP_MB_D}{true}{false}}
-    message = MB:(E|NF)/ (Your data is verifying, please try again later)
+    ! condition = $acl_m_u_nombxchk_f
+    condition = ${if or{{bool{$acl_m_notfound_f}}{bool{$acl_m_expired_f}}}}
+    message = !U:NMBC${if bool{$acl_m_notfound_f}{,NF}{}}${if bool{$acl_m_expired_f}{,E}{}}/ (Your data is verifying, please try again later)
     logwrite = AdvancedFiltering/MailBox/Check/Callout<$local_part@$acl_m_u_domain> ? AdvancedFiltering/MailBox/smtp/Enable<$local_part@$acl_m_u_domain> : AdvancedFiltering/MailBox/smtp/Disable<$local_part@$acl_m_u_domain>
+
+  # * !user_nombxchk && !(flag_notfound || flag_expired) && flag_absent && sys_spamtrap => 2xx !U:NMBC,!(NF|E),A,S:ST/ST (Mail box does not exist), flag_spamtrap, stop
+  accept
+    ! condition = $acl_m_u_nombxchk_f
+    ! condition = ${if or{{bool{$acl_m_notfound_f}}{bool{$acl_m_expired_f}}}}
+    condition = $acl_m_absent_f
+    condition = $acl_c_s_st_f
+    message = !U:NMBC,!(NF|E),A,S:ST/ST (Mail box does not exist)
+    set acl_m_spamtrap_f = true
+
+  # * !user_nombxchk && !(flag_notfound || flag_expired) && flag_absent && !sys_spamtrap => 5xx !U:NMBC,!(NF|E),A,!S:ST/ (Mail box does not exist), stop
+  deny
+    ! condition = $acl_m_u_nombxchk_f
+    ! condition = ${if or{{bool{$acl_m_notfound_f}}{bool{$acl_m_expired_f}}}}
+    condition = $acl_m_absent_f
+    ! condition = $acl_c_s_st_f
+    message = !U:NMBC,!(NF|E),A,!S:ST/ (Mail box does not exist)
 
   # * получение пользовательской настройки user_spt (Spam PassThrough)
   warn
@@ -565,11 +576,10 @@ U_SDB_MO_sender_L = ${map{U_MO_L}{${lookup ldap{LDAP_C/afUSMTPMessageId=${quote_
 # проверится до вызова data_acl
 
 data_acl:
-  # * flag_mb_absent => fake/5xx MBA/ST (Mail box does not exist) id=..., stop, flag_spamtrap
+  # * flag_absent || flag_notfound => fake/5xx A|NF/ (Mail box does not exist) id=..., stop
   accept
-    condition = $acl_m_mb_absent_f
-    set acl_m_spamtrap_f = true
-    control = fakereject/MBA/ST (Mail box does not exist) id=$message_exim_id
+    condition = ${if or{{bool{$acl_m_absent_f}}{bool{$acl_m_notfound_f}}}}
+    control = fakereject/A|NF/ (Mail box does not exist) id=$message_exim_id
 
   # * проверка MessageData-Smtp-ViaRecipients (message_loop_detector.pl) => 5xx MD:VR/ (Message loop detected: stdout)
   deny
@@ -832,9 +842,9 @@ spamtrap_router:
   redirect_router = service_router
   unseen = true
 
-# * absent :blackhole: [flag_mb_absent] {stop} => error
+# * absent :blackhole: [flag_absent || flag_notfound] {stop} => error
 absent_router:
-  condition = $acl_m_mb_absent_f
+  condition = ${if or{{bool{$acl_m_absent_f}}{bool{$acl_m_notfound_f}}}}
   driver = redirect
   data = :blackhole:
   errors_to = error@services.advancedfiltering.net

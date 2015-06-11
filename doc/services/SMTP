@@ -152,3 +152,16 @@ submission вызывает VRFY на smtp т.к. на submission нет нуж�
 Даже не важно, как именно был добавлен этот адрес: из submission или до включения nombxchk.
 + Решение:
 Дату обновления адреса проверять только при отсутствии опции nombxchk.
+Есть флаги: absent, expired, notfound, spamtrap, nombxchk
+1. nombxchk
+1.1. absent || notfound
+1.1.1. spamtrap => 2xx, flag_spamtrap
+1.1.2. !spamtrap => 5xx
+1.2. !(absent || notfound) => continue (ящик существует, проверяем настройки)
+2. !nombxchk
+2.1. notfound || expired => 4xx
+2.2. !(notfound || expired)
+2.2.1. absent
+2.2.1.1. spamtrap => 2xx, flag_spamtrap
+2.2.1.2. !spamtrap => 5xx
+2.2.2. !absent => continue (ящик существует, проверяем настройки)
