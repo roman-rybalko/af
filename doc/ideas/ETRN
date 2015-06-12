@@ -1,3 +1,0 @@
-ETRN реализовать на сервисе smtp, разрешить только для сервисов submission и console
-ETRN на submission проверяет клиента и вызывает ETRN на всех серверах сервиса smtp
-console вызывает ETRN на всех серверах сервиса smtp

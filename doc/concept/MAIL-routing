@@ -1,5 +1,0 @@
-internet -> smtp -> submission
-smtp -> user mx -> submission
-submission -> internet
-submisison -> out mx
-submission -> spamsender
