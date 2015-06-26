@@ -1005,10 +1005,13 @@ backup_end_router:
   driver = redirect
   data = ""
 
+# a key for BATV service, should be in LDAP
+BATV_KEY = jkqhejkqhwejkqwhekaskdiu
+
 # * redirect_rcpt {stop} -> submission => error
 R_LDAP_DN == R_CDM_LDAP_DN
-R_CS_D == $local_part@$domain
 # the same for all redirect_ routers
+R_CS_D == ${str2b64:sender=$sender_address recipient=$local_part@$domain signature=${hmac{md5}{BATV_KEY}{$sender_address$local_part@$domain}}}@batv.R_C_REALM.realms.advancedfiltering.net
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 redirect_rcpt_router:
   # prevent address_data update
@@ -1021,8 +1024,8 @@ redirect_rcpt_router:
 
 # * redirect_domain {stop} -> submission => error
 R_LDAP_DN == R_CD_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPDomainTechMailAddress?base}}
 # the same for all redirect_ routers
+R_CS_D == ${str2b64:sender=$sender_address recipient=$local_part@$domain signature=${hmac{md5}{BATV_KEY}{$sender_address$local_part@$domain}}}@batv.R_C_REALM.realms.advancedfiltering.net
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 redirect_domain_router:
   # prevent address_data update
@@ -1035,8 +1038,8 @@ redirect_domain_router:
 
 # * redirect_client {stop} -> submission => error
 R_LDAP_DN == R_C_LDAP_DN
-R_CS_D == ${lookup ldap{LDAP_C/R_LDAP_DN?afUClientTechMailAddress?base}}
 # the same for all redirect_ routers
+R_CS_D == ${str2b64:sender=$sender_address recipient=$local_part@$domain signature=${hmac{md5}{BATV_KEY}{$sender_address$local_part@$domain}}}@batv.R_C_REALM.realms.advancedfiltering.net
 R_CT_Lc == ${lookup ldap{LDAP_C/R_LDAP_DN?afUSMTPRedirectMailAddress?base}}
 redirect_client_router:
   # prevent address_data update
