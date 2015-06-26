@@ -588,11 +588,10 @@ data_acl:
     condition = ${run{/usr/local/advancedfiltering/smtp/exim/message_loop_detector.pl $bheader_X-AdvancedFiltering-MessageData-Smtp-ViaRecipients: $acl_m_u_recipient}{true}{false}}
     message = MD:VR/ (Message loop detected: $value)
 
-  # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop, log (smtpdb)
+  # * flag_user_wl => 2xx U:WL/ ($msg_user_wbl) id=..., stop
   accept
     condition = $acl_m_u_wl_f
     message = U:WL/ ($acl_m_u_bwl_m) id=$message_exim_id
-    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address>
 
   # * flag_user_bl => 5xx U:BL/ ($msg_user_wbl) id=..., stop
   deny
@@ -605,20 +604,22 @@ data_acl:
     message = S:WL/ ($acl_c_s_bwl_m) id=$message_exim_id
     logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address>
 
-  # * flag_sys_bl && user_spt => 2xx S:BL,U:SPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+  # * flag_sys_bl && user_spt => 2xx S:BL,U:SPT/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam, log (smtpdb,$msg_sys_wbl)
   accept
     condition = $acl_c_s_bl_f
     condition = $acl_m_u_spt_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
     message = S:BL,U:SPT/ST,S ($acl_c_s_bwl_m) id=$message_exim_id
+    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address><$acl_c_s_bwl_m>
 
-  # * flag_sys_bl => fake/5xx S:BL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam
+  # * flag_sys_bl => fake/5xx S:BL/ST,S ($msg_sys_wbl) id=..., stop, flag_spamtrap, flag_spam, log (smtpdb,$msg_sys_wbl)
   accept
     condition = $acl_c_s_bl_f
     set acl_m_spamtrap_f = true
     set acl_m_spam_f = true
     control = fakereject/S:BL/ST,S ($acl_c_s_bwl_m) id=$message_exim_id
+    logwrite = AdvancedFiltering/MessageID/smtpdb/Add<$acl_m_u_realm><U_MI_D><$sender_address><$acl_c_s_bwl_m>
 
   # * flag_spf && user_spt => 2xx SPF,U:SPT/ST,S (SPF: ...) id=..., stop, flag_spamtrap, flag_spam
   accept
