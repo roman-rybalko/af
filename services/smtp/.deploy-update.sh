@@ -8,12 +8,13 @@ rm -vf etc/rc.d/*
 cp -vf ../advancedfiltering_smtp_exim etc/rc.d/
 
 chmod -Rv u+w advancedfiltering/smtp/exim
-cp -vf ../exim/configure advancedfiltering/smtp/exim/
+rm -vf advancedfiltering/smtp/exim/*.conf
+cp -vf ../exim/*.conf advancedfiltering/smtp/exim/
 cp -vf ../../exim/scripts/message_loop_detector.pl \
 	../../exim/scripts/mid_list_encoder.pl ../../exim/scripts/base64_decoder.pl \
 	../../exim/scripts/dmarc_verifier.pl ../../exim/scripts/dmarc_verifier_*.dat \
 	advancedfiltering/smtp/exim/
-chmod a-w etc/rc.d/advancedfiltering_smtp_exim advancedfiltering/smtp/exim/configure \
+chmod a-w etc/rc.d/advancedfiltering_smtp_exim advancedfiltering/smtp/exim/*.conf \
 	advancedfiltering/smtp/exim/message_loop_detector.pl \
 	advancedfiltering/smtp/exim/mid_list_encoder.pl advancedfiltering/smtp/exim/base64_decoder.pl \
 	advancedfiltering/smtp/exim/dmarc_verifier.pl advancedfiltering/smtp/exim/dmarc_verifier_*.dat \
