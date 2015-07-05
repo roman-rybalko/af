@@ -21,7 +21,7 @@ sub parse_opts
 			"\t-C cert\t\tLDAP STARTTLS certificate file\n",
 			"\t-K key\t\tLDAP STARTTLS key file\n",
 			"\t-A ca\t\tLDAP STARTTLS CA path\n",
-			"\t-n hostname\tHostname the setup for\n",
+			"\t-n hostname\tHostname the setup is for\n",
 			"\t-s data\tSyncRepl data"
 			. " (binddn= bindmethod= credentials="
 			. " tls_cert= tls_key= tls_cacertdir= tls_reqcert= tls_crlcheck="
@@ -113,12 +113,12 @@ sub get_need_repl_data
 		base => "afSHostName=$opts{n},ou=system,o=advancedfiltering",
 		scope => 'base',
 		filter => '(objectClass=*)',
-		attrs => ['afSHostRealm','afSHDBSyncServiceName'],
+		attrs => ['afSHostRealm','afSHostDataBaseName'],
 	);
 	die 'get_need_repl_data: ' . $ldap_msg->error_text if $ldap_msg->is_error;
 	my $realms = ($ldap_msg->entries)[0]->get_value('afSHostRealm', asref => 1);
 	die "get_need_repl_data: no realms found for $opts{n}" unless $realms;
-	my $services = ($ldap_msg->entries)[0]->get_value('afSHDBSyncServiceName', asref => 1);
+	my $services = ($ldap_msg->entries)[0]->get_value('afSHostDataBaseName', asref => 1);
 	die "get_need_repl_data: no services found for $opts{n}" unless $services;
 	my $result = [];
 	for my $realm (@$realms)
@@ -128,7 +128,7 @@ sub get_need_repl_data
 			$ldap_msg = $ldap->search(
 				base => 'ou=system,o=advancedfiltering',
 				scope => 'sub',
-				filter => "(&(objectClass=afSHost)(afSHostRealm=$realm)(afSHDBSyncServiceName=$service))",
+				filter => "(&(objectClass=afSHost)(afSHostRealm=$realm)(afSHostDataBaseName=$service))",
 				attrs => ['afSHostName'],
 			);
 			die "get_need_repl_data[realm=$realm,service=$service]: " . $ldap_msg->error_text if $ldap_msg->is_error;

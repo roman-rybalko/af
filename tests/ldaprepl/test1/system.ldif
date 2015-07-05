@@ -3,7 +3,7 @@ dn: afSHostName=dst.hosts.advancedfiltering.net,ou=system,o=advancedfilterin
  g
 afshostname: dst.hosts.advancedfiltering.net
 afshostrealm: r1
-afSHDBSyncServiceName: s1
+afSHostDataBaseName: s1
 objectclass: afSHost
 objectclass: top
 
@@ -11,7 +11,7 @@ dn: afSHostName=test1,ou=system,o=advancedfilterin
  g
 afshostname: test1
 afshostrealm: roff
-afSHDBSyncServiceName: s1
+afSHostDataBaseName: s1
 objectclass: afSHost
 objectclass: top
 
@@ -19,7 +19,7 @@ dn: afSHostName=test2,ou=system,o=advancedfilterin
  g
 afshostname: test2
 afshostrealm: roff
-afSHDBSyncServiceName: s1
+afSHostDataBaseName: s1
 objectclass: afSHost
 objectclass: top
 
@@ -27,7 +27,7 @@ dn: afSHostName=test3,ou=system,o=advancedfilterin
  g
 afshostname: test3
 afshostrealm: roff
-afSHDBSyncServiceName: s1
+afSHostDataBaseName: s1
 objectclass: afSHost
 objectclass: top
 
