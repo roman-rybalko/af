@@ -136,13 +136,19 @@ sub get_mime_id
 	my $mime = shift;
 	my $hdr = $mime->get_pristine_header("message-id");
 	return undef unless $hdr;
+	$hdr =~ s/>[^<>]*</ /g;
+	$hdr =~ s/^[^<]*</ /;
+	$hdr =~ s/>[^>]*$/ /;
 	$hdr =~ s/^\s+//;
 	$hdr =~ s/\s+$//;
-	$hdr =~ s/^[^<]*<//;
-	$hdr =~ s/>[^>]*$//;
-	$hdr = encode_base64($hdr, '');
-	$hdr =~ tr~/\+=~\.\-_~;
-	return $hdr;
+	my @mid_list = split(/\s+/, $hdr);
+	return undef unless @mid_list;
+	foreach (@mid_list)
+	{
+		$_ = encode_base64($_, '');
+		tr~/\+=~\.\-_~;
+	}
+	return join(":", @mid_list);
 }
 
 sub get_mime_creds

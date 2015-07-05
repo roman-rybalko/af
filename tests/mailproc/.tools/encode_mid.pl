@@ -15,18 +15,25 @@ if (open $F, "<", $file)
 	my $mime = $sa->parse($F);
 	my $hdr = $mime->get_pristine_header("message-id");
 	die "No Message-Id header" unless $hdr;
+	$hdr =~ s/>[^<>]*</ /g;
+	$hdr =~ s/^[^<]*</ /;
+	$hdr =~ s/>[^>]*$/ /;
 	$hdr =~ s/^\s+//;
 	$hdr =~ s/\s+$//;
-	$hdr =~ s/^[^<]*<//;
-	$hdr =~ s/>[^>]*$//;
-	$mid = $hdr;
+	my @mid_list = split(/\s+/, $hdr);
+	die "Empty Message-Id header" unless @mid_list;
+	foreach (@mid_list)
+	{
+		$_ = encode_base64($_, '');
+		tr~/\+=~\.\-_~;
+	}
+	$mid = join(":", @mid_list);
 }
 else
 {
 	$mid = $file;
+	$mid = encode_base64($mid, '');
+	$mid =~ tr~/\+=~\.\-_~;
 }
-
-$mid = encode_base64($mid, '');
-$mid =~ tr~/\+=~\.\-_~;
 
 print "$mid\n";
