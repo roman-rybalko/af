@@ -9,8 +9,8 @@ cp -vf ../advancedfiltering_smtp_exim etc/rc.d/
 
 chmod -Rv u+w advancedfiltering/smtp/exim
 rm -vf advancedfiltering/smtp/exim/*.conf
-cp -vf ../exim/*.conf advancedfiltering/smtp/exim/
-cp -vf ../../exim/scripts/message_loop_detector.pl \
+cp -vfL ../exim/*.conf advancedfiltering/smtp/exim/
+cp -vfL ../../exim/scripts/message_loop_detector.pl \
 	../../exim/scripts/mid_list_encoder.pl ../../exim/scripts/base64_decoder.pl \
 	../../exim/scripts/dmarc_verifier.pl ../../exim/scripts/dmarc_verifier_*.dat \
 	advancedfiltering/smtp/exim/
@@ -22,14 +22,14 @@ chmod a-w etc/rc.d/advancedfiltering_smtp_exim advancedfiltering/smtp/exim/*.con
 
 chmod -Rv u+w advancedfiltering/smtp/mbxchk/logread
 rm -Rvf advancedfiltering/smtp/mbxchk/logread/*
-cp -Rvf ../../logread/* advancedfiltering/smtp/mbxchk/logread/
-cp -Rvf ../mbxchk/logread/* advancedfiltering/smtp/mbxchk/logread/
+cp -RvfL ../../logread/* advancedfiltering/smtp/mbxchk/logread/
+cp -RvfL ../mbxchk/logread/* advancedfiltering/smtp/mbxchk/logread/
 chmod -Rv a-w advancedfiltering/smtp/mbxchk/logread
 
 chmod -Rv u+w advancedfiltering/smtp/mbxchk/logexec
 rm -Rvf advancedfiltering/smtp/mbxchk/logexec/*
-cp -Rvf ../../logexec/* advancedfiltering/smtp/mbxchk/logexec/
-cp -Rvf ../mbxchk/logexec/* advancedfiltering/smtp/mbxchk/logexec/
+cp -RvfL ../../logexec/* advancedfiltering/smtp/mbxchk/logexec/
+cp -RvfL ../mbxchk/logexec/* advancedfiltering/smtp/mbxchk/logexec/
 chmod -Rv a-w advancedfiltering/smtp/mbxchk/logexec
 
 tar -zcvf ../../../deploy/tasks/315_smtp_exim/smtp.tgz etc/rc.d/* advancedfiltering/smtp/.??* advancedfiltering/smtp/*
